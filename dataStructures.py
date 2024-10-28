@@ -1,17 +1,23 @@
 '''
 Data structures used for calls throughout the project.
-The data represented in this project should be immutable and only referenced.
-Calls should generally only be made during game loop if imported directly.
+The data represented in this project should be immutable and only referenced once game-loop begins.
+Calls made in game-loop should generally only be made if imported directly, outside of game-loop they can just be called.
 '''
 
+GAME_STATE = {
+    'menu':     0,
+    'settings': 1,
+    'p1_game':  2
+}
+
 COLOR = { # Defines colors
-        'red':   (200, 0, 25),
-        'green': (0, 200, 25),
-        'blue':  (0, 25, 200),
-        'white': (200, 200, 250),
-        'black': (10, 10, 30 ),
-        'grey':  (100, 100, 140)
-        }
+    'red':   (200, 0, 25),
+    'green': (0, 200, 25),
+    'blue':  (0, 25, 200),
+    'white': (200, 200, 250),
+    'black': (10, 10, 30 ),
+    'grey':  (100, 100, 140)
+    }
 
 SCREEN_SIZE = { # Defines possible screen resolutions
     '1920x1080': (1920, 1080),
