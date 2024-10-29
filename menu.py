@@ -39,15 +39,6 @@ def menu(window, clock, window_size):
                     if game_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
                     if settings_button.clicked(mouse_position): return ds.GAME_STATE['settings']
 
-        '''
-        # Load sound
-        click_sound = pygame.mixer.Sound('click.wav')
-
-        # Play sound on click
-        if start_button.is_clicked(mouse_pos):
-            click_sound.play()
-            return GAME
-        '''
 
         # Render order
         window.fill(ds.COLOR['black'])
