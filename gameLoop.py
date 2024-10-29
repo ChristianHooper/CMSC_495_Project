@@ -4,7 +4,7 @@ from dataStructures import COLOR
 import numpy as np
 
 
-def one_player(window, clock, window_size):
+def one_player(window, clock, window_size): # Defines render aspects for a single player tetris session
 
     aspect_ratio = ds.ASPECT # Defines aspect ratio for tetris frame render
     running = True # Runs game-loop if true
@@ -27,6 +27,7 @@ def one_player(window, clock, window_size):
 
     print("Grid Points: ", grid_surface)
 
+    # ///////////////////////////////////////////[Game-Loop]///////////////////////////////////////////
     while running:
 
         for event in pg.event.get(): # Exiting condition
@@ -35,17 +36,13 @@ def one_player(window, clock, window_size):
 
         window.fill(COLOR['black']) # Game widow fill
         tetris_surface.fill(COLOR['white']) # Tetris frame fill
-        #print("[]")
-
-
-
 
         # Draw grid, rows then columns
         for line_row in grid_surface[0]: pg.draw.aaline(tetris_surface, COLOR['grey'], (0, line_row), (tetris_surface_size[0], line_row))
         for line_col in grid_surface[1]: pg.draw.aaline(tetris_surface, COLOR['grey'], (line_col, 0), (line_col, tetris_surface_size[1]))
 
         window.blit(tetris_surface, (tetris_boarder, tetris_boarder)) # Imposes tetris game surface on window (x, y)
-        pg.display.flip() # Swaps buffer for rendering
+        pg.display.flip() # Swaps buffer for rendering (Updates contents of display)
 
 
         dt = clock.tick(ds.ANIMATION_SPEED['default']) # Pauses game-loop to hold 60 FPS at default

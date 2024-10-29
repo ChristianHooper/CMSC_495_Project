@@ -1,13 +1,17 @@
+import pygame as pg
+pg.init()
+
 '''
 Data structures used for calls throughout the project.
-The data represented in this project should be immutable and only referenced once game-loop begins.
-Calls made in game-loop should generally only be made if imported directly, outside of game-loop they can just be called.
+The data represented in this project should be immutable and only referenced.
+Calls made in game-loop should generally only be made if imported directly.
+Calls outside of game-loop can reference imported file object.
 '''
 
 GAME_STATE = {
-    'menu':     0,
-    'settings': 1,
-    'p1_game':  2
+    'menu':     0, # Main menu
+    'settings': 1, # User define setting menu
+    'p1_game':  2 # Single player tetris
 }
 
 COLOR = { # Defines colors
@@ -31,6 +35,10 @@ SCREEN_SIZE = { # Defines possible screen resolutions
     '2560x1440': (2560, 1440),
     '3840x2160': (3840, 2160),
     }
+
+FONTS = { # Fonts with sizes
+    'default_large': pg.font.Font(None, 64)
+}
 
 ANIMATION_SPEED = { # Game FPS cap
     'default': 60,

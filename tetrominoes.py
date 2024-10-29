@@ -1,10 +1,16 @@
 import numpy as np
 
-'''
-Tetris block pieces
-'''
+
 
 class tetrominoes:
+    '''
+    Tetris block pieces.
+
+    ----------
+    Attributes
+    ----------
+    '''
+
     def __init__():
         self.shape # Shape of tetrominoes
         self.origin # The point of origin while flipping
