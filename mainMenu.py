@@ -2,7 +2,7 @@ import pygame as pg
 import dataStructures as ds
 from button import Button
 
-def menu(window, clock, window_size):
+def main_menu(window, clock, window_size):
 
     running_menu = True
     large_font = ds.FONTS['default_large'] # File path to custom font: if possible add later (https://www.dafont.com/)
@@ -10,11 +10,11 @@ def menu(window, clock, window_size):
     title_position = title_text.get_rect(center=(window_size[0]/2, window_size[1]/10)) # Position of where text will render
 
     game_button = Button( # Defines button that starts single player tetris game
-                    position=(window_size[0]/2, window_size[1]/3),
+                    position=(window_size[0]/2, window_size[1]/3), # (x, y)
                     button_color=ds.COLOR['green'],
                     text_color=ds.COLOR['red'],
                     font=large_font,
-                    text='Start Game',
+                    text='Start Game', # Text
                     hover_color=ds.COLOR['white'],
                     )
 
@@ -23,9 +23,27 @@ def menu(window, clock, window_size):
                 button_color=ds.COLOR['green'],
                 text_color=ds.COLOR['red'],
                 font=large_font,
-                text='Settings',
+                text='Settings', # Text
                 hover_color=ds.COLOR['white'],
                 )
+
+    tutorial_button = Button( # Defines button that navigates to tutorial
+            position=(window_size[0]/2, window_size[1]/1.5),
+            button_color=ds.COLOR['green'],
+            text_color=ds.COLOR['red'],
+            font=large_font,
+            text='Tutorial', # Text
+            hover_color=ds.COLOR['white'],
+            )
+
+    exit_button = Button( # Defines button exit button
+            position=(window_size[0]/2, window_size[1]/1.2),
+            button_color=ds.COLOR['green'],
+            text_color=ds.COLOR['red'],
+            font=large_font,
+            text='Exit', # Text
+            hover_color=ds.COLOR['white'],
+            )
 
     while running_menu:
         for event in pg.event.get():
@@ -38,6 +56,8 @@ def menu(window, clock, window_size):
                     mouse_position = pg.mouse.get_pos()
                     if game_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
                     if settings_button.clicked(mouse_position): return ds.GAME_STATE['settings']
+                    if tutorial_button.clicked(mouse_position): return ds.GAME_STATE['tutorial']
+                    if exit_button.clicked(mouse_position): return None
 
 
         # Render order
@@ -45,4 +65,6 @@ def menu(window, clock, window_size):
         window.blit(title_text, title_position)
         game_button.render(window)
         settings_button.render(window)
+        tutorial_button.render(window)
+        exit_button.render(window)
         pg.display.flip()

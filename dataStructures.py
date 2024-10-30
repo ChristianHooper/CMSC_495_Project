@@ -11,7 +11,8 @@ Calls outside of game-loop can reference imported file object.
 GAME_STATE = {
     'menu':     0, # Main menu
     'settings': 1, # User define setting menu
-    'p1_game':  2 # Single player tetris
+    'p1_game':  2, # Single player tetris
+    'tutorial': 3  # Tutorial screen
 }
 
 COLOR = { # Defines colors
@@ -40,7 +41,7 @@ FONTS = { # Fonts with sizes
     'default_large': pg.font.Font(None, 64)
 }
 
-ANIMATION_SPEED = { # Game FPS cap
+FPS_CAP = { # Game FPS cap
     'default': 60,
     }
 

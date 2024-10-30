@@ -1,0 +1,13 @@
+{
+    "screen_size": "1024x768",
+    "fps_cap": 60,
+    "grid_size": 12,
+    "aspect_ratio": 2,
+    "scores": {
+        "first": 0,
+        "second": 0,
+        "third": 0,
+        "fourth": 0,
+        "fifth": 0
+    }
+}

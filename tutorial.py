@@ -2,7 +2,7 @@ import pygame as pg
 import dataStructures as ds
 from button import Button
 
-def settings(window, clock, window_size):
+def tutorial(window, clock, window_size):
 
     running_menu = True # Set running loop for main menu
     large_font = ds.FONTS['default_large'] # Sets default font for menu
