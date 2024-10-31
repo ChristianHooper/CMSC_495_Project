@@ -1,8 +1,20 @@
+from settingsController import settings_conduit as sc
 import pygame as pg
 import dataStructures as ds
 from button import Button
 
 def main_menu(window, clock, window_size):
+
+   # y = int((window_size[1]/ sc['grid_size']))
+   #x = int(window_size[0]/(window_size[0]/ sc['grid_size']))
+
+    '''
+    Grid placement is a test, will be located in grid_controller,py soon
+    '''
+    # Grid layout over entire screen, used for placing GUI elements [[all x-axis], [all y-axis]]
+    grid_y = [row_n * (window_size[1]/ sc['grid_size']) for row_n in range(sc['grid_size'])] # y-axis
+    grid_x = [col_n * (window_size[1]/ sc['grid_size']) for col_n in range(int(window_size[0]/(window_size[1]/sc['grid_size']))+1)] # x-axis
+
 
     running_menu = True
     large_font = ds.FONTS['default_large'] # File path to custom font: if possible add later (https://www.dafont.com/)
@@ -67,4 +79,8 @@ def main_menu(window, clock, window_size):
         settings_button.render(window)
         tutorial_button.render(window)
         exit_button.render(window)
+        for row_n in range(len(grid_y)): # Grid controller test
+            for col_n in range(len(grid_x)):
+                pg.draw.circle(window, ds.COLOR['red'],[grid_x[col_n], grid_y[row_n]], 1)
+
         pg.display.flip()

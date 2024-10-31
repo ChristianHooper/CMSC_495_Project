@@ -1,4 +1,6 @@
+from settingsController import settings_conduit as sc
 import pygame as pg
+import numpy as np
 pg.init()
 
 '''
@@ -48,3 +50,4 @@ FPS_CAP = { # Game FPS cap
 GRID_SIZE = (8, 10, 12, 16, 20, 24, 32) # Grid sizes for tetris surface
 
 ASPECT = 2 # Aspect ratio of tetris frame render
+
