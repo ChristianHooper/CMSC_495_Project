@@ -1,28 +1,19 @@
 from settingsController import settings_conduit as sc
+import guiController as gui
 import pygame as pg
 import dataStructures as ds
 from button import Button
 
 def main_menu(window, clock, window_size):
 
-   # y = int((window_size[1]/ sc['grid_size']))
-   #x = int(window_size[0]/(window_size[0]/ sc['grid_size']))
-
-    '''
-    Grid placement is a test, will be located in grid_controller,py soon
-    '''
-    # Grid layout over entire screen, used for placing GUI elements [[all x-axis], [all y-axis]]
-    grid_y = [row_n * (window_size[1]/ sc['grid_size']) for row_n in range(sc['grid_size'])] # y-axis
-    grid_x = [col_n * (window_size[1]/ sc['grid_size']) for col_n in range(int(window_size[0]/(window_size[1]/sc['grid_size']))+1)] # x-axis
-
-
+    print(gui.grid[16][5])
     running_menu = True
     large_font = ds.FONTS['default_large'] # File path to custom font: if possible add later (https://www.dafont.com/)
     title_text = large_font.render('G5-Tetris', True, ds.COLOR['white']) # Title text attributes
-    title_position = title_text.get_rect(center=(window_size[0]/2, window_size[1]/10)) # Position of where text will render
+    title_position = title_text.get_rect(center=gui.grid[16][3]) # Position of where text will render
 
     game_button = Button( # Defines button that starts single player tetris game
-                    position=(window_size[0]/2, window_size[1]/3), # (x, y)
+                    position = gui.grid[16][6], # grid (x, y)
                     button_color=ds.COLOR['green'],
                     text_color=ds.COLOR['red'],
                     font=large_font,
@@ -31,7 +22,7 @@ def main_menu(window, clock, window_size):
                     )
 
     settings_button = Button( # Defines button that navigates to user settings
-                position=(window_size[0]/2, window_size[1]/2),
+                position=gui.grid[16][9], # grid (x, y)
                 button_color=ds.COLOR['green'],
                 text_color=ds.COLOR['red'],
                 font=large_font,
@@ -40,7 +31,7 @@ def main_menu(window, clock, window_size):
                 )
 
     tutorial_button = Button( # Defines button that navigates to tutorial
-            position=(window_size[0]/2, window_size[1]/1.5),
+            position=gui.grid[16][12], # grid (x, y)
             button_color=ds.COLOR['green'],
             text_color=ds.COLOR['red'],
             font=large_font,
@@ -49,7 +40,7 @@ def main_menu(window, clock, window_size):
             )
 
     exit_button = Button( # Defines button exit button
-            position=(window_size[0]/2, window_size[1]/1.2),
+            position=gui.grid[16][15], # grid (x, y)
             button_color=ds.COLOR['green'],
             text_color=ds.COLOR['red'],
             font=large_font,
@@ -78,9 +69,6 @@ def main_menu(window, clock, window_size):
         game_button.render(window)
         settings_button.render(window)
         tutorial_button.render(window)
-        exit_button.render(window)
-        for row_n in range(len(grid_y)): # Grid controller test
-            for col_n in range(len(grid_x)):
-                pg.draw.circle(window, ds.COLOR['red'],[grid_x[col_n], grid_y[row_n]], 1)
-
+        gui.render_grid(window)
+        exit_button.render(window) # Render grid window for element placement
         pg.display.flip()

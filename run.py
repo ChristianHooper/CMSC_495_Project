@@ -1,5 +1,6 @@
 # Project Files
 import dataStructures as ds # Non game-loop use
+import guiController as gui # GUI controller for element placement
 from settingsController import settings_conduit as sc # JSON settings controller
 from tetrominoes import tetrominoes # Tetris blocks
 from gameLoop import one_player # Runs game-loop
@@ -21,6 +22,7 @@ Main script to run G5-Tetris game.
 def get_time(): return pygame.time.get_ticks() # Gets current ticks
 
 def main(): # Main functions that acts as the game controller
+
     # Render Parameter
     pg.init() # Initialize pygame
     os.environ['SDL_VIDEO_WINDOW_POS'] = '100,100' # Positions game window at (0, 0) Left-side of screen

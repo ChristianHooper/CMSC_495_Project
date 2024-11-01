@@ -51,3 +51,4 @@ GRID_SIZE = (8, 10, 12, 16, 20, 24, 32) # Grid sizes for tetris surface
 
 ASPECT = 2 # Aspect ratio of tetris frame render
 
+GUI_GRID = (8, 16, 24, 32, 40, 64)
