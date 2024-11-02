@@ -6,7 +6,6 @@ from button import Button
 
 def main_menu(window, clock, window_size):
 
-    print(gui.grid[16][5])
     running_menu = True
     large_font = ds.FONTS['default_large'] # File path to custom font: if possible add later (https://www.dafont.com/)
     title_text = large_font.render('G5-Tetris', True, ds.COLOR['white']) # Title text attributes

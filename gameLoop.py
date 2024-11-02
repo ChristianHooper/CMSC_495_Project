@@ -3,31 +3,14 @@ import pygame as pg
 import dataStructures as ds
 from dataStructures import COLOR
 import numpy as np
+from tetrisController import tetris
+import guiController as gui
 
 
 def one_player(window, clock, window_size): # Defines render aspects for a single player tetris session
-
-    aspect_ratio = sc['aspect_ratio'] # Defines aspect ratio for tetris frame render
-    running = True # Runs game-loop if true
-
-    # Size of the tetris game surface (x, y) Defines width through division of screen length size.
-    tetris_surface_size = (window_size[1]/aspect_ratio, window_size[1])
-
-    grid_size = (tetris_surface_size[0]/sc['grid_size'], tetris_surface_size[1]/sc['grid_size']*aspect_ratio) # Tetris grid size, settings call
-
-    tetris_boarder = grid_size[0] # Boarder thickness around tetris surface (x, y) measured is grid units
-
-    tetris_surface_size = tuple(int(axis - tetris_boarder*2) for axis in tetris_surface_size) # Negate boarder from tetris frame
-
-    tetris_surface = pg.Surface(tetris_surface_size) # Object frame where tetris game is played
-
-    # tetris_surface_p2 = tetris_surface # Second player tetris game surface
-
-    # Grid surface render points, immutable
-    grid_surface = np.array([[row_n * tetris_boarder for row_n in range(int(tetris_surface_size[1]/tetris_boarder))],
-                            [col_n * tetris_boarder for col_n in range(int(tetris_surface_size[1]/tetris_boarder))]])
-
-    print("Grid Points: ", grid_surface)
+    ts = tetris(window_size,
+                [0, 1] # How may gui squares exists around the (x,y) boarders of the tetris game surface
+    )
 
     # ///////////////////////////////////////////[Game-Loop]///////////////////////////////////////////
     while running:
@@ -40,10 +23,11 @@ def one_player(window, clock, window_size): # Defines render aspects for a singl
         tetris_surface.fill(COLOR['white']) # Tetris frame fill
 
         # Draw grid, rows then columns
-        for line_row in grid_surface[0]: pg.draw.aaline(tetris_surface, COLOR['grey'], (0, line_row), (tetris_surface_size[0], line_row))
-        for line_col in grid_surface[1]: pg.draw.aaline(tetris_surface, COLOR['grey'], (line_col, 0), (line_col, tetris_surface_size[1]))
-
-        window.blit(tetris_surface, (window_size[0]/2-(tetris_surface_size[0]/2), tetris_boarder)) # Imposes tetris game surface on window (x, y)
+        #for line_row in grid_surface[0]: pg.draw.aaline(tetris_surface, COLOR['grey'], (0, line_row), (tetris_surface_size[0], line_row))
+        #for line_col in grid_surface[1]: pg.draw.aaline(tetris_surface, COLOR['grey'], (line_col, 0), (line_col, tetris_surface_size[1]))
+        gui.render_grid(window)
+        ts.render_grid(window)
+        #window.blit(tetris_surface, (window_size[0]/2-(tetris_surface_size[0]/2), tetris_boarder)) # Imposes tetris game surface on window (x, y)
         pg.display.flip() # Swaps buffer for rendering (Updates contents of display)
 
 
