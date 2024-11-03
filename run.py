@@ -7,6 +7,7 @@ from gameLoop import one_player # Runs game-loop
 from settings import settings # Runs settings menu
 from tutorial import tutorial
 from mainMenu import main_menu # Runs main menu
+from soundController import SoundController # Import Sound Controller
 
 # Import libraries
 import pygame as pg
@@ -21,7 +22,7 @@ Main script to run G5-Tetris game.
 # Game-loop functions
 def get_time(): return pygame.time.get_ticks() # Gets current ticks
 
-def main(): # Main functions that acts as the game controller
+def main(): # Main function that acts as the game controller
 
     # Render Parameter
     pg.init() # Initialize pygame
@@ -34,37 +35,50 @@ def main(): # Main functions that acts as the game controller
     clock = pg.time.Clock() # Starts game clock
     pg.display.set_caption("G5-Tetris") # Group-Five-Tetris
 
+    # Initialize Sound Controller
+    sound_controller = SoundController()
+    sound_controller.play_bgm()  # Start background music
 
     # Game state-machine
     while running:
 
-        if game_state == None: running = False # Exit state condition
+        if game_state == None:
+            running = False # Exit state condition
 
         # Main menu state
         if game_state == ds.GAME_STATE['menu']: # Checks for the main menu game state
             attending_state = main_menu(window, clock, window_size) # Runs current state, returns changed state
-            if attending_state == None: running = False; # If game state is exited
-            else: game_state = attending_state # Used to change game start based upon returned state
+            if attending_state == None:
+                running = False
+            else:
+                game_state = attending_state # Used to change game start based upon returned state
 
         # Settings state used to change general aspect of the game
         if game_state == ds.GAME_STATE['settings']:
             attending_state = settings(window, clock, window_size)
-            if attending_state == None: running = False
-            else: game_state = attending_state
+            if attending_state == None:
+                running = False
+            else:
+                game_state = attending_state
 
         # Game-loop
         if game_state == ds.GAME_STATE['p1_game']:
-            attending_state = one_player(window, clock, window_size)
-            if attending_state == None: running = False
-            else: game_state = attending_state
+            attending_state = one_player(window, clock, window_size, sound_controller)
+            if attending_state == None:
+                running = False
+            else:
+                game_state = attending_state
 
         # Tutorial page
         if game_state == ds.GAME_STATE['tutorial']:
             attending_state = tutorial(window, clock, window_size)
-            if attending_state == None: running = False
-            else: game_state = attending_state
+            if attending_state == None:
+                running = False
+            else:
+                game_state = attending_state
 
     # Cleans & terminates program
+    sound_controller.stop_background_music() # Stop background music when exiting
     pg.quit()
     sys.exit()
 
