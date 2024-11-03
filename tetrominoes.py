@@ -1,30 +1,38 @@
+from dataStructures import TETROMINOES, COLOR
+from tetrisBlock import block as bk
 import numpy as np
-
+import random
 
 
 class tetrominoes:
     '''
-    Tetris block pieces.
 
     ----------
     Attributes
     ----------
     '''
 
-    def __init__():
-        self.shape # Shape of tetrominoes
-        self.origin # The point of origin while flipping
-        self.color
-        self.static
+    def __init__(self, block_size, spawn):
+        self.number_shape = TETROMINOES[random.choice(list(TETROMINOES.keys()))] # Shape of tetrominoes
+        self.color = COLOR[random.choice(list(COLOR.keys()))]
+        self.block_size = block_size+1  # Adjust rendering size
+        self.render_shape = self.number_convert()
+        self.position = spawn # Where tetrominoes first spawns
 
-    def movement(direction): # Called for movement
+        self.static = True
+
+    def number_convert(self):
+        return [[ None if x==0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape]
+
+
+    def movement(self, direction): # Called for movement
         print()
 
-    def flip():
+    def flip(self):
         print()
 
-    def excelerate():
+    def excelerate(self):
         print()
 
-    def block_search():
+    def block_search(self):
         print()

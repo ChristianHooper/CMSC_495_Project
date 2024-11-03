@@ -26,7 +26,7 @@ def main(): # Main functions that acts as the game controller
     # Render Parameter
     pg.init() # Initialize pygame
     os.environ['SDL_VIDEO_WINDOW_POS'] = '100,100' # Positions game window at (0, 0) Left-side of screen
-    game_state = ds.GAME_STATE['menu'] # Default game state at launch
+    game_state = ds.GAME_STATE['p1_game'] # Default game state at launch
     running = True # If game is running
     window_size = ds.SCREEN_SIZE[sc['screen_size']] # Default window size (x, y)
     # Window display on GPU, dual buffer

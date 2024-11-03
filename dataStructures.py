@@ -44,17 +44,18 @@ FONTS = { # Fonts with sizes
 }
 
 FPS_CAP = { # Game FPS cap
-    'default': 60,
+    'trip' : 1,
+    'default': 60
     }
 
 GRID_SIZE = (8, 10, 12, 16, 20, 24, 32) # Grid sizes for tetris surface
 
 ASPECT = 2 # Aspect ratio of tetris frame render
 
-GUI_GRID = 32
+GUI_GRID = 32 # The number of grids squares on the window screen width, works best as an even number.
 
 TETROMINOES = {
     'long': [[0,1,0,0], [0,1,0,0], [0,1,0,0], [0,1,0,0]],
-    'left_l': [[0,1,0,0], [0,1,0,0], [1,1,0,0]],
-    'right_l': [[0,0,1,0], [0,0,1,0], [0,0,1,1]]
+    'left_l': [[0,1,0,0], [0,1,0,0], [1,1,0,0], [0,0,0,0]],
+    'right_l': [[0,0,1,0], [0,0,1,0], [0,0,1,1], [0,0,0,0]]
 }
