@@ -10,6 +10,7 @@ class tetrominoes:
         self.block_size = block_size + 1
         self.render_shape = self.number_convert()
         self.position = spawn
+        self.static = False # If the tetromino is not moving
 
     def number_convert(self):
         return [[None if x == 0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape]

@@ -28,18 +28,18 @@ def one_player(window, clock, window_size, sound_controller):
                 running = False
 
             elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_LEFT:
-                    print("Left key pressed")  # Debugging line
+                if event.key == pg.K_LEFT and ts.current_tetrominoes.static == False:
+                    #print("Left key pressed")  # Debugging line
                     # Move left logic
                     ts.movement(x_change=-1)
 
-                elif event.key == pg.K_RIGHT:
-                    print("Right key pressed")  # Debugging line
+                elif event.key == pg.K_RIGHT and ts.current_tetrominoes.static == False:
+                    #print("Right key pressed")  # Debugging line
                     # Move right logic
                     ts.movement(x_change=1)
 
-                elif event.key == pg.K_DOWN:
-                    print("Down key pressed")  # Debugging line
+                elif event.key == pg.K_DOWN and ts.current_tetrominoes.static == False:
+                    #print("Down key pressed")  # Debugging line
                     # Move down logic
                     ts.movement(y_change=1)
 
@@ -52,7 +52,8 @@ def one_player(window, clock, window_size, sound_controller):
             ts.movement(y_change=1)  # Move tetromino down automatically
             ts.update_grid()
             gravity_timer = 0  # Reset the timer
-            for row in ts.tetris_grid: print(f"{row}")
+            #for row in ts.tetris_grid: print(f"{row}")
+            print()
             #print("GRAVITY :|:|:")
 
         # Rendering
