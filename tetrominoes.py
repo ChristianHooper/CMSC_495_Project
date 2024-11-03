@@ -22,6 +22,8 @@ class tetrominoes:
         self.static = True
 
     def number_convert(self):
+        print(self.number_shape)
+        print([[ None if x==0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape])
         return [[ None if x==0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape]
 
 

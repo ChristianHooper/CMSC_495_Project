@@ -30,7 +30,7 @@ class tetris():
 
         self.tetris_grid_color = COLOR['black']
 
-        self.tetris_surface_color = COLOR['grey']
+        self.tetris_surface_color = (100,100,100)
 
         self.current_tetrominoes = None
 
@@ -82,35 +82,48 @@ class tetris():
     def generate_tetrominoes(self):
         return tm.tetrominoes(
                 self.tetris_block_size, # Size of the block that makes up tetrominoes
-                (3, 3) # Where the tetrominoes spawn
+                [3, 3] # Where the tetrominoes spawn
                 )
 
-    def update_grid(self):
+    def update_grid(self): # [row]=y, [col]=x
         self.render_points = []
+        self.tetris_grid = [[None for x in range(sc['grid_size'])] for y in range(sc['grid_size']*2)]
+        #for row in range(len(self.tetris_grid)): print(f"Grid: {self.tetris_grid[row]}") # Prints grid state
         for row in range(len(self.tetris_grid)):
             for col in range(len(self.tetris_grid[row])):
                 # Checks the shape of tetrominoes against the grid
                 #print(self.current_tetrominoes.shape)
-                if row >= self.current_tetrominoes.position[0] and self.current_tetrominoes.position[0] + len(self.current_tetrominoes.render_shape[1]) > row:
-                    if col >= self.current_tetrominoes.position[1] and self.current_tetrominoes.position[1] + len(self.current_tetrominoes.render_shape[0]) > col:
-                        #print(f"C: {row - self.current_tetrominoes.position[1]}, {col - self.current_tetrominoes.position[0]}")
-                        grid_square = self.current_tetrominoes.render_shape[col - self.current_tetrominoes.position[0]][row - self.current_tetrominoes.position[1]]
+                if row >= self.current_tetrominoes.position[1] and self.current_tetrominoes.position[1] + len(self.current_tetrominoes.render_shape[1]) > row:
+                    if col >= self.current_tetrominoes.position[0] and self.current_tetrominoes.position[0] + len(self.current_tetrominoes.render_shape[0]) > col:
+
+                        #print(f"C: {col} - {self.current_tetrominoes.position[0]}, = {col - self.current_tetrominoes.position[0]}")
+                        #print(f"C: {row} - {self.current_tetrominoes.position[1]}, = {row - self.current_tetrominoes.position[1]}")
+                        #print()
+                        #{row} - {self.current_tetrominoes.position[1]}")rii()
+
+                        grid_square = self.current_tetrominoes.render_shape[row - self.current_tetrominoes.position[1]][col - self.current_tetrominoes.position[0]]
+
                         if grid_square != None:
                         # Places block object into their respective grid position based upon their current position.
                             self.tetris_grid[row][col] = grid_square
-                            self.render_points.append([row, col]) # Creates a list of induces for blocks to be rendered on the grid
-        #print(self.tetris_grid)
+                            for n in range(len(self.tetris_grid)): print(f"Grid: {self.tetris_grid[n]}") # Prints grid state
+                            self.render_points.append([col, row]) # Creates a list of induces for blocks to be rendered on the grid
+                            print(self.render_points)
+        print('___')
 
     def render_tetrominoes(self): # Access block directly instead of through tetrominoes object
         for x in self.render_points:
-            block = self.tetris_grid[x[0]][x[1]] # Uses render points list to define block from tetris grid
-            # print("CORDS: ", tuple(self.tetris_coordinates[x[0]][x[1]]))
+            print("LOOP:",x)
+            block = self.tetris_grid[x[1]][x[0]] # Uses render points list to define block from tetris grid
+            # print("CORDS: ", tuple(self.tetris_coordinates[x[0]][x[1]]))c
             # block.position = self.tetris_coordinates[x[0]][x[1]]
             block.small_block.x = self.tetris_coordinates[x[0]][x[1]][0]
             block.small_block.y = self.tetris_coordinates[x[0]][x[1]][1]
             pg.draw.rect(self.tetris_surface, block.color, block.small_block)
 
 
+    def gravity(self):
+        self.current_tetrominoes.position[1] = self.current_tetrominoes.position[1]+1
 
     def scoring(self):
         print()

@@ -34,6 +34,8 @@ def one_player(window, clock, window_size): # Defines render aspects for a singl
         #window.blit(tetris_surface, (window_size[0]/2-(tetris_surface_size[0]/2), tetris_boarder)) # Imposes tetris game surface on window (x, y)
         pg.display.flip() # Swaps buffer for rendering (Updates contents of display)
 
+        ts.gravity()
+        print(ts.current_tetrominoes.position)
 
         dt = clock.tick(ds.FPS_CAP['trip']) # Pauses game-loop to hold 60 FPS at default
         print(f"SPF: {dt / 1000.0} ms", end="\r") # Loop measured in milliseconds
