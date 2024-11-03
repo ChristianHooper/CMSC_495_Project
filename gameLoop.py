@@ -15,46 +15,56 @@ def one_player(window, clock, window_size, sound_controller):
     sound_controller.play_bgm()  # Play background music when game starts
 
     gravity_timer = 0  # Timer for gravity control
-    gravity_interval = 500  # Milliseconds delay for each gravity step (adjust as needed)
+    gravity_interval = 500 # Milliseconds delay for each gravity step (adjust as needed)
 
     # Game-loop
     while running:
         # Update gravity timing
         gravity_timer += clock.get_time()
-        print(f"Gravity Timer: {gravity_timer}")  # Debugging: Check gravity timer
+        # print(f"Gravity Timer: {gravity_timer}")  # Debugging: Check gravity timer
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_LEFT:
                     print("Left key pressed")  # Debugging line
                     # Move left logic
+                    ts.movement(x_change=-1)
+
                 elif event.key == pg.K_RIGHT:
                     print("Right key pressed")  # Debugging line
                     # Move right logic
+                    ts.movement(x_change=1)
+
                 elif event.key == pg.K_DOWN:
                     print("Down key pressed")  # Debugging line
                     # Move down logic
+                    ts.movement(y_change=1)
+
                 elif event.key == pg.K_UP:
                     print("Rotate key pressed")  # Debugging line
                     # Rotate logic
 
         # Gravity-based movement
         if gravity_timer >= gravity_interval:
-            ts.gravity()  # Move tetromino down automatically
+            ts.movement(y_change=1)  # Move tetromino down automatically
+            ts.update_grid()
             gravity_timer = 0  # Reset the timer
+            for row in ts.tetris_grid: print(f"{row}")
+            #print("GRAVITY :|:|:")
 
         # Rendering
         window.fill(COLOR['black'])
         gui.render_grid(window)
         ts.render_tetris(window)
         pg.display.flip()
+        #ts.gravity()
 
         clock.tick(ds.FPS_CAP['default'])
-        print("Game loop running...")  # Debugging: Game loop running
+        #print("Game loop running...")  # Debugging: Game loop running
 
     sound_controller.stop_bgm()
     print("Exiting game loop")
 
-    return ds.GAME_STATE['menu']

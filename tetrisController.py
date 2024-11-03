@@ -12,8 +12,8 @@ class TetrisController:
         self.window_size = window_size
 
         self.tetris_surface_size = (
-            (self.window_size[1] - (self.border[1] * 2) - (self.border[0] * 2)) / 2,
-            self.window_size[1] - (self.border[1] * 2),
+            (self.window_size[1] - (self.border[1] * 2) - (self.border[0] * 2)) / 2, # y-axis
+            self.window_size[1] - (self.border[1] * 2), # x-axis
         )
         self.tetris_block_size = self.tetris_surface_size[0] / sc['grid_size']
         self.tetris_coordinates = self.create_coordinates()
@@ -23,10 +23,10 @@ class TetrisController:
         self.tetris_surface_color = (100, 100, 100)
 
         # Initialize the current and next tetromino
-        self.current_tetrominoes = self.generate_tetrominoes()
-        self.next_tetrominoes = self.generate_tetrominoes()
+        self.current_tetrominoes = self.generate_tetrominoes() # Create current user interactive tetrominoes
+        self.next_tetrominoes = self.generate_tetrominoes() # Creates the next tetrominoes to
 
-        self.render_points = []
+        self.render_points = [] # Tetris grid points the render on the screen
         self.line_cleared = False
         self.game_over = False
 
@@ -70,8 +70,8 @@ class TetrisController:
         window.blit(self.tetris_surface, self.centering)
 
     def generate_tetrominoes(self):
-        print("Generating Tetromino shape")
-        return tm.tetrominoes(self.tetris_block_size, [3, 0])  # Start from row 0 for downward movement
+        #print("Generating Tetromino shape")
+        return tm.tetrominoes(self.tetris_block_size, [3, 1])  # Start from row 0 for downward movement
 
     def update_grid(self):  # [row]=y, [col]=x
         self.render_points = []
@@ -94,12 +94,16 @@ class TetrisController:
                             self.render_points.append(
                                 [col, row])  # Creates a list of indices for blocks to be rendered on the grid
 
+    # Passes over tetrominoes object and renders the blocks defined grid coordinates in update_grid()
     def render_tetrominoes(self):
-        for x in self.render_points:
-            block = self.tetris_grid[x[1]][x[0]]
-            block.small_block.x = self.tetris_coordinates[x[0]][x[1]][0]
-            block.small_block.y = self.tetris_coordinates[x[0]][x[1]][1]
-            pg.draw.rect(self.tetris_surface, block.color, block.small_block)
+        for x in self.render_points: # Gets render coordinates for grid one-by-one
+            block = self.tetris_grid[x[1]][x[0]] # Defines singular block from the tetris grid
+
+            # Places grid pixel coordinates for rendering on tetris grid into the block objects position on the x&y-axis
+            block.small_block.x = self.tetris_coordinates[x[1]][x[0]][1]
+            block.small_block.y = self.tetris_coordinates[x[1]][x[0]][0]
+            pg.draw.rect(self.tetris_surface, block.color, block.small_block) # Draws block onto tetris surface before blitting surface onto screen
+
 
     def render_next_tetromino(self, window):
         for y, row in enumerate(self.next_tetrominoes.render_shape):
@@ -109,29 +113,43 @@ class TetrisController:
                     pos_y = 50 + y * self.tetris_block_size
                     pg.draw.rect(window, block.color, (pos_x, pos_y, self.tetris_block_size, self.tetris_block_size))
 
-    def gravity(self):
-        print(f"Gravity applied: Tetromino position before move: {self.current_tetrominoes.position}")
-        if not self.check_collision(offset_y=1):
-            self.current_tetrominoes.position[1] += 1
-            print(f"Tetromino position after move: {self.current_tetrominoes.position}")
+
+    # Checks the x&y-axis for collisions, and increments the movement based upon direction input
+    def movement(self, x_change=0, y_change=0):
+        #print(f"Gravity applied: Tetromino position before move: {self.current_tetrominoes.position}")
+        if not self.check_collision(offset_y=y_change): # Checks to see if y-axis increase will lead to a collision
+            self.current_tetrominoes.position[1] += y_change
+        if not self.check_collision(offset_x=x_change):
+            self.current_tetrominoes.position[0] += x_change
+            #(f"Tetromino position after move: {self.current_tetrominoes.position}")
+
         else:
             print("Tetromino settled")
             self.settle_tetromino()
-            self.clear_lines()
-            self.current_tetrominoes = self.next_tetrominoes
-            self.next_tetrominoes = self.generate_tetrominoes()
-            if self.check_collision():
-                self.game_over = True
+            #self.clear_lines()
+            #self.current_tetrominoes = self.next_tetrominoes
+            #self.next_tetrominoes = self.generate_tetrominoes()
+            #if self.check_collision():
+                #self.game_over = True
+
+
 
     def check_collision(self, offset_x=0, offset_y=0):
-        for y, row in enumerate(self.current_tetrominoes.render_shape):
-            for x, block in enumerate(row):
-                if block:
-                    new_x = x + self.current_tetrominoes.position[0] + offset_x
-                    new_y = y + self.current_tetrominoes.position[1] + offset_y
-                    if new_y >= len(self.tetris_grid) or new_x < 0 or new_x >= len(self.tetris_grid[0]) or (
-                        new_y >= 0 and self.tetris_grid[new_y][new_x] is not None
-                    ):
+        for y, row in enumerate(self.current_tetrominoes.render_shape): # Defines row list 0-3, get respective row number through y (render shape 4x4)
+            for x, block in enumerate(row): # Get block value at x of a row in the 4x4 shape
+                if block: # Checks to see if index is a block object or is None
+                    #print(block)
+
+                    new_x = x + self.current_tetrominoes.position[0] + offset_x # Sets new x-axis position for checking x-axis collision
+                    new_y = y + self.current_tetrominoes.position[1] + offset_y  # Sets new y-axis position for checking y-axis collision
+                    #print(f"{new_x}, {new_y}")
+                    #print(f"IF: {new_y >= 0}")
+
+                    # Check to see if the tetrominoes in a new position would meet any out-of-bounds conditions
+                    # Check y-axis tetris surface grid boundaries then x-axis boundaries
+
+                    if new_y >= len(self.tetris_grid) or new_y < 0 or new_x < 0 or new_x >= len(self.tetris_grid[0]): #and self.tetris_grid[new_y][new_x] is not None
+                        #print('[Y-axis Collision]')
                         return True
         return False
 

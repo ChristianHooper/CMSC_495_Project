@@ -78,7 +78,7 @@ def main(): # Main function that acts as the game controller
                 game_state = attending_state
 
     # Cleans & terminates program
-    sound_controller.stop_background_music() # Stop background music when exiting
+    #sound_controller.stop_background_music() # Stop background music when exiting
     pg.quit()
     sys.exit()
 

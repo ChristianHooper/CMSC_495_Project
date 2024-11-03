@@ -12,8 +12,9 @@ class SoundController:
         self.rotate_sound = pg.mixer.Sound('sounds/rotate.wav')
 
     def play_bgm(self):
-        pg.mixer.music.load(self.bgm_path)
-        pg.mixer.music.play(loops=-1)
+        print()
+        #pg.mixer.music.load(self.bgm_path)
+        #pg.mixer.music.play(loops=-1)
 
     def stop_bgm(self):
         pg.mixer.music.stop()
