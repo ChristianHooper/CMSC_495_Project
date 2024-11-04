@@ -52,9 +52,7 @@ def one_player(window, clock, window_size, sound_controller):
             ts.movement(y_change=1)  # Move tetromino down automatically
             ts.update_grid()
             gravity_timer = 0  # Reset the timer
-            #for row in ts.tetris_grid: print(f"{row}")
-            print('---=--==--=---')
-            #print("GRAVITY :|:|:")
+            #for row in ts.tetris_grid: print(f"{row}") # Prints a tetris grid
 
         # Rendering
         window.fill(COLOR['black'])

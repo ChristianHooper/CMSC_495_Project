@@ -136,14 +136,15 @@ class TetrisController:
             self.current_tetrominoes.position[1] += y_change
 
         else:
-            print("Tetromino settled")
+            #print("Tetromino settled")
             self.current_tetrominoes.static = True
             self.settle_tetromino()
-            #self.clear_lines()
+            self.clear_lines()
             self.current_tetrominoes = self.next_tetrominoes
             self.next_tetrominoes = self.generate_tetrominoes()
-            #if self.check_collision():
-                #self.game_over = True
+            if self.check_collision():
+                self.game_over = True
+                print(f'GameOver: {self.game_over}')
 
 
 
@@ -162,7 +163,7 @@ class TetrisController:
                     if new_y >= len(self.tetris_grid) or new_y < 0 or new_x < 0 or new_x >= len(self.tetris_grid[0]) or (
                         self.tetris_grid[new_y][new_x] in self.static_blocks # Checks to see if each block of the tetrominoes collides with any existing block
                     ): # Tetris frame collision checks
-                        print('[Collision]')
+                        #print('[Collision]')
                         return True
         return False
 
@@ -179,9 +180,22 @@ class TetrisController:
     def clear_lines(self):
         cleared_rows = [index for index, row in enumerate(self.tetris_grid) if all(row)]
         if cleared_rows:
+            print(cleared_rows)
             for row_index in cleared_rows:
-                del self.tetris_grid[row_index]
-                self.tetris_grid.insert(0, [None] * len(self.tetris_grid[0]))
-            self.line_cleared = True
-        else:
-            self.line_cleared = False
+
+                for block in self.tetris_grid[row_index]: # Deleted block from render list
+                    if block in self.static_blocks:
+                        self.static_blocks.remove(block)
+
+                self.tetris_grid[row_index] = [None] * len(self.tetris_grid[row_index]) # Deleted from grid list
+                # print(self.tetris_grid[row_index])
+
+                for row in range(0,cleared_rows[-1]-1):
+                    for block in self.tetris_grid[row]:
+                        print("B:", block)
+                        if block != None:
+                            block.position[1] += len(cleared_rows)
+                            for bloc in self.static_blocks:
+                                if bloc == block: bloc.position[1] += len(cleared_rows)
+
+        cleared_rows = []
