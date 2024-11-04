@@ -39,6 +39,8 @@ SCREEN_SIZE = { # Defines possible screen resolutions
     '3840x2160': (3840, 2160),
     }
 
+GRAVITY_SPEED = 500 # Millisecond
+
 FONTS = { # Fonts with sizes
     'default_large': pg.font.Font(None, 64)
 }
