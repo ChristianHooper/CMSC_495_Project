@@ -159,11 +159,9 @@ class TetrisController:
                     #print(f"IF: {new_y >= 0}")
 
                     # Check to see if the tetrominoes in a new position would meet any out-of-bounds conditions
-                    # Check y-axis tetris surface grid boundaries then x-axis boundaries
-
-                    if new_y >= len(self.tetris_grid) or new_y < 0 or new_x < 0 or new_x >= len(self.tetris_grid[0]) and (
-                        self.tetris_grid[new_y][new_x] != None
-                    ): #and self.tetris_grid[new_y][new_x] is not None
+                    if new_y >= len(self.tetris_grid) or new_y < 0 or new_x < 0 or new_x >= len(self.tetris_grid[0]) or (
+                        self.tetris_grid[new_y][new_x] in self.static_blocks # Checks to see if each block of the tetrominoes collides with any existing block
+                    ): # Tetris frame collision checks
                         print('[Collision]')
                         return True
         return False

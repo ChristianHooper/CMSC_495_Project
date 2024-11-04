@@ -53,7 +53,7 @@ def one_player(window, clock, window_size, sound_controller):
             ts.update_grid()
             gravity_timer = 0  # Reset the timer
             #for row in ts.tetris_grid: print(f"{row}")
-            print()
+            print('---=--==--=---')
             #print("GRAVITY :|:|:")
 
         # Rendering
