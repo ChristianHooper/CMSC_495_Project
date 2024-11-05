@@ -44,8 +44,9 @@ def one_player(window, clock, window_size, sound_controller):
                     ts.movement(y_change=1)
 
                 elif event.key == pg.K_UP and ts.current_tetrominoes.static == False: # Up key press
-                    print("Rotate key pressed")  # Debugging line
+                    #print("Rotate key pressed")  # Debugging line
                     # Rotate logic
+                    ts.current_tetrominoes.flip()
 
         # Gravity-based movement
         if gravity_timer >= gravity_interval:
