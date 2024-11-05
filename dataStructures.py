@@ -55,7 +55,6 @@ GRID_SIZE = (8, 10, 12, 16, 20, 24, 32) # Grid sizes for tetris surface
 ASPECT = 2 # Aspect ratio of tetris frame render
 
 GUI_GRID = 32 # The number of grids squares on the window screen width, works best as an even number.
-
 TETROMINOES = {
     'long':   [[0,1,0,0], [0,1,0,0], [0,1,0,0], [0,1,0,0]],
     'l_long': [[0,1,0,0], [0,1,0,0], [1,1,0,0], [0,0,0,0]],
@@ -66,4 +65,5 @@ TETROMINOES = {
     'z_box':  [[0,0,0,0], [1,1,0,0], [0,1,1,0], [0,0,0,0]],
     'z_box':  [[0,0,0,0], [1,1,0,0], [0,1,1,0], [0,0,0,0]],
     'h_box':  [[0,0,0,0], [0,0,1,0], [0,0,1,0], [0,0,0,0]],
+    #'dev_I':  [[1,1,1,1], [0,0,1,0], [0,0,1,0], [1,1,1,1]],
 }

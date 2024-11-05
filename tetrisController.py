@@ -69,6 +69,9 @@ class TetrisController:
         self.render_points = [] # Tetris grid points the render on the screen
         self.line_cleared = False
         self.game_over = False
+        self.cleared_rows = []
+
+        self.animation_interval = 500 # Length of tetrominoes animation
 
 
     # Defines pixel coordinates [x, y] which are the render points mapped to the self.tetris_grid
@@ -224,7 +227,8 @@ class TetrisController:
                     self.static_blocks.add(block)
 
 
-    # Check entire grid and clear line moving current block down by one
+    # TODO: Split the mark_lines() and delete_lines() functions in case we want to add a deletion animation using out pg.clock object
+    # Checks entire grid and clear line moving current block down by one
     def clear_lines(self):
         cleared_rows = [index for index, row in enumerate(self.tetris_grid) if all(row)] # Tag rows to be clear (nice job; great line of code)
 
@@ -232,16 +236,14 @@ class TetrisController:
             for row_index in cleared_rows: # Gets row
                 for block in self.tetris_grid[row_index]: # Gets block
                     if block in self.static_blocks:
-                        self.static_blocks.remove(block) # Deleted block from render list
+                        self.static_blocks.remove(block) # Deleted block from render list and grid
 
-                self.tetris_grid[row_index] = [None] * len(self.tetris_grid[row_index]) # Deleted block from grid list
+        # Physics for moving all block down one line after cleared lines
+        for index in cleared_rows:
+            for row in range(0,(index)): # Loops through all rows from top to clear row
+                for block in self.tetris_grid[row]:
+                    if block != None:
+                        block.position[1] += 1 # Moves block object down by one grid square
+        cleared_rows = [] # Deletes clear row marker
 
-                # Physics for moving all block down one line after cleared lines
-                for row in range(0,cleared_rows[-1]-1):
-                    for block in self.tetris_grid[row]:
-                        if block != None:
-                            block.position[1] += len(cleared_rows) # Moves self.tetris_grid list down
 
-                            for bloc in self.static_blocks: # Moves persistent blocks down for render
-                                if bloc == block: bloc.position[1] += len(cleared_rows)
-        cleared_rows = [] # Deletes row clear marker

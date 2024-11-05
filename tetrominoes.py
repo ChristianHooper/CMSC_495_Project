@@ -17,10 +17,10 @@ class tetrominoes:
         return [[None if x == 0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape]
 
 
-    # Flips the block in the tetrominoes by 90 degrees
+    # TODO: Needs proper collision implemented
+    # Flips the block in the tetrominoes by 90 degrees through coordinate vector rotation transformation
     def flip(self):
-
-        tetrominoes_array = np.zeros([len(self.number_shape),len(self.number_shape)])
+        tetrominoes_array = np.zeros([len(self.number_shape),len(self.number_shape)]) # Empty tetrominoes shape array
 
         center = np.array([(len(self.number_shape)-1)/2, (len(self.number_shape[0])-1)/2]) # Calculates matrices center based upon matrices length & width (row_center, column_center)
 
@@ -32,16 +32,10 @@ class tetrominoes:
 
         convert_array = np.array([[0,-1],[1,0]]) # Rotational matrices $\theta=\frac{\pi}{2}$ (LaTeX)
 
+        # Preforms matrices multiplication for rotation while adding in center values
         translated_matrices = np.array([((convert_array @ coord_row) + center) for coord_row in centered_coordinates]).astype(int)
 
-        print(translated_matrices)
-        for coord in translated_matrices: tetrominoes_array[coord[0]][coord[1]] = 1
+        for coord in translated_matrices: tetrominoes_array[coord[0]][coord[1]] = 1 # Places new coords in 0-1 matrices
 
-        self.number_shape = list(tetrominoes_array)
-        self.render_shape = self.number_convert()
-        #print(tetrominoes_array)
-
-
-
-        print(f"{tetrominoes_array}\n")
-        #print(f"{tetrominoes_array * convert_array}")
+        self.number_shape = list(tetrominoes_array) # Casts array to list
+        self.render_shape = self.number_convert() # Converts number array to object array

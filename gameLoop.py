@@ -53,6 +53,7 @@ def one_player(window, clock, window_size, sound_controller):
             ts.movement(y_change=1) # Move tetromino down on y-axis
             ts.update_grid() # Updates grid of mechanics and rendering based upon movement changes
             gravity_timer = 0  # Resets the timer
+            #ts.delete_lines()
             #for row in ts.tetris_grid: print(f"{row}") # Prints a terminal based tetris grid
 
         # Rendering
