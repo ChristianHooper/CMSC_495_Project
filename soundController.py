@@ -13,8 +13,8 @@ class SoundController:
 
     def play_bgm(self):
         print()
-        pg.mixer.music.load(self.bgm_path)
-        pg.mixer.music.play(loops=-1)
+        #pg.mixer.music.load(self.bgm_path)
+        #pg.mixer.music.play(loops=-1)
 
     def stop_bgm(self):
         pg.mixer.music.stop()

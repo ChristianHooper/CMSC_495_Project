@@ -5,9 +5,10 @@ import random
 
 class tetrominoes:
     def __init__(self, block_size, spawn):
-        self.shape_type = random.choice(list(TETROMINOES.keys()))
-        self.color = COLOR[random.choice(list(COLOR.keys()))]
-        self.number_shape = TETROMINOES[self.shape_type]
+        self.random_key = random.choice(list(TETROMINOES.keys()))
+        self.shape_type = TETROMINOES[self.random_key]
+        self.color = COLOR[self.random_key]
+        self.number_shape = TETROMINOES[self.random_key]
         self.block_size = block_size + 1
         self.render_shape = self.number_convert()
         self.position = spawn

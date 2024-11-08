@@ -1,7 +1,7 @@
 import pygame as pg
 import dataStructures as ds
 
-class Button:
+class element:
     '''
     The class object used to represent basic gui element throughout the game.
     Changes to object should be made through the direct object class, not this gui element class.
@@ -36,7 +36,7 @@ class Button:
     ):
 
         # Surface base frame
-        self.surface = pg.Surface(zy_length, pg.SRCALPHA)
+        self.surface = pg.Surface(xy_length, pg.SRCALPHA)
         self.position = position
         self.bounds = xy_length
         self.fill_color = fill_color
@@ -46,24 +46,29 @@ class Button:
         self.font_position = font_position
         self.text_color = text_color
         self.text = text
-        self.font = font.render(self.text, True, self.text_color)
+        self.font = font.render(self.text, False, self.text_color)
         self.surface.blit(self.font, self.position)
 
         # Border backing frame
         self.border_size = border_size
-        self.border = pg.Surface([self.bounds[0] + 2*self.border_size, self.bounds[0] + 2*self.border_size], pg.SRCALPHA)
+        self.border = pg.Surface([self.bounds[0] + 2*self.border_size[0], self.bounds[1] + 2*self.border_size[1]], pg.SRCALPHA)
         self.border_color = border_color
         self.border.fill(self.border_color)
-        self.border.blit(self.surface, (self.border_size, self.border_size)) # Blit main surface onto border
+        self.border.blit(self.surface, self.border_size) # Blit main surface onto border
 
         window.blit(self.border, self.position) # Composed gui element for rendering
 
 
     # Blits any elements or changes into the whole gui element to be rendered onto the game surface window.
-    def blit_update(window, element_sequence=[[None,None]]):
-        # Takes a sequence list an blit elements onto the main surface [[pg.surface, position],...]
-        if element_sequence[0][0] != None: self.surface.blits(element_sequence)
+    def blit_update(self,window, element_sequence=[(None,None)]):
 
-        self.surface.blit(self.font, self.position) # Blit local single font to main surface
-        self.border.blit(self.surface, (self.border_size, self.border_size)) # Blit main surface onto border
-        window.blit(self.border, self.position) # Blit whole gui element onto window for rendering
+        self.surface.fill(self.fill_color) # Blit local single font to main surface
+        self.surface.blit(self.font, self.font_position) # Blit test onto surface
+        print(f'{element_sequence}')
+        # Takes a sequence list an blit elements onto the main surface [(pg.surface, position),...] MAO
+        if element_sequence[0][1] is not None: self.surface.blits(element_sequence)
+
+        self.border.fill(self.border_color)
+        self.border.blit(self.surface, self.border_size) # Blit main surface onto border
+
+        window.blit(self.border, [self.position[0]-self.border_size[0], self.position[1]-self.border_size[1]]) # Blit whole gui element onto window for rendering

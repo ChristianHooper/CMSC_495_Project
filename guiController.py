@@ -24,6 +24,7 @@ n_grid = []
 def init():
     global grid
     global grid_square
+    global n_grid
 
     # Grid layout over entire screen, used for placing GUI elements [[all x-axis], [all y-axis]]
     grid_y = [row_n * (ds.SCREEN_SIZE[sc['screen_size']][1]/ (ds.GUI_GRID+1)) for row_n in range(ds.GUI_GRID+1)] # Divides screen length into grid

@@ -113,7 +113,7 @@ class TetrisController:
                     (self.tetris_coordinates[line_col][0][0], self.tetris_surface_size[1]),
                 )
 
-        self.render_next_tetromino(window) # Display the next tetromino
+        #self.render_next_tetromino(window) # Display the next tetromino
         window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface and lal drawings onto game window
 
 
@@ -170,14 +170,15 @@ class TetrisController:
 
 
     # TODO: Needs to work with GUI controller and a bag GUI element
-    def render_next_tetromino(self, window): # Renders the coming tetrominoes before being placed in the controllable self.current_tetrominoes
+    def render_next_tetromino(self, window, position): # Renders the coming tetrominoes before being placed in the controllable self.current_tetrominoes
         for y, row in enumerate(self.next_tetrominoes.render_shape):
             for x, block in enumerate(row):
-                if block:
-                    # Defines initial position on screen
-                    pos_x = self.window_size[0] - 150 + x * self.tetris_block_size
-                    pos_y = 50 + y * self.tetris_block_size
-                    pg.draw.rect(window, block.color, (pos_x, pos_y, self.tetris_block_size, self.tetris_block_size)) # Renders tetrominoes
+                if block: # Renders grab-bag tetrominoes
+                    pos_x = int(position[0] + x * self.tetris_block_size)
+                    pos_y = int(position[1] + y * self.tetris_block_size)
+                    pg.draw.rect(window, block.color,
+                    ((pos_x, pos_y), # Window position of render
+                    (self.tetris_block_size, self.tetris_block_size)))
 
 
     # Checks the x&y-axis for collisions, and increments the movement based upon direction input
