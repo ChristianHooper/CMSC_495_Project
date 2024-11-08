@@ -64,9 +64,9 @@ class element:
 
         self.surface.fill(self.fill_color) # Blit local single font to main surface
         self.surface.blit(self.font, self.font_position) # Blit test onto surface
-        print(f'{element_sequence}')
-        # Takes a sequence list an blit elements onto the main surface [(pg.surface, position),...] MAO
-        if element_sequence[0][1] is not None: self.surface.blits(element_sequence)
+
+        # Takes a sequence list an blit elements onto the main surface [(pg.surface, position),...]
+        #if element_sequence[0][1] is not None: self.surface.blits(element_sequence)
 
         self.border.fill(self.border_color)
         self.border.blit(self.surface, self.border_size) # Blit main surface onto border

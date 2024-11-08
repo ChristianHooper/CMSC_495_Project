@@ -74,6 +74,7 @@ class TetrisController:
         self.animation_interval = 500 # Length of tetrominoes animation
 
 
+
     # Defines pixel coordinates [x, y] which are the render points mapped to the self.tetris_grid
     # Indices of the grid match indices of self.tetris_grid
     # This means that indices of self.tetris grid can call indices of grid to get pixel render locations and vise-versa
@@ -123,10 +124,19 @@ class TetrisController:
             self.tetris_block_size, # Size of block in tetrominoes
             [3, 1]) # Spawn location, starting position
 
+    # Calculates the score and line count when clearing lines
+    def line_score(self, score, level):
+        cleared = len(self.cleared_rows)
+        match cleared:
+            case 1: return (40 * (level + cleared), 1)
+            case 2: return (100 * (level + cleared), 2)
+            case 3: return (300 * (level + cleared), 3)
+            case 4: return (1200 * (level + cleared), 4)
 
     # Updates state of the tetris grid and render list
     # Transcribes tetrominoes shape into the self.tetris_grid
     def update_grid(self):
+        self.cleared_rows = [] # Deletes clear row marker
         self.render_points = [] # Empties old render points
         self.tetris_grid = [[None for x in range(sc['grid_size'])] for y in range(sc['grid_size'] * 2)] # Empties self.tetris_grid to be recalculated
 
@@ -196,6 +206,7 @@ class TetrisController:
             self.current_tetrominoes.static = True # Halts the self.current_tetrominoes object
             self.settle_tetromino() # Converts self.current tetrominoes object into blocks to be rendered
             self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
+# -------------------------
             self.current_tetrominoes = self.next_tetrominoes # Switches previewed tetrominoes for current controllable tetrominoes
             self.next_tetrominoes = self.generate_tetrominoes() # Generates a new preview tetrominoes
             if self.check_collision(): # Checks to see if game is over
@@ -228,23 +239,22 @@ class TetrisController:
                     self.static_blocks.add(block)
 
 
-    # TODO: Split the mark_lines() and delete_lines() functions in case we want to add a deletion animation using out pg.clock object
     # Checks entire grid and clear line moving current block down by one
     def clear_lines(self):
-        cleared_rows = [index for index, row in enumerate(self.tetris_grid) if all(row)] # Tag rows to be clear (nice job; great line of code)
+        self.cleared_rows = [index for index, row in enumerate(self.tetris_grid) if all(row)] # Tag rows to be clear (nice job; great line of code)
 
-        if cleared_rows: # If there are lines to be cleared
-            for row_index in cleared_rows: # Gets row
+        if self.cleared_rows: # If there are lines to be cleared
+            for row_index in self.cleared_rows: # Gets row
                 for block in self.tetris_grid[row_index]: # Gets block
                     if block in self.static_blocks:
                         self.static_blocks.remove(block) # Deleted block from render list and grid
 
         # Physics for moving all block down one line after cleared lines
-        for index in cleared_rows:
+        for index in self.cleared_rows:
             for row in range(0,(index)): # Loops through all rows from top to clear row
                 for block in self.tetris_grid[row]:
                     if block != None:
                         block.position[1] += 1 # Moves block object down by one grid square
-        cleared_rows = [] # Deletes clear row marker
+        #self.cleared_rows = [] # Deletes clear row marker
 
 

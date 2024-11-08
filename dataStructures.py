@@ -49,7 +49,9 @@ SCREEN_SIZE = { # Defines possible screen resolutions
 GRAVITY_SPEED = 500 # Millisecond
 
 FONTS = { # Fonts with sizes
-    'default_large': pg.font.Font(None, 64)
+    'default_large': pg.font.Font(None, 64),
+    'default_medium': pg.font.Font(None, 32),
+    'default_small': pg.font.Font(None, 16)
 }
 
 FPS_CAP = { # Game FPS cap

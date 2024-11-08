@@ -34,6 +34,8 @@ def one_player(window, clock, window_size, sound_controller):
                     font_position=[gui.grid_square/2, gui.grid_square/4] # Font position on surface
     ); score_subsurface = score_ui.surface.subsurface(0, 0, score_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current score will render
     subsurface_position = [score_ui.position[0]+gui.grid_square/2, int(score_ui.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
+    score = [0, 0] # Declaring & initializing the players' starting scores
+    score_text = ds.FONTS['default_medium'].render(str(score[0]), True, COLOR['green']) # Creates text surface score to be imposed on score_subsurface
 
 
     line_ui = element(window, # GUI element for viewing current line count
@@ -46,6 +48,9 @@ def one_player(window, clock, window_size, sound_controller):
                     font_position=[gui.grid_square, gui.grid_square/4]
     ); line_subsurface = line_ui.surface.subsurface(0, 0, line_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
     line_position = [line_ui.position[0]+gui.grid_square/2, int(line_ui.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
+    line_count = [0, 0] # Declaring & initializing the players' line scores
+    line_text = ds.FONTS['default_medium'].render(str(line_count[0]), True, COLOR['green']) # Creates text surface score to be imposed on score_subsurface
+
 
     level_ui = element(window, # GUI element for viewing current line count
                     gui.grid[4][20], # Location of line counter element
@@ -57,6 +62,8 @@ def one_player(window, clock, window_size, sound_controller):
                     font_position=[gui.grid_square/2, gui.grid_square/4]
     ); level_subsurface = level_ui.surface.subsurface(0, 0, level_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
     level_position = [level_ui.position[0]+gui.grid_square/2, int(level_ui.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
+    level = [1, 1]
+    level_text = ds.FONTS['default_medium'].render(str(level[0]), True, COLOR['green']) # Creates text surface score to be imposed on score_subsurface
 
 
     running = True
@@ -90,6 +97,8 @@ def one_player(window, clock, window_size, sound_controller):
                     #print("Down key pressed") # Debugging line
                     # Move down logic
                     ts.movement(y_change=1)
+                    score[0] += 1
+                    score_text = ds.FONTS['default_medium'].render(str(score[0]), True, COLOR['green'])
 
                 elif event.key == pg.K_UP and ts.current_tetrominoes.static == False: # Up key press
                     #print("Rotate key pressed")  # Debugging line
@@ -99,6 +108,20 @@ def one_player(window, clock, window_size, sound_controller):
         # Gravity-based movement
         if gravity_timer >= gravity_interval:
             ts.movement(y_change=1) # Move tetromino down on y-axis
+
+            if ts.cleared_rows:
+                scores = ts.line_score(score[0], line_count[0]) # Calculates new scores and lien count
+                score[0] = score[0] + scores[0] # Sets new score
+                line_count[0] = line_count[0] + scores[1] # Sets new line count
+
+                score_text = ds.FONTS['default_medium'].render(str(score[0]), True, COLOR['green'])
+                line_text = ds.FONTS['default_medium'].render(str(line_count[0]), True, COLOR['green'])
+                if line_count[0] - (10*(level[0])) >= 0:
+                    level[0] = level[0] + 1
+                    gravity_interval = gravity_interval - 25
+                    level_text = ds.FONTS['default_medium'].render(str(level[0]), True, COLOR['green'])
+            print('G:', gravity_interval)
+
             ts.update_grid() # Updates grid of mechanics and rendering based upon movement changes
             gravity_timer = 0  # Resets the timer
             #ts.delete_lines()
@@ -113,14 +136,17 @@ def one_player(window, clock, window_size, sound_controller):
 
         score_ui.blit_update(window)
         score_subsurface.fill((200, 200, 245))
+        score_subsurface.blit(score_text, [10, 10])
         window.blit(score_subsurface, subsurface_position)
 
         line_ui.blit_update(window)
         line_subsurface.fill((200, 200, 245))
+        line_subsurface.blit(line_text, [10,10])
         window.blit(line_subsurface, line_position)
 
         level_ui.blit_update(window)
         level_subsurface.fill((200, 200, 245))
+        level_subsurface.blit(level_text, [10,10])
         window.blit(level_subsurface, level_position)
 
         ts.render_next_tetromino(window, next_position) # Display the next tetromino
