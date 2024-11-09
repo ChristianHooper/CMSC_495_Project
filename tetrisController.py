@@ -122,21 +122,21 @@ class TetrisController:
         #print("Generating Tetromino shape")
         return tm.tetrominoes(
             self.tetris_block_size, # Size of block in tetrominoes
-            [3, 1]) # Spawn location, starting position
+            [3, 0]) # Spawn location, starting position
 
     # Calculates the score and line count when clearing lines
     def line_score(self, score, level):
         cleared = len(self.cleared_rows)
+        self.cleared_rows = [] # Deletes clear row marker
         match cleared:
-            case 1: return (40 * (level + cleared), 1)
-            case 2: return (100 * (level + cleared), 2)
-            case 3: return (300 * (level + cleared), 3)
-            case 4: return (1200 * (level + cleared), 4)
+            case 1: print('Score Added:', (40 * (level + cleared))); return (40 * (level + cleared), 1)
+            case 2: print('Score Added:', (100 * (level + cleared))); return (100 * (level + cleared), 2)
+            case 3: print('Score Added:', (300 * (level + cleared))); return (300 * (level + cleared), 3)
+            case 4: print('Score Added:', (1200 * (level + cleared))); return (1200 * (level + cleared), 4)
 
     # Updates state of the tetris grid and render list
     # Transcribes tetrominoes shape into the self.tetris_grid
     def update_grid(self):
-        self.cleared_rows = [] # Deletes clear row marker
         self.render_points = [] # Empties old render points
         self.tetris_grid = [[None for x in range(sc['grid_size'])] for y in range(sc['grid_size'] * 2)] # Empties self.tetris_grid to be recalculated
 
@@ -206,12 +206,12 @@ class TetrisController:
             self.current_tetrominoes.static = True # Halts the self.current_tetrominoes object
             self.settle_tetromino() # Converts self.current tetrominoes object into blocks to be rendered
             self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
-# -------------------------
             self.current_tetrominoes = self.next_tetrominoes # Switches previewed tetrominoes for current controllable tetrominoes
             self.next_tetrominoes = self.generate_tetrominoes() # Generates a new preview tetrominoes
             if self.check_collision(): # Checks to see if game is over
                 self.game_over = True
                 print(f'GameOver: {self.game_over}')
+                return
 
 
     # Checks if the tetrominoes object collides with the tetris game frame of block object, checks x&y-axis separately

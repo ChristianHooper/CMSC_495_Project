@@ -30,6 +30,7 @@ def main(): # Main function that acts as the game controller
     game_state = ds.GAME_STATE['menu'] # Default game state at launch
     running = True # If game is running
     window_size = ds.SCREEN_SIZE[sc['screen_size']] # Default window size (x, y)
+
     # Window display on GPU, dual buffer
     window = pg.display.set_mode(window_size, pg.HWSURFACE | pg.DOUBLEBUF)
     clock = pg.time.Clock() # Starts game clock
