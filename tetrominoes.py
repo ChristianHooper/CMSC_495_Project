@@ -13,8 +13,10 @@ class tetrominoes:
         self.render_shape = self.number_convert()
         self.position = spawn
         self.static = False # If the tetromino is not moving
+        self.preview_shape = [] # An image of the shape when flipped prior to commit
 
-    def number_convert(self):
+
+    def number_convert(self): # Converts number matrices to object matrices (0,1) -> (None, Object)
         return [[None if x == 0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape]
 
 
@@ -39,4 +41,4 @@ class tetrominoes:
         for coord in translated_matrices: tetrominoes_array[coord[0]][coord[1]] = 1 # Places new coords in 0-1 matrices
 
         self.number_shape = list(tetrominoes_array) # Casts array to list
-        self.render_shape = self.number_convert() # Converts number array to object array
+        self.preview_shape = self.number_convert() # Converts number array to object array

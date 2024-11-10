@@ -72,6 +72,7 @@ class TetrisController:
         self.cleared_rows = []
 
         self.animation_interval = 500 # Length of tetrominoes animation
+        self.collision_list = []
 
 
 
@@ -119,7 +120,6 @@ class TetrisController:
 
 
     def generate_tetrominoes(self): # Creates a new tetrominoes object composed of tetrisBlock objects
-        #print("Generating Tetromino shape")
         return tm.tetrominoes(
             self.tetris_block_size, # Size of block in tetrominoes
             [3, 0]) # Spawn location, starting position
@@ -129,10 +129,10 @@ class TetrisController:
         cleared = len(self.cleared_rows)
         self.cleared_rows = [] # Deletes clear row marker
         match cleared:
-            case 1: print('Score Added:', (40 * (level + cleared))); return (40 * (level + cleared), 1)
-            case 2: print('Score Added:', (100 * (level + cleared))); return (100 * (level + cleared), 2)
-            case 3: print('Score Added:', (300 * (level + cleared))); return (300 * (level + cleared), 3)
-            case 4: print('Score Added:', (1200 * (level + cleared))); return (1200 * (level + cleared), 4)
+            case 1: return (40 * (level + cleared), 1)
+            case 2: return (100 * (level + cleared), 2)
+            case 3: return (300 * (level + cleared), 3)
+            case 4: return (1200 * (level + cleared), 4)
 
     # Updates state of the tetris grid and render list
     # Transcribes tetrominoes shape into the self.tetris_grid
@@ -192,16 +192,13 @@ class TetrisController:
 
     # Checks the x&y-axis for collisions, and increments the movement based upon direction input
     def movement(self, x_change=0, y_change=0):
-        #print(f"Gravity applied: Tetromino position before move: {self.current_tetrominoes.position}")
         if not self.check_collision(offset_x=x_change): # Horizontal check
             self.current_tetrominoes.position[0] += x_change
-            #(f"Tetromino position after move: {self.current_tetrominoes.position}")
 
         if not self.check_collision(offset_y=y_change): # Checks to see if y-axis increase will lead to a collision
             self.current_tetrominoes.position[1] += y_change
 
         else: # If collision detected with tetris game frame or another block
-            #print("Tetromino settled")
             self.current_tetrominoes.static = True # Halts the self.current_tetrominoes object
             self.settle_tetromino() # Converts self.current tetrominoes object into blocks to be rendered
             self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
@@ -214,7 +211,7 @@ class TetrisController:
 
 
     # Checks if the tetrominoes object collides with the tetris game frame of block object, checks x&y-axis separately
-    def check_collision(self, offset_x=0, offset_y=0, robust=False):
+    def check_collision(self, offset_x=0, offset_y=0):
         for y, row in enumerate(self.current_tetrominoes.render_shape): # Defines row list 0-3, get respective row number through y (render shape 4x4)
             for x, block in enumerate(row): # Get block value at x of a row in the 4x4 shape
                 if block: # Checks to see if index is a block object or is None
@@ -229,10 +226,43 @@ class TetrisController:
         return False # If collision False
 
 
+    # Checks if the tetrominoes object collides with the tetris game frame of block object, used to check flipping conditions
+    def flipping_collision(self):
+        for y, row in enumerate(self.current_tetrominoes.preview_shape): # Defines row list 0-3, get respective row number through y (render shape 4x4)
+            for x, block in enumerate(row): # Get block value at x of a row in the 4x4 shape
+                if block: # Checks to see if index is a block object or is None
+                    x_pos = x + self.current_tetrominoes.position[0]# Sets new x-axis position for checking x-axis collision
+                    y_pos = y + self.current_tetrominoes.position[1]# Sets new y-axis position for checking y-axis collision
+                    if y_pos >= len(self.tetris_grid) or y_pos < 0 or x_pos < 0 or x_pos >= len(self.tetris_grid[0]) or (
+                    self.tetris_grid[y_pos][x_pos] in self.static_blocks): self.collision_list.append([y_pos, x_pos])
+
+
+    # Called when flipping the current tetrominoes object, checking for possible collision on flip
     def tetrominoes_flipping(self):
-        self.current_tetrominoes.flip()
-        print('\n', self.current_tetrominoes.position)
-        for row in self.current_tetrominoes.render_shape: print(row)
+        self.current_tetrominoes.flip() # Create an image of the tetrominoes if flipped
+        self.flipping_collision() # Test image for collision
+        apriori_position = self.current_tetrominoes.position # Tetrominoes position before any movement action
+        apriori_shape = self.current_tetrominoes.render_shape # Tetrominoes shape before any movement action
+
+        for position in self.collision_list: # Moves tetrominoes based upon flip position
+            # Left wall collision
+            if position[1] == -2: self.current_tetrominoes.position[0] += 2; break
+            if position[1] == -1: self.current_tetrominoes.position[0] += 1; break
+            # Right wall collision
+            if position[1] == 12: self.current_tetrominoes.position[0] -= 1
+            if position[1] == 13: self.current_tetrominoes.position[0] -= 1; break
+            # Floor collision
+            if position[0] == 24: self.current_tetrominoes.position[1] -= 1
+            if position[0] == 125: self.current_tetrominoes.position[1] -= 1; break
+
+        # Assigns flipped image of tetrominoes as current tetrominoes
+        self.current_tetrominoes.render_shape = self.current_tetrominoes.preview_shape
+
+        if self.check_collision(): # Checks to make sure tetrominoes hasn't flipped into another static block
+            self.current_tetrominoes.position = apriori_position # Reset to previous position
+            self.current_tetrominoes.render_shape = apriori_shape # Reset to previous shape
+
+        self.collision_list = []
 
 
     # Divides current self.current_tetrominoes once it becomes static into a persistent block list for logic and rendering

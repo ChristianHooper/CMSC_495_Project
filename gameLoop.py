@@ -240,7 +240,7 @@ def one_player(window, clock, window_size, sound_controller):
 
     gravity_timer = 0  # Timer for gravity control
     gravity_interval = ds.GRAVITY_SPEED # Milliseconds delay for each gravity step
-    pg.key.set_repeat(gravity_interval, 25) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
+    pg.key.set_repeat(500, 25) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -250,11 +250,11 @@ def one_player(window, clock, window_size, sound_controller):
         gravity_timer += clock.get_time() # Update gravity timing
 
         for event in pg.event.get():
+            pg.key.set_repeat(100, 20)
             if event.type == pg.QUIT:
                 running = False
 
             elif event.type == pg.KEYDOWN: # Checks for a key press event
-
                 # Pauses game
                 if event.key == pg.K_SPACE:
                     paused = True # Sets pause condition to true
@@ -276,6 +276,7 @@ def one_player(window, clock, window_size, sound_controller):
 
                 # Rotate logic
                 elif event.key == pg.K_UP and ts.current_tetrominoes.static == False: # Up key press
+                    pg.key.set_repeat(500, 500) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
                     ts.tetrominoes_flipping()
 
         # Gravity-based movement
