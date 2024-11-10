@@ -179,7 +179,6 @@ class TetrisController:
             pg.draw.rect(self.tetris_surface, block.color, block.small_block) # Draws block onto tetris surface before being blit
 
 
-    # TODO: Needs to work with GUI controller and a bag GUI element
     def render_next_tetromino(self, window, position): # Renders the coming tetrominoes before being placed in the controllable self.current_tetrominoes
         for y, row in enumerate(self.next_tetrominoes.render_shape):
             for x, block in enumerate(row):
@@ -215,7 +214,7 @@ class TetrisController:
 
 
     # Checks if the tetrominoes object collides with the tetris game frame of block object, checks x&y-axis separately
-    def check_collision(self, offset_x=0, offset_y=0):
+    def check_collision(self, offset_x=0, offset_y=0, robust=False):
         for y, row in enumerate(self.current_tetrominoes.render_shape): # Defines row list 0-3, get respective row number through y (render shape 4x4)
             for x, block in enumerate(row): # Get block value at x of a row in the 4x4 shape
                 if block: # Checks to see if index is a block object or is None
@@ -227,8 +226,13 @@ class TetrisController:
                     if new_y >= len(self.tetris_grid) or new_y < 0 or new_x < 0 or new_x >= len(self.tetris_grid[0]) or (
                         self.tetris_grid[new_y][new_x] in self.static_blocks): # Tetris object collision checks
                         return True # If collision is detected
-
         return False # If collision False
+
+
+    def tetrominoes_flipping(self):
+        self.current_tetrominoes.flip()
+        print('\n', self.current_tetrominoes.position)
+        for row in self.current_tetrominoes.render_shape: print(row)
 
 
     # Divides current self.current_tetrominoes once it becomes static into a persistent block list for logic and rendering

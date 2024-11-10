@@ -17,7 +17,7 @@ def one_player(window, clock, window_size, sound_controller):
 
     end_menu = element(window, # GUI element for end of game window
                     gui.grid[10][4], # Location of surface, centered
-                    [gui.grid_square*12, gui.grid_square*16], # Width & Height
+                    [gui.grid_square*12, gui.grid_square*12], # Width & Height
                     fill_color=COLOR['white'],
                     border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
                     border_color=(64,64,64, 128),
@@ -276,7 +276,7 @@ def one_player(window, clock, window_size, sound_controller):
 
                 # Rotate logic
                 elif event.key == pg.K_UP and ts.current_tetrominoes.static == False: # Up key press
-                    ts.current_tetrominoes.flip()
+                    ts.tetrominoes_flipping()
 
         # Gravity-based movement
         if gravity_timer >= gravity_interval:
