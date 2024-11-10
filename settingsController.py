@@ -13,6 +13,7 @@ Used to load the default setting into game to initialize the controller.
 def load_settings(): # Loads JSON setting into game
     global settings_conduit
     if os.path.exists(SETTINGS_FILE): # Checks data file
+        print("FOUND")
         with open(SETTINGS_FILE, 'r') as data: # Reads file, defines object
 
             try: settings_conduit = json.load(data) # JSON to dictionary
@@ -26,8 +27,9 @@ save_settings
 Used to transfer modified values in the setting dictionary to JSON for data persistence.
 '''
 def save_settings(): # Saves controller changes to JSON file
+    global settings_conduit
     with open(SETTINGS_FILE, 'w') as data: # Write file, defines object
-        json.dump(settings, data, indent=4) # Dump setting to JSON object
+        json.dump(settings_conduit, data, indent=4) # Dump setting to JSON object
 
 
 '''

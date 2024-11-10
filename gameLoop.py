@@ -1,4 +1,5 @@
-from settingsController import settings_conduit as sc  # Settings controller
+import settingsController as sc
+#from settingsController import settings_conduit as sc  # Settings controller
 from soundController import SoundController  # Import SoundController
 from tetrisController import TetrisController  # Updated class name
 from guiElement import element
@@ -25,11 +26,36 @@ def one_player(window, clock, window_size, sound_controller):
     ); high_score_subsurface = end_menu.surface.subsurface(0, 0, end_menu.bounds[0]-gui.grid_square, (end_menu.bounds[1]/2)) # Box for render high scores
     high_score_position = [end_menu.position[0]+gui.grid_square/2, int(end_menu.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
     high_score_text = ds.FONTS['default_medium'].render('High Scores', True, COLOR['white']) # Creates text surface score to be imposed on score_subsurface
-    high_text_positions = [ # Positions of high score text in subsurface
-        [0, 0],
-    ]
 
-    # TODO: Add buttons & text to ending game menu and integrate JSON
+    restart_button = Button(gui.grid[13][15], # Restart game button
+                            COLOR['grey'],
+                            COLOR['black'],
+                            ds.FONTS['default_medium'],
+                            'Restart',
+                            COLOR['red']
+    )
+    main_menu_button = Button(gui.grid[18][15], # navigates to the main menu
+                            COLOR['grey'],
+                            COLOR['black'],
+                            ds.FONTS['default_medium'],
+                            'Main Menu',
+                            COLOR['red']
+    )
+
+
+    input_score_menu = element(window, # GUI element for end of game window
+                        gui.grid[10][4], # Location of surface, centered
+                        [gui.grid_square*12, gui.grid_square*16], # Width & Height
+                        fill_color=COLOR['white'],
+                        border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
+                        border_color=(64,64,64, 128),
+                        text='Enter New High Score', # Rendered text
+                        font=ds.FONTS['default_medium'],
+                        font_position=[gui.grid_square/2, gui.grid_square/4] # Font position on surface
+    )
+    score_input_box = pg.Rect(gui.grid[13][14], # Location
+                            [gui.grid_square*6, gui.grid_square*2]) # Size
+
 
     grab_bag = element(window, # GUI element for preview oncoming tetrominoes
                     gui.grid[4][1], # Location of grab-bag
@@ -83,18 +109,108 @@ def one_player(window, clock, window_size, sound_controller):
     level = [1, 1] # Declaring & initializing the level
     level_text = ds.FONTS['default_medium'].render(str(level[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
 
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    # Function called when game ends
+    # Function called to run end-game sequence
     def conclude(game_over):
-        while game_over:
+        score_sort = sorted(sc.settings_conduit['scores'], key=lambda key : sc.settings_conduit['scores'][key])
+        change_score = False # If a new high-score is recorded
+        input_active = False
+        user_text = ''
+        saved_key = []
 
+        #Searches for new high-score and sets it in JSON file
+        for place, key in enumerate(score_sort):
+            if sc.settings_conduit['scores'][key] < score[0]:
+                saved_key = [key, place]
+                change_score = True
+                break
+
+        # User entering in new score GUI
+        while change_score: # Changing score loop
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    return None # Quits game
+
+                if event.type == pg.MOUSEBUTTONDOWN: # Detect if the mouse click
+                    if score_input_box.collidepoint(event.pos): input_active = True  # Activate the input box
+                    else: input_active = False
+                    #if ok_button_rect.collidepoint(event.pos):
+                        #print(f"Entered Initials: {user_text}")
+                        #user_text = ''  # Reset text input if needed
+                        # You can add additional functionality for when "OK" is clicked
+
+                # Keyboard input for text
+                if event.type == pg.KEYDOWN and input_active:
+                    if event.key == pg.K_RETURN:
+                        if user_text not in score_sort:
+                            sc.settings_conduit['scores'].update({user_text: score[0]})
+                            del sc.settings_conduit['scores'][saved_key[0]] # If username enter already exists, doesn't delete slot
+                            score_sort[saved_key[1]] = user_text
+                        elif user_text in score_sort:
+                            sc.settings_conduit['scores'][user_text] = score[0]
+                            print('AP:', score_sort)
+                            print('DIS: ', sc.settings_conduit['scores'])
+                            #score_sort = sorted(sc.settings_conduit['scores'], key=lambda key : sc.settings_conduit['scores'][key])
+                        sc.save_settings()
+                        change_score = False
+
+
+                    elif event.key == pg.K_BACKSPACE:
+                        user_text = user_text[:-1]
+                    elif len(user_text) < 3 and event.unicode.isalpha():  # Limits input to 3 letters
+                        user_text += event.unicode.upper()
+
+                input_score_menu.surface.fill(COLOR['grey'])
+                input_score_menu.blit_update(window)
+                pg.draw.rect(window, COLOR['black'], score_input_box, border_radius=10)
+                pg.draw.rect(window, COLOR['white'], score_input_box, 2, border_radius=10)
+
+                score_text = ds.FONTS['default_large'].render('New High-Score', True, COLOR['black'])
+                score_number = ds.FONTS['default_large'].render(f'{score[0]}', True, COLOR['red'])
+                input_text = ds.FONTS['default_large'].render(user_text, True, COLOR['white'])
+
+                window.blit(score_text, (score_input_box.x-gui.grid_square*2, score_input_box.y - gui.grid_square * 4))
+                window.blit(score_number, (score_input_box.center[0]-gui.grid_square*2, score_input_box.y - gui.grid_square * 2))
+                window.blit(input_text, (score_input_box.x+gui.grid_square, score_input_box.y+10))
+                #input_score_menu.surface.blit(input_score_menu, [100, 100])
+                pg.display.flip()
+
+        score_sort = sorted(sc.settings_conduit['scores'], key=lambda key : sc.settings_conduit['scores'][key]) # Resorts scores
+
+        # Viewing current top scores
+        while game_over: # Game over loop
             for event in pg.event.get(): # Check for game exit
                 if event.type == pg.QUIT:
                     game_over = False # Unpauses game
 
+                # Listener for player button click
+                elif event.type == pg.MOUSEBUTTONDOWN:
+
+                    if event.button == 1: # Left-click button
+                        mouse_position = pg.mouse.get_pos()
+                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
+                        if main_menu_button.clicked(mouse_position): return ds.GAME_STATE['menu']
+
+            # Calculate text output for first place
+            score_one = ds.FONTS['default_medium'].render(f'First Place:      {score_sort[-1]} | {sc.settings_conduit["scores"][score_sort[-1]]}', True, COLOR['black'])
+            score_two = ds.FONTS['default_medium'].render(f'Second Place: {score_sort[-2]} | {sc.settings_conduit["scores"][score_sort[-2]]}', True, COLOR['black'])
+            score_third = ds.FONTS['default_medium'].render(f'Third Place:     {score_sort[-3]} | {sc.settings_conduit["scores"][score_sort[-3]]}', True, COLOR['black'])
+            score_fourth = ds.FONTS['default_medium'].render(f'Fourth Place:   {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
+            score_fifth = ds.FONTS['default_medium'].render(f'Fifth Place:      {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
+
             end_menu.blit_update(window)
             high_score_subsurface.fill(COLOR['grey'])
             high_score_subsurface.blit(high_score_text, [10, 10])
+            high_score_subsurface.blit(score_one, [10, gui.grid_square*2])
+            high_score_subsurface.blit(score_two, [10, gui.grid_square*3])
+            high_score_subsurface.blit(score_third, [10, gui.grid_square*4])
+            high_score_subsurface.blit(score_fourth, [10, gui.grid_square*5])
+            high_score_subsurface.blit(score_fifth, [10, gui.grid_square*6])
+
+            restart_button.render(window)
+            main_menu_button.render(window)
+
             window.blit(high_score_subsurface, high_score_position)
             pg.display.flip()
 
@@ -125,6 +241,8 @@ def one_player(window, clock, window_size, sound_controller):
     gravity_timer = 0  # Timer for gravity control
     gravity_interval = ds.GRAVITY_SPEED # Milliseconds delay for each gravity step
     pg.key.set_repeat(gravity_interval, 25) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
+
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     # Game-loop
     while running:
