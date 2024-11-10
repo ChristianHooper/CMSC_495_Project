@@ -23,7 +23,7 @@ def one_player(window, clock, window_size, sound_controller):
                     border_color=(64,64,64, 128),
                     text='Game Over', # Rendered text
                     font_position=[gui.grid_square/2, gui.grid_square/4] # Font position on surface
-    ); high_score_subsurface = end_menu.surface.subsurface(0, 0, end_menu.bounds[0]-gui.grid_square, (end_menu.bounds[1]/2)) # Box for render high scores
+    ); high_score_subsurface = end_menu.surface.subsurface(0, 0, end_menu.bounds[0]-gui.grid_square, (end_menu.bounds[1]/1.5)) # Box for render high scores
     high_score_position = [end_menu.position[0]+gui.grid_square/2, int(end_menu.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
     high_score_text = ds.FONTS['default_medium'].render('High Scores', True, COLOR['white']) # Creates text surface score to be imposed on score_subsurface
 
@@ -34,7 +34,7 @@ def one_player(window, clock, window_size, sound_controller):
                             'Restart',
                             COLOR['red']
     )
-    main_menu_button = Button(gui.grid[18][15], # navigates to the main menu
+    main_menu_button = Button(gui.grid[18][15], # Navigates to the main menu
                             COLOR['grey'],
                             COLOR['black'],
                             ds.FONTS['default_medium'],
