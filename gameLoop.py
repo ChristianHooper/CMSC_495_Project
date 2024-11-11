@@ -149,9 +149,6 @@ def one_player(window, clock, window_size, sound_controller):
                             score_sort[saved_key[1]] = user_text
                         elif user_text in score_sort:
                             sc.settings_conduit['scores'][user_text] = score[0]
-                            print('AP:', score_sort)
-                            print('DIS: ', sc.settings_conduit['scores'])
-                            #score_sort = sorted(sc.settings_conduit['scores'], key=lambda key : sc.settings_conduit['scores'][key])
                         sc.save_settings()
                         change_score = False
 
@@ -250,7 +247,7 @@ def one_player(window, clock, window_size, sound_controller):
         gravity_timer += clock.get_time() # Update gravity timing
 
         for event in pg.event.get():
-            pg.key.set_repeat(100, 20)
+            pg.key.set_repeat(250, 25)
             if event.type == pg.QUIT:
                 running = False
 
@@ -276,7 +273,7 @@ def one_player(window, clock, window_size, sound_controller):
 
                 # Rotate logic
                 elif event.key == pg.K_UP and ts.current_tetrominoes.static == False: # Up key press
-                    pg.key.set_repeat(500, 500) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
+                    pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
                     ts.tetrominoes_flipping()
 
         # Gravity-based movement
@@ -298,7 +295,6 @@ def one_player(window, clock, window_size, sound_controller):
 
             ts.update_grid() # Updates grid of mechanics and rendering based upon movement changes
             gravity_timer = 0  # Resets the timer
-            #for row in ts.tetris_grid: print(f"{row}") # Prints a terminal based tetris grid
 
         # Rendering
         window.fill(COLOR['black'])

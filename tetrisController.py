@@ -44,7 +44,7 @@ game_over : Boolean that defines if game is over. |boolean|
 class TetrisController:
     def __init__(self, window_size, border):
         # Initialize attributes
-        self.tetris_grid = [[None for _ in range(sc['grid_size'])] for _ in range(sc['grid_size'] * 2)]
+        self.tetris_grid = [[None for _ in range(sc['grid_size'])] for _ in range((sc['grid_size'] * 2))]
         self.border = [x * gui.grid_square for x in border]
         self.window_size = window_size
 
@@ -150,13 +150,9 @@ class TetrisController:
 
                 # Checks tetrominoes shape against y-axis of grid
                 if row >= self.current_tetrominoes.position[1] and self.current_tetrominoes.position[1] + len(self.current_tetrominoes.render_shape) > row:
-                #if row >= self.current_tetrominoes.position[1] and self.current_tetrominoes.position[1] + len(
-                        #self.current_tetrominoes.render_shape[1]) > row:
 
                     # Checks tetrominoes shape against x-axis of grid
                     if col >= self.current_tetrominoes.position[0] and self.current_tetrominoes.position[0] + len(self.current_tetrominoes.render_shape[0]) > col:
-                    #if col >= self.current_tetrominoes.position[0] and self.current_tetrominoes.position[0] + len(
-                            #self.current_tetrominoes.render_shape[0]) > col:
 
                         # Defines the object and indices on the self.tetris_grid the tetromino will be placed
                         grid_square = self.current_tetrominoes.render_shape[row - self.current_tetrominoes.position[1]][
@@ -192,13 +188,16 @@ class TetrisController:
 
     # Checks the x&y-axis for collisions, and increments the movement based upon direction input
     def movement(self, x_change=0, y_change=0):
-        if not self.check_collision(offset_x=x_change): # Horizontal check
+        if x_change != 0 and not self.check_collision(offset_x=x_change): # Horizontal check
+            #print("RUN")
             self.current_tetrominoes.position[0] += x_change
 
-        if not self.check_collision(offset_y=y_change): # Checks to see if y-axis increase will lead to a collision
-            self.current_tetrominoes.position[1] += y_change
+        #  TODO: WHERE I THINK COLLISION RARE BUG STEMS FROM
+        if self.check_collision(offset_y=y_change) != True: # Checks to see if y-axis increase will lead to a collision
+            self.current_tetrominoes.position[1] += y_change 
 
         else: # If collision detected with tetris game frame or another block
+            print(self.current_tetrominoes.position)
             self.current_tetrominoes.static = True # Halts the self.current_tetrominoes object
             self.settle_tetromino() # Converts self.current tetrominoes object into blocks to be rendered
             self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
@@ -208,7 +207,6 @@ class TetrisController:
                 self.game_over = True
                 print(f'GameOver: {self.game_over}')
                 return
-
 
     # Checks if the tetrominoes object collides with the tetris game frame of block object, checks x&y-axis separately
     def check_collision(self, offset_x=0, offset_y=0):
@@ -220,9 +218,10 @@ class TetrisController:
                     new_y = y + self.current_tetrominoes.position[1] + offset_y  # Sets new y-axis position for checking y-axis collision
 
                     # Check to see if the tetrominoes in a new position would meet any out-of-bounds conditions
-                    if new_y >= len(self.tetris_grid) or new_y < 0 or new_x < 0 or new_x >= len(self.tetris_grid[0]) or (
-                        self.tetris_grid[new_y][new_x] in self.static_blocks): # Tetris object collision checks
+                    if new_y >= len(self.tetris_grid) or new_x < 0 or new_x >= len(self.tetris_grid[0]): # Tetris object collision checks
                         return True # If collision is detected
+
+                    if (self.tetris_grid[new_y][new_x] in self.static_blocks): return True
         return False # If collision False
 
 
@@ -275,7 +274,7 @@ class TetrisController:
 
     # Checks entire grid and clear line moving current block down by one
     def clear_lines(self):
-        self.cleared_rows = [index for index, row in enumerate(self.tetris_grid) if all(row)] # Tag rows to be clear (nice job; great line of code)
+        self.cleared_rows = [index for index, row in enumerate(self.tetris_grid) if all(row)] # Tag rows to be clear
 
         if self.cleared_rows: # If there are lines to be cleared
             for row_index in self.cleared_rows: # Gets row
