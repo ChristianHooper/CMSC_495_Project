@@ -72,7 +72,8 @@ class TetrisController:
         self.cleared_rows = []
 
         self.animation_interval = 500 # Length of tetrominoes animation
-        self.collision_list = []
+        self.collision_list = [] # List of colliding block used in flip function
+        self.transfer = False # If the current tetrominoes is slated for static block conversion
 
 
 
@@ -186,18 +187,30 @@ class TetrisController:
                     (self.tetris_block_size, self.tetris_block_size)))
 
 
+    def gravity(self): # Used for constant gravity pull and player induced block movement
+        for block_position in self.current_tetrominoes.block_locations: # Gets the position of the blocks in the 4x4 matrices of the current tetrominoes
+            # Transfers matrices coordinates to grid coordinates based upon current tetrominoes
+            grid_position = [block_position[0] + self.current_tetrominoes.position[1], block_position[1] + self.current_tetrominoes.position[0]]
+            print(grid_position)
+            if grid_position[0] > len(self.tetris_grid)-2 or ( # Checks tetris grid depth
+            self.tetris_grid[grid_position[0]+1][grid_position[1]] in self.static_blocks): # Checks for existing static blocks
+                self.transfer = True # If collision is found begins tetrominoes transmission to static blocks
+                return
+        print()
+        self.current_tetrominoes.position[1] += 1
+
+
     # Checks the x&y-axis for collisions, and increments the movement based upon direction input
     def movement(self, x_change=0, y_change=0):
         if x_change != 0 and not self.check_collision(offset_x=x_change): # Horizontal check
-            #print("RUN")
             self.current_tetrominoes.position[0] += x_change
 
-        #  TODO: WHERE I THINK COLLISION RARE BUG STEMS FROM
-        if self.check_collision(offset_y=y_change) != True: # Checks to see if y-axis increase will lead to a collision
-            self.current_tetrominoes.position[1] += y_change 
+        # DEPRECATED ---------------------------------------------------------------------------------------------------
+        #if self.check_collision(offset_y=y_change) != True: # Checks to see if y-axis increase will lead to a collision
+            #self.current_tetrominoes.position[1] += y_change
+        # DEPRECATED ---------------------------------------------------------------------------------------------------
 
-        else: # If collision detected with tetris game frame or another block
-            print(self.current_tetrominoes.position)
+        elif self.transfer: # If collision detected with tetris game frame or another block
             self.current_tetrominoes.static = True # Halts the self.current_tetrominoes object
             self.settle_tetromino() # Converts self.current tetrominoes object into blocks to be rendered
             self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
@@ -207,6 +220,7 @@ class TetrisController:
                 self.game_over = True
                 print(f'GameOver: {self.game_over}')
                 return
+            self.transfer = False
 
     # Checks if the tetrominoes object collides with the tetris game frame of block object, checks x&y-axis separately
     def check_collision(self, offset_x=0, offset_y=0):
@@ -242,6 +256,7 @@ class TetrisController:
         self.flipping_collision() # Test image for collision
         apriori_position = self.current_tetrominoes.position # Tetrominoes position before any movement action
         apriori_shape = self.current_tetrominoes.render_shape # Tetrominoes shape before any movement action
+        apriori_block_location = self.current_tetrominoes.block_locations
 
         for position in self.collision_list: # Moves tetrominoes based upon flip position
             # Left wall collision
@@ -256,10 +271,12 @@ class TetrisController:
 
         # Assigns flipped image of tetrominoes as current tetrominoes
         self.current_tetrominoes.render_shape = self.current_tetrominoes.preview_shape
+        self.current_tetrominoes.update_blocks() # Updates where the array that holds the block location in the 4x4 matrices
 
         if self.check_collision(): # Checks to make sure tetrominoes hasn't flipped into another static block
             self.current_tetrominoes.position = apriori_position # Reset to previous position
             self.current_tetrominoes.render_shape = apriori_shape # Reset to previous shape
+            self.current_tetrominoes.block_locations = apriori_block_location
 
         self.collision_list = []
 

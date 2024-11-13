@@ -237,7 +237,7 @@ def one_player(window, clock, window_size, sound_controller):
 
     gravity_timer = 0  # Timer for gravity control
     gravity_interval = ds.GRAVITY_SPEED # Milliseconds delay for each gravity step
-    pg.key.set_repeat(500, 25) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
+    pg.key.set_repeat(100, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -247,7 +247,7 @@ def one_player(window, clock, window_size, sound_controller):
         gravity_timer += clock.get_time() # Update gravity timing
 
         for event in pg.event.get():
-            pg.key.set_repeat(250, 25)
+            #pg.key.set_repeat(100, 100)
             if event.type == pg.QUIT:
                 running = False
 
@@ -267,18 +267,20 @@ def one_player(window, clock, window_size, sound_controller):
 
                 # Move down logic
                 elif event.key == pg.K_DOWN and ts.current_tetrominoes.static == False: # Down key press
-                    ts.movement(y_change=1)
+                    #ts.movement(y_change=1)
+                    ts.gravity()
                     score[0] += 1
                     score_text = ds.FONTS['default_medium'].render(str(score[0]), True, COLOR['black'])
 
                 # Rotate logic
                 elif event.key == pg.K_UP and ts.current_tetrominoes.static == False: # Up key press
-                    pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
+                    #pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
                     ts.tetrominoes_flipping()
 
         # Gravity-based movement
         if gravity_timer >= gravity_interval:
             ts.movement(y_change=1) # Move tetromino down on y-axis
+            ts.gravity()
 
             if ts.cleared_rows:
                 scores = ts.line_score(score[0], line_count[0]) # Calculates new scores and lien count
