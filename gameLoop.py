@@ -13,7 +13,14 @@ import guiController as gui
 
 def one_player(window, clock, window_size, sound_controller):
 
-    ts = TetrisController(window_size, [0, 1])  # TetrisController class, game logic & rendering
+    agents = sc.settings_conduit['aspect_ratio'] # Constraining factor for multiplayer
+    ts = TetrisController(window_size, [0, 1], agents)  # TetrisController class, game logic & rendering
+    #tst = TetrisController(window_size, [0, 1], agents)  # TetrisController class, player two
+    font_slab = ds.FONTS['default_large']
+    font_tab = ds.FONTS['default_medium']
+    if agents > 1: # Converts normal sized font to small font
+        font_slab = ds.FONTS['default_small'] # Adjust font sizes if more than one player is playing
+        font_tab = ds.FONTS['default_small']
 
     end_menu = element(window, # GUI element for end of game window
                     gui.grid[10][4], # Location of surface, centered
@@ -58,56 +65,60 @@ def one_player(window, clock, window_size, sound_controller):
 
 
     grab_bag = element(window, # GUI element for preview oncoming tetrominoes
-                    gui.grid[4][1], # Location of grab-bag
-                    [gui.grid_square*5, gui.grid_square*7], # Width & Height of grab-bag
+                    gui.grid[int(4/agents/agents)][1], # Location of grab-bag
+                    [(gui.grid_square*5)/agents, (gui.grid_square*7)/agents], # Width & Height of grab-bag
                     fill_color=(128,128,128),
                     border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
                     border_color=(64,64,64), # Border color
+                    font=font_slab,
                     text='Next',
-                    font_position=[gui.grid_square, gui.grid_square/4]
-    ); next_position = [grab_bag.position[0], grab_bag.position[1]+(gui.grid_square*2.25)] # The pixel position the new next_tetrominoes object will render
+                    font_position=[gui.grid_square/agents, gui.grid_square/4]
+    ); next_position = [grab_bag.position[0]*agents, grab_bag.position[1]+(gui.grid_square*2.25)/agents] # The pixel position the new next_tetrominoes object will render
 
 
     score_ui = element(window, # GUI element for preview oncoming tetrominoes
-                    gui.grid[4][10], # Location of score element
-                    [gui.grid_square*5, gui.grid_square*3], # Width & Height of score element
+                    gui.grid[int(4/agents/agents)][10], # Location of score element
+                    [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of score element
                     fill_color=(128,128,128),
                     border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
                     border_color=(64,64,64),
+                    font=font_slab,
                     text='Score', # Rendered text
-                    font_position=[gui.grid_square/2, gui.grid_square/4] # Font position on surface
+                    font_position=[gui.grid_square/2, (gui.grid_square/4)/agents] # Font position on surface
     ); score_subsurface = score_ui.surface.subsurface(0, 0, score_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current score will render
     subsurface_position = [score_ui.position[0]+gui.grid_square/2, int(score_ui.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
     score = [0, 0] # Declaring & initializing the players' starting scores
-    score_text = ds.FONTS['default_medium'].render(str(score[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    score_text =font_tab.render(str(score[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
 
 
     line_ui = element(window, # GUI element for viewing current line count
-                    gui.grid[4][15], # Location of line counter element
-                    [gui.grid_square*5, gui.grid_square*3], # Width & Height of line counter element
+                    gui.grid[int(4/agents/agents)][int(15)], # Location of line counter element
+                    [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of line counter element
                     fill_color=(128,128,128),
                     border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
                     border_color=(64,64,64), # Border color
+                    font=font_slab,
                     text='Line',
-                    font_position=[gui.grid_square, gui.grid_square/4]
+                    font_position=[gui.grid_square/agents, gui.grid_square/4]
     ); line_subsurface = line_ui.surface.subsurface(0, 0, line_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
     line_position = [line_ui.position[0]+gui.grid_square/2, int(line_ui.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
     line_count = [0, 0] # Declaring & initializing the players' line scores
-    line_text = ds.FONTS['default_medium'].render(str(line_count[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    line_text = font_tab.render(str(line_count[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
 
 
     level_ui = element(window, # GUI element for viewing current line count
-                    gui.grid[4][20], # Location of line counter element
-                    [gui.grid_square*5, gui.grid_square*3], # Width & Height of line counter element
+                    gui.grid[int(4/agents/agents)][20], # Location of line counter element
+                    [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of line counter element
                     fill_color=(128,128,128),
                     border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
                     border_color=(64,64,64), # Border color
                     text='Level',
-                    font_position=[gui.grid_square/2, gui.grid_square/4]
+                    font=font_slab,
+                    font_position=[(gui.grid_square/2)/agents, gui.grid_square/4]
     ); level_subsurface = level_ui.surface.subsurface(0, 0, level_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
     level_position = [level_ui.position[0]+gui.grid_square/2, int(level_ui.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
     level = [1, 1] # Declaring & initializing the level
-    level_text = ds.FONTS['default_medium'].render(str(level[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    level_text = font_tab.render(str(level[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -135,10 +146,6 @@ def one_player(window, clock, window_size, sound_controller):
                 if event.type == pg.MOUSEBUTTONDOWN: # Detect if the mouse click
                     if score_input_box.collidepoint(event.pos): input_active = True  # Activate the input box
                     else: input_active = False
-                    #if ok_button_rect.collidepoint(event.pos):
-                        #print(f"Entered Initials: {user_text}")
-                        #user_text = ''  # Reset text input if needed
-                        # You can add additional functionality for when "OK" is clicked
 
                 # Keyboard input for text
                 if event.type == pg.KEYDOWN and input_active:
@@ -245,7 +252,6 @@ def one_player(window, clock, window_size, sound_controller):
     while running:
 
         gravity_timer += clock.get_time() # Update gravity timing
-
         for event in pg.event.get():
             #pg.key.set_repeat(100, 100)
             if event.type == pg.QUIT:
@@ -267,10 +273,12 @@ def one_player(window, clock, window_size, sound_controller):
 
                 # Move down logic
                 elif event.key == pg.K_DOWN and ts.current_tetrominoes.static == False: # Down key press
+
                     #ts.movement(y_change=1)
                     ts.gravity()
                     score[0] += 1
                     score_text = ds.FONTS['default_medium'].render(str(score[0]), True, COLOR['black'])
+
 
                 # Rotate logic
                 elif event.key == pg.K_UP and ts.current_tetrominoes.static == False: # Up key press

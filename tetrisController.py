@@ -42,20 +42,24 @@ game_over : Boolean that defines if game is over. |boolean|
 
 
 class TetrisController:
-    def __init__(self, window_size, border):
+    def __init__(self, window_size, border, agents):
         # Initialize attributes
         self.tetris_grid = [[None for _ in range(sc['grid_size'])] for _ in range((sc['grid_size'] * 2))]
+        self.tetris_width = len(self.tetris_grid[0])
+        self.tetris_length = len(self.tetris_grid)
+        self.gen = agents # Number of players apart of the game-loop
         self.border = [x * gui.grid_square for x in border]
         self.window_size = window_size
 
         self.tetris_surface_size = (
-            (self.window_size[1] - (self.border[1] * 2) - (self.border[0] * 2)) / 2, # x-axis
-            self.window_size[1] - (self.border[1] * 2)) # y-axis
+            ((self.window_size[1]/1) - (self.border[1] * 2) - (self.border[0] * 2)) / 2, # x-axis
+            (self.window_size[1]) - (self.border[1] * 2)) # y-axis
 
         self.tetris_block_size = self.tetris_surface_size[0] / sc['grid_size']
         self.tetris_coordinates = self.create_coordinates()
         self.tetris_surface = pg.Surface(self.tetris_surface_size)
-        self.centering = (gui.grid[int(GUI_GRID / 2)][0][0] - (self.tetris_surface_size[0] / 2), self.border[1])
+        self.centering = [gui.grid[int(GUI_GRID / 2)][0][0] - (self.tetris_surface_size[0] / 2*self.gen), self.border[1]] # Defines general position of the grid
+        if self.gen > 1: self.centering[0] -= gui.grid_square/self.gen
         self.tetris_grid_color = COLOR['black']
         self.tetris_surface_color = (100, 100, 100)
 
@@ -180,23 +184,21 @@ class TetrisController:
         for y, row in enumerate(self.next_tetrominoes.render_shape):
             for x, block in enumerate(row):
                 if block: # Renders grab-bag tetrominoes
-                    pos_x = int(position[0] + x * self.tetris_block_size)
-                    pos_y = int(position[1] + y * self.tetris_block_size)
+                    pos_x = int((position[0]/self.gen + x * self.tetris_block_size/self.gen))
+                    pos_y = int(position[1] + y * self.tetris_block_size/self.gen)
                     pg.draw.rect(window, block.color,
                     ((pos_x, pos_y), # Window position of render
-                    (self.tetris_block_size, self.tetris_block_size)))
+                    ((self.tetris_block_size/self.gen)+1, (self.tetris_block_size/self.gen)+1)))
 
 
     def gravity(self): # Used for constant gravity pull and player induced block movement
         for block_position in self.current_tetrominoes.block_locations: # Gets the position of the blocks in the 4x4 matrices of the current tetrominoes
             # Transfers matrices coordinates to grid coordinates based upon current tetrominoes
             grid_position = [block_position[0] + self.current_tetrominoes.position[1], block_position[1] + self.current_tetrominoes.position[0]]
-            print(grid_position)
             if grid_position[0] > len(self.tetris_grid)-2 or ( # Checks tetris grid depth
             self.tetris_grid[grid_position[0]+1][grid_position[1]] in self.static_blocks): # Checks for existing static blocks
                 self.transfer = True # If collision is found begins tetrominoes transmission to static blocks
                 return
-        print()
         self.current_tetrominoes.position[1] += 1
 
 
@@ -263,11 +265,11 @@ class TetrisController:
             if position[1] == -2: self.current_tetrominoes.position[0] += 2; break
             if position[1] == -1: self.current_tetrominoes.position[0] += 1; break
             # Right wall collision
-            if position[1] == 12: self.current_tetrominoes.position[0] -= 1
-            if position[1] == 13: self.current_tetrominoes.position[0] -= 1; break
+            if position[1] == self.tetris_width: self.current_tetrominoes.position[0] -= 1
+            if position[1] == self.tetris_width+1: self.current_tetrominoes.position[0] -= 1; break
             # Floor collision
-            if position[0] == 24: self.current_tetrominoes.position[1] -= 1
-            if position[0] == 125: self.current_tetrominoes.position[1] -= 1; break
+            if position[0] == self.tetris_length: self.current_tetrominoes.position[1] -= 1
+            if position[0] == self.tetris_length+1: self.current_tetrominoes.position[1] -= 1; break
 
         # Assigns flipped image of tetrominoes as current tetrominoes
         self.current_tetrominoes.render_shape = self.current_tetrominoes.preview_shape

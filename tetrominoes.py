@@ -15,7 +15,7 @@ class tetrominoes:
         self.static = False # If the tetromino is not moving
         self.preview_shape = [] # An image of the shape when flipped prior to commit
         self.block_locations = []; self.update_blocks() # An array where each block exists
-        print(self.block_locations)
+
 
 
     def number_convert(self): # Converts number matrices to object matrices (0,1) -> (None, Object)
