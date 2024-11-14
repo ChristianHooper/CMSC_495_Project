@@ -2,7 +2,7 @@
     "screen_size": "1024x768",
     "fps_cap": 60,
     "grid_size": 12,
-    "aspect_ratio": 2,
+    "aspect_ratio": 1,
     "scores": {
         "I": 2048,
         "II": 1024,

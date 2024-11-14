@@ -252,6 +252,7 @@ class TetrisController:
                     self.tetris_grid[y_pos][x_pos] in self.static_blocks): self.collision_list.append([y_pos, x_pos])
 
 
+
     # Called when flipping the current tetrominoes object, checking for possible collision on flip
     def tetrominoes_flipping(self):
         self.current_tetrominoes.flip() # Create an image of the tetrominoes if flipped
@@ -279,6 +280,7 @@ class TetrisController:
             self.current_tetrominoes.position = apriori_position # Reset to previous position
             self.current_tetrominoes.render_shape = apriori_shape # Reset to previous shape
             self.current_tetrominoes.block_locations = apriori_block_location
+
 
         self.collision_list = []
 
