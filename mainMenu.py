@@ -1,4 +1,4 @@
-from settingsController import settings_conduit as sc
+import settingsController as sc
 import guiController as gui
 import pygame as pg
 import dataStructures as ds
@@ -16,12 +16,21 @@ def main_menu(window, clock, window_size):
                     button_color=ds.COLOR['green'],
                     text_color=ds.COLOR['red'],
                     font=large_font,
-                    text='Start Game', # Text
+                    text='Single Player', # Text
+                    hover_color=ds.COLOR['white'],
+                    )
+
+    game_button_two = Button( # Defines button that starts single player tetris game
+                    position = gui.grid[16][9], # grid (x, y)
+                    button_color=ds.COLOR['green'],
+                    text_color=ds.COLOR['red'],
+                    font=large_font,
+                    text='Multiplayer', # Text
                     hover_color=ds.COLOR['white'],
                     )
 
     settings_button = Button( # Defines button that navigates to user settings
-                position=gui.grid[16][9], # grid (x, y)
+                position=gui.grid[16][12], # grid (x, y)
                 button_color=ds.COLOR['green'],
                 text_color=ds.COLOR['red'],
                 font=large_font,
@@ -30,7 +39,7 @@ def main_menu(window, clock, window_size):
                 )
 
     tutorial_button = Button( # Defines button that navigates to tutorial
-            position=gui.grid[16][12], # grid (x, y)
+            position=gui.grid[16][15], # grid (x, y)
             button_color=ds.COLOR['green'],
             text_color=ds.COLOR['red'],
             font=large_font,
@@ -39,7 +48,7 @@ def main_menu(window, clock, window_size):
             )
 
     exit_button = Button( # Defines button exit button
-            position=gui.grid[16][15], # grid (x, y)
+            position=gui.grid[16][18], # grid (x, y)
             button_color=ds.COLOR['green'],
             text_color=ds.COLOR['red'],
             font=large_font,
@@ -56,7 +65,16 @@ def main_menu(window, clock, window_size):
 
                 if event.button == 1: # Left-click button
                     mouse_position = pg.mouse.get_pos()
-                    if game_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
+                    if game_button.clicked(mouse_position):
+                        sc.settings_conduit['aspect_ratio']=1
+                        sc.save_settings()
+                        return ds.GAME_STATE['p1_game']
+
+                    if game_button_two.clicked(mouse_position):
+                        sc.settings_conduit['aspect_ratio']=2
+                        sc.save_settings()
+                        return ds.GAME_STATE['p1_game']
+
                     if settings_button.clicked(mouse_position): return ds.GAME_STATE['settings']
                     if tutorial_button.clicked(mouse_position): return ds.GAME_STATE['tutorial']
                     if exit_button.clicked(mouse_position): return None
@@ -66,6 +84,7 @@ def main_menu(window, clock, window_size):
         window.fill(ds.COLOR['black'])
         window.blit(title_text, title_position)
         game_button.render(window)
+        game_button_two.render(window)
         settings_button.render(window)
         tutorial_button.render(window)
         gui.render_grid(window)

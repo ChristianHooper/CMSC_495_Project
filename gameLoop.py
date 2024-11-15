@@ -307,7 +307,7 @@ def one_player(window, clock, window_size, sound_controller):
     key_press_interval_two = 100 # Milliseconds delay for each gravity step
     pg.key.set_repeat(100, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
 
-#////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////[Player-One Keys]///////////////////////////////////////////////////////////////////////
 
     # Game-loop
     while running:
@@ -333,19 +333,19 @@ def one_player(window, clock, window_size, sound_controller):
         # First player movement logic
         if not ts.current_tetrominoes.static and not ts.game_over:
             # Move left logic player one
-            if keys[pg.K_LEFT]: # Left key press
+            if keys[pg.K_a]: # Left key press
                 if key_press_timer > key_press_interval:
                     ts.movement(x_change=-1)
                     key_press_timer = 0
 
             # Move right logic player one
-            if keys[pg.K_RIGHT]: # Right key press
+            if keys[pg.K_d]: # Right key press
                 if key_press_timer >= key_press_interval:
                     ts.movement(x_change=1)
                     key_press_timer = 0
 
             # Move down logic player one
-            if keys[pg.K_DOWN]: # Down key press
+            if keys[pg.K_s]: # Down key press
                 if key_press_timer >= key_press_interval:
                     ts.gravity()
                     score[0] += 1
@@ -353,29 +353,30 @@ def one_player(window, clock, window_size, sound_controller):
                     key_press_timer = 0
 
             # Rotate logic player one
-            if keys[pg.K_UP]: # Up key press
+            if keys[pg.K_w]: # Up key press
                 #pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
                 if key_press_timer >= key_press_interval:
                     ts.tetrominoes_flipping()
                     key_press_timer = 0
             ts.movement() # Checks if tetrominoes should move to a static block
 
+#/////////////////////////////////////////////////////////////[Player-Two Keys]///////////////////////////////////////////////////////////////////////
 
         # Second player movement logic
-        if not ts.current_tetrominoes.static and not tst.game_over:
+        if not tst.current_tetrominoes.static and not tst.game_over:
             # Move left logic player two
-            if keys[pg.K_a]: # Left key press
+            if keys[pg.K_LEFT]: # Left key press
                 if key_press_timer_two >= key_press_interval_two:
                     tst.movement(x_change=-1)
                     key_press_timer_two = 0
 
-            if keys[pg.K_d]: # Right key press
+            if keys[pg.K_RIGHT]: # Right key press
                 if key_press_timer_two >= key_press_interval_two:
                     tst.movement(x_change=1)
                     key_press_timer_two = 0
 
             # Move down logic player two
-            if keys[pg.K_s]: # Down key press
+            if keys[pg.K_DOWN]: # Down key press
                 if key_press_timer_two >= key_press_interval_two:
                     tst.gravity()
                     score[1] += 1
@@ -383,7 +384,7 @@ def one_player(window, clock, window_size, sound_controller):
                     key_press_timer_two = 0
 
             # Rotate logic player two
-            if keys[pg.K_w]: # Up key press
+            if keys[pg.K_UP]: # Up key press
                 if key_press_timer_two >= key_press_interval_two:
                     tst.tetrominoes_flipping()
                     key_press_timer_two = 0
@@ -441,21 +442,35 @@ def one_player(window, clock, window_size, sound_controller):
         grab_bag.blit_update(window)
         ts.render_next_tetromino(window, next_position) # Display the next tetromino
 
-        grab_bag_two.blit_update(window)
-        tst.render_next_tetromino(window, next_position_two) # Display the next tetromino
+        if agents > 1:
+            # Render score UI
+            grab_bag_two.blit_update(window)
+            tst.render_next_tetromino(window, next_position_two) # Display the next tetromino
 
+            # Render line score UI
+            score_ui_two.blit_update(window)
+            score_subsurface_two.fill((200, 200, 245))
+            score_subsurface_two.blit(score_text_two, [10, 10])
+            window.blit(score_subsurface_two, subsurface_position_two)
 
+            # Render line score UI
+            line_ui_two.blit_update(window)
+            line_subsurface_two.fill((200, 200, 245))
+            line_subsurface_two.blit(line_text, [10,10])
+            window.blit(line_subsurface_two, line_position_two)
+
+            # Render current level UI
+            level_ui_two.blit_update(window)
+            level_subsurface_two.fill((200, 200, 245))
+            level_subsurface_two.blit(level_text_two, [10,10])
+            window.blit(level_subsurface_two, level_position_two)
+
+        # Player One
         # Render score UI
         score_ui.blit_update(window)
         score_subsurface.fill((200, 200, 245))
         score_subsurface.blit(score_text, [10, 10])
         window.blit(score_subsurface, subsurface_position)
-
-        score_ui_two.blit_update(window)
-        score_subsurface_two.fill((200, 200, 245))
-        score_subsurface_two.blit(score_text_two, [10, 10])
-        window.blit(score_subsurface_two, subsurface_position_two)
-
 
         # Render line score UI
         line_ui.blit_update(window)
@@ -463,22 +478,11 @@ def one_player(window, clock, window_size, sound_controller):
         line_subsurface.blit(line_text, [10,10])
         window.blit(line_subsurface, line_position)
 
-        line_ui_two.blit_update(window)
-        line_subsurface_two.fill((200, 200, 245))
-        line_subsurface_two.blit(line_text, [10,10])
-        window.blit(line_subsurface_two, line_position_two)
-
-
         # Render current level UI
         level_ui.blit_update(window)
         level_subsurface.fill((200, 200, 245))
         level_subsurface.blit(level_text, [10,10])
         window.blit(level_subsurface, level_position)
-
-        level_ui_two.blit_update(window)
-        level_subsurface_two.fill((200, 200, 245))
-        level_subsurface_two.blit(level_text_two, [10,10])
-        window.blit(level_subsurface_two, level_position_two)
 
         pg.display.flip()
 

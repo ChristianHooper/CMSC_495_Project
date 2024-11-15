@@ -13,7 +13,7 @@ Used to load the default setting into game to initialize the controller.
 def load_settings(): # Loads JSON setting into game
     global settings_conduit
     if os.path.exists(SETTINGS_FILE): # Checks data file
-        #print("FOUND")
+        print("JSON")
         with open(SETTINGS_FILE, 'r') as data: # Reads file, defines object
 
             try: settings_conduit = json.load(data) # JSON to dictionary
