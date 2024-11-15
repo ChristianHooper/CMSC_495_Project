@@ -8,11 +8,11 @@ def main_menu(window, clock, window_size):
 
     running_menu = True
     large_font = ds.FONTS['default_large'] # File path to custom font: if possible add later (https://www.dafont.com/)
-    title_text = large_font.render('G5-Tetris', True, ds.COLOR['white']) # Title text attributes
+    title_text = ds.FONTS['title_font'].render('G5-Tetris', True, ds.COLOR['white']) # Title text attributes
     title_position = title_text.get_rect(center=gui.grid[16][3]) # Position of where text will render
 
     game_button = Button( # Defines button that starts single player tetris game
-                    position = gui.grid[16][6], # grid (x, y)
+                    position = gui.grid[16][7], # grid (x, y)
                     button_color=ds.COLOR['green'],
                     text_color=ds.COLOR['red'],
                     font=large_font,
@@ -21,7 +21,7 @@ def main_menu(window, clock, window_size):
                     )
 
     game_button_two = Button( # Defines button that starts single player tetris game
-                    position = gui.grid[16][9], # grid (x, y)
+                    position = gui.grid[16][10], # grid (x, y)
                     button_color=ds.COLOR['green'],
                     text_color=ds.COLOR['red'],
                     font=large_font,
@@ -30,7 +30,7 @@ def main_menu(window, clock, window_size):
                     )
 
     settings_button = Button( # Defines button that navigates to user settings
-                position=gui.grid[16][12], # grid (x, y)
+                position=gui.grid[16][13], # grid (x, y)
                 button_color=ds.COLOR['green'],
                 text_color=ds.COLOR['red'],
                 font=large_font,
@@ -39,7 +39,7 @@ def main_menu(window, clock, window_size):
                 )
 
     tutorial_button = Button( # Defines button that navigates to tutorial
-            position=gui.grid[16][15], # grid (x, y)
+            position=gui.grid[16][16], # grid (x, y)
             button_color=ds.COLOR['green'],
             text_color=ds.COLOR['red'],
             font=large_font,
@@ -48,7 +48,7 @@ def main_menu(window, clock, window_size):
             )
 
     exit_button = Button( # Defines button exit button
-            position=gui.grid[16][18], # grid (x, y)
+            position=gui.grid[16][19], # grid (x, y)
             button_color=ds.COLOR['green'],
             text_color=ds.COLOR['red'],
             font=large_font,

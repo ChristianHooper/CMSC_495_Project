@@ -35,23 +35,32 @@ def one_player(window, clock, window_size, sound_controller):
     high_score_text = ds.FONTS['default_medium'].render('High Scores', True, COLOR['white']) # Creates text surface score to be imposed on score_subsurface
 
     restart_button = Button(gui.grid[13][15], # Restart game button
-                            COLOR['grey'],
-                            COLOR['black'],
+                            COLOR['green'],
+                            COLOR['white'],
                             ds.FONTS['default_medium'],
                             'Restart',
                             COLOR['red']
     )
+
     main_menu_button = Button(gui.grid[18][15], # Navigates to the main menu
-                            COLOR['grey'],
-                            COLOR['black'],
+                            COLOR['green'],
+                            COLOR['white'],
                             ds.FONTS['default_medium'],
                             'Main Menu',
                             COLOR['red']
     )
 
+    next_button = Button(gui.grid[21][15], # Navigates to the main menu
+                            COLOR['green'],
+                            COLOR['white'],
+                            ds.FONTS['default_medium'],
+                            '>',
+                            COLOR['red']
+    )
+
     input_score_menu = element(window, # GUI element for end of game window
                         gui.grid[10][4], # Location of surface, centered
-                        [gui.grid_square*12, gui.grid_square*16], # Width & Height
+                        [gui.grid_square*12, gui.grid_square*12], # Width & Height
                         fill_color=COLOR['white'],
                         border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
                         border_color=(64,64,64, 128),
@@ -178,9 +187,9 @@ def one_player(window, clock, window_size, sound_controller):
 
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    # TODO: Second player implementation[][][]
     # Function called to run end-game sequence
-    def conclude(game_over):
+    # Player=0 is player one; player=1 is player two
+    def conclude(game_over, player):
         score_sort = sorted(sc.settings_conduit['scores'], key=lambda key : sc.settings_conduit['scores'][key])
         change_score = False # If a new high-score is recorded
         input_active = False
@@ -189,7 +198,7 @@ def one_player(window, clock, window_size, sound_controller):
 
         #Searches for new high-score and sets it in JSON file
         for place, key in enumerate(score_sort):
-            if sc.settings_conduit['scores'][key] < score[0]:
+            if sc.settings_conduit['scores'][key] < score[player]:
                 saved_key = [key, place]
                 change_score = True
                 break
@@ -204,15 +213,27 @@ def one_player(window, clock, window_size, sound_controller):
                     if score_input_box.collidepoint(event.pos): input_active = True  # Activate the input box
                     else: input_active = False
 
+                    if event.button == 1: # Left-click button
+                        mouse_position = pg.mouse.get_pos()
+                        if next_button.clicked(mouse_position):
+                            if user_text not in score_sort:
+                                sc.settings_conduit['scores'].update({user_text: score[player]})
+                                del sc.settings_conduit['scores'][saved_key[0]] # If username enter already exists, doesn't delete slot
+                                score_sort[saved_key[1]] = user_text
+                            elif user_text in score_sort:
+                                sc.settings_conduit['scores'][user_text] = score[player]
+                            sc.save_settings()
+                            change_score = False
+
                 # Keyboard input for text
                 if event.type == pg.KEYDOWN and input_active:
                     if event.key == pg.K_RETURN:
                         if user_text not in score_sort:
-                            sc.settings_conduit['scores'].update({user_text: score[0]})
+                            sc.settings_conduit['scores'].update({user_text: score[player]})
                             del sc.settings_conduit['scores'][saved_key[0]] # If username enter already exists, doesn't delete slot
                             score_sort[saved_key[1]] = user_text
                         elif user_text in score_sort:
-                            sc.settings_conduit['scores'][user_text] = score[0]
+                            sc.settings_conduit['scores'][user_text] = score[player]
                         sc.save_settings()
                         change_score = False
 
@@ -227,13 +248,14 @@ def one_player(window, clock, window_size, sound_controller):
                 pg.draw.rect(window, COLOR['black'], score_input_box, border_radius=10)
                 pg.draw.rect(window, COLOR['white'], score_input_box, 2, border_radius=10)
 
-                score_text = ds.FONTS['default_large'].render('New High-Score', True, COLOR['black'])
-                score_number = ds.FONTS['default_large'].render(f'{score[0]}', True, COLOR['red'])
+                score_text = ds.FONTS['default_medium'].render('New High-Score', True, COLOR['black'])
+                score_number = ds.FONTS['default_large'].render(f'{score[player]}', True, COLOR['red'])
                 input_text = ds.FONTS['default_large'].render(user_text, True, COLOR['white'])
 
                 window.blit(score_text, (score_input_box.x-gui.grid_square*2, score_input_box.y - gui.grid_square * 4))
                 window.blit(score_number, (score_input_box.center[0]-gui.grid_square*2, score_input_box.y - gui.grid_square * 2))
                 window.blit(input_text, (score_input_box.x+gui.grid_square, score_input_box.y+10))
+                next_button.render(window)
                 #input_score_menu.surface.blit(input_score_menu, [100, 100])
                 pg.display.flip()
 
@@ -252,6 +274,7 @@ def one_player(window, clock, window_size, sound_controller):
                         mouse_position = pg.mouse.get_pos()
                         if restart_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
                         if main_menu_button.clicked(mouse_position): return ds.GAME_STATE['menu']
+                        if next_button.clicked(mouse_position): return None
 
             # Calculate text output for first place
             score_one = ds.FONTS['default_medium'].render(f'First Place:      {score_sort[-1]} | {sc.settings_conduit["scores"][score_sort[-1]]}', True, COLOR['black'])
@@ -271,6 +294,7 @@ def one_player(window, clock, window_size, sound_controller):
 
             restart_button.render(window)
             main_menu_button.render(window)
+            if agents > 1 and player == 0: next_button.render(window)
 
             window.blit(high_score_subsurface, high_score_position)
             pg.display.flip()
@@ -358,6 +382,14 @@ def one_player(window, clock, window_size, sound_controller):
                 if key_press_timer >= key_press_interval:
                     ts.tetrominoes_flipping()
                     key_press_timer = 0
+            '''
+            if keys[pg.K_e]: # Up key press
+                #pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
+                if key_press_timer >= key_press_interval:
+                    # TODO: Function for teleporting tetrominoes to the bottom of the grid
+                    key_press_timer = 0
+                    ts.movement()
+            '''
             ts.movement() # Checks if tetrominoes should move to a static block
 
 #/////////////////////////////////////////////////////////////[Player-Two Keys]///////////////////////////////////////////////////////////////////////
@@ -388,6 +420,14 @@ def one_player(window, clock, window_size, sound_controller):
                 if key_press_timer_two >= key_press_interval_two:
                     tst.tetrominoes_flipping()
                     key_press_timer_two = 0
+            '''
+            if keys[pg.K_e]: # Up key press
+                #pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
+                if key_press_timer >= key_press_interval:
+                    # TODO: Function for teleporting tetrominoes to the bottom of the grid
+                    key_press_timer = 0
+                    ts.movement()
+            '''
             tst.movement() # Checks if tetrominoes should move to a static block
 
 
@@ -486,8 +526,8 @@ def one_player(window, clock, window_size, sound_controller):
 
         pg.display.flip()
 
-        if agents > 1 and ts.game_over and tst.game_over: return conclude(game_over)
-        if ts.game_over and agents == 1: return conclude(game_over) # Checks is game is over
+        if agents > 1 and ts.game_over and tst.game_over: conclude(game_over, 0); return conclude(game_over, 1)
+        if ts.game_over and agents == 1: return conclude(game_over, 0) # Checks is game is over
 
         #clock.tick(ds.FPS_CAP['default']) # Adheres game ticks to set FPS
         print(f"SPF: {clock.tick() / 1000}", end="\r")
