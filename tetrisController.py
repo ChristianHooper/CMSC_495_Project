@@ -42,7 +42,7 @@ game_over : Boolean that defines if game is over. |boolean|
 
 
 class TetrisController:
-    def __init__(self, window_size, border, agents):
+    def __init__(self, window_size, border, agents, player_two=False):
         # Initialize attributes
         self.tetris_grid = [[None for _ in range(sc['grid_size'])] for _ in range((sc['grid_size'] * 2))]
         self.tetris_width = len(self.tetris_grid[0])
@@ -59,7 +59,8 @@ class TetrisController:
         self.tetris_coordinates = self.create_coordinates()
         self.tetris_surface = pg.Surface(self.tetris_surface_size)
         self.centering = [gui.grid[int(GUI_GRID / 2)][0][0] - (self.tetris_surface_size[0] / 2*self.gen), self.border[1]] # Defines general position of the grid
-        if self.gen > 1: self.centering[0] -= gui.grid_square/self.gen
+        if self.gen > 1: self.centering[0] -= gui.grid_square
+        if player_two: self.centering[0] += self.centering[0] + self.gen + gui.grid_square*12
         self.tetris_grid_color = COLOR['black']
         self.tetris_surface_color = (100, 100, 100)
 

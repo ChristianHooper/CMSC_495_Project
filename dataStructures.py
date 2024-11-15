@@ -49,12 +49,13 @@ SCREEN_SIZE = { # Defines possible screen resolutions
     '3840x2160': (3840, 2160),
     }
 
-GRAVITY_SPEED = 500 # Millisecond
+GRAVITY_SPEED = 500 # Milliseconds
+KEY_PRESS_SPEED = 100 # Milliseconds
 
 FONTS = { # Fonts with sizes
     'default_large': pg.font.Font('resources/retro_gaming.ttf', 50),
-    'default_medium': pg.font.Font('resources/retro_gaming.ttf', 20),
-    'default_small': pg.font.Font('resources/retro_gaming.ttf', 24)
+    'default_medium': pg.font.Font('resources/retro_gaming.ttf', 24),
+    'default_small': pg.font.Font('resources/retro_gaming.ttf', 18)
     # 'retro_large': pg.font.Font('resources/retro_gaming.ttf' , 50)
 }
 
