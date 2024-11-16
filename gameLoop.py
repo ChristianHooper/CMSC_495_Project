@@ -16,7 +16,7 @@ def one_player(window, clock, window_size, sound_controller):
     agents = sc.settings_conduit['aspect_ratio'] # Constraining factor for multiplayer
     ts = TetrisController(window_size, [0, 1], agents)  # TetrisController class, game logic & rendering
     tst = TetrisController(window_size, [0, 1], agents, player_two=True)  # TetrisController class, player two
-    font_slab = ds.FONTS['default_large']
+    font_slab = ds.FONTS['default_medium']
     font_tab = ds.FONTS['default_medium']
     if agents > 1: # Converts normal sized font to small font
         font_slab = ds.FONTS['default_small'] # Adjust font sizes if more than one player is playing
@@ -513,19 +513,19 @@ def one_player(window, clock, window_size, sound_controller):
         # Render score UI
         score_ui.blit_update(window)
         score_subsurface.fill((200, 200, 245))
-        score_subsurface.blit(score_text, [10, 10])
+        score_subsurface.blit(score_text, [10, 1])
         window.blit(score_subsurface, subsurface_position)
 
         # Render line score UI
         line_ui.blit_update(window)
         line_subsurface.fill((200, 200, 245))
-        line_subsurface.blit(line_text, [10,10])
+        line_subsurface.blit(line_text, [10, 1])
         window.blit(line_subsurface, line_position)
 
         # Render current level UI
         level_ui.blit_update(window)
         level_subsurface.fill((200, 200, 245))
-        level_subsurface.blit(level_text, [10,10])
+        level_subsurface.blit(level_text, [10, 1])
         window.blit(level_subsurface, level_position)
 
         pg.display.flip()
