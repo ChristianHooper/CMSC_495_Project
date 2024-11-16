@@ -69,14 +69,13 @@ class TetrisController:
 
         # Initialize the current and next tetromino
         self.current_tetrominoes = self.generate_tetrominoes() # Create current user interactive tetrominoes
-        self.next_tetrominoes = self.generate_tetrominoes() # Creates the next tetrominoes to
+        self.next_tetrominoes = self.generate_tetrominoes() # Creates the next tetrominoes
 
-        self.render_points = [] # Tetris grid points the render on the screen
+        self.render_points = [] # Tetris all grid points that render on the screen
         self.line_cleared = False
         self.game_over = False
         self.cleared_rows = []
 
-        self.animation_interval = 500 # Length of tetrominoes animation
         self.collision_list = [] # List of colliding block used in flip function
         self.transfer = False # If the current tetrominoes is slated for static block conversion
 
@@ -120,7 +119,6 @@ class TetrisController:
                     (self.tetris_coordinates[line_col][0][0], 0),
                     (self.tetris_coordinates[line_col][0][0], self.tetris_surface_size[1]),
                 )
-
         #self.render_next_tetromino(window) # Display the next tetromino
         window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface and lal drawings onto game window
 
@@ -129,6 +127,7 @@ class TetrisController:
         return tm.tetrominoes(
             self.tetris_block_size, # Size of block in tetrominoes
             [3, 0]) # Spawn location, starting position
+
 
     # Calculates the score and line count when clearing lines
     def line_score(self, score, level):
@@ -168,6 +167,29 @@ class TetrisController:
                         if grid_square is not None:
                             self.tetris_grid[row][col] = grid_square
                             self.render_points.append([col, row])  # Creates a list of indices for blocks to be rendered on the grid
+
+
+    def plummet(self): # When called allows current tetrominoes to plummet down on the y-axis to the nearest block
+        evaluate_slice = []
+        # Defines length from bottom of the current tetrominoes to the bottom of the tetris grid
+        print(self.current_tetrominoes.block_locations)
+        for row in range(self.current_tetrominoes.position[1]+4, len(self.tetris_grid)): # '4' Defines the width of the tetrominoes shape matrices
+            evaluate_slice = self.tetris_grid[row][self.current_tetrominoes.position[0] : self.current_tetrominoes.position[0]+4]
+            #print(evaluate_slice)
+
+            for spot in evaluate_slice:
+                if spot != None:
+                    self.current_tetrominoes.position[1] = row-4
+                    self.update_grid()
+                    return
+            if row == len(self.tetris_grid)-1:
+                self.current_tetrominoes.position[1] = row-4
+                return
+        #self.update_grid()
+        #self.movement()
+        print()
+
+
 
 
     # Passes over tetrominoes object and renders the blocks defined grid coordinates in update_grid()

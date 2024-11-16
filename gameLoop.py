@@ -331,7 +331,7 @@ def one_player(window, clock, window_size, sound_controller):
     key_press_interval_two = 100 # Milliseconds delay for each gravity step
     pg.key.set_repeat(100, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
 
-#/////////////////////////////////////////////////////////////[Player-One Keys]///////////////////////////////////////////////////////////////////////
+#/////////////////////////////////////////////////////////////[Game-Loop]///////////////////////////////////////////////////////////////////////
 
     # Game-loop
     while running:
@@ -351,6 +351,8 @@ def one_player(window, clock, window_size, sound_controller):
                 if event.key == pg.K_SPACE:
                     paused = True # Sets pause condition to true
                     paused = pause_loop(paused) # Sets pause condition to false
+
+#/////////////////////////////////////////////////////////////[Player-One Keys]///////////////////////////////////////////////////////////////////////
 
         keys = pg.key.get_pressed()
 
@@ -382,14 +384,15 @@ def one_player(window, clock, window_size, sound_controller):
                 if key_press_timer >= key_press_interval:
                     ts.tetrominoes_flipping()
                     key_press_timer = 0
-            '''
+
             if keys[pg.K_e]: # Up key press
                 #pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
                 if key_press_timer >= key_press_interval:
                     # TODO: Function for teleporting tetrominoes to the bottom of the grid
+                    ts.plummet()
                     key_press_timer = 0
                     ts.movement()
-            '''
+
             ts.movement() # Checks if tetrominoes should move to a static block
 
 #/////////////////////////////////////////////////////////////[Player-Two Keys]///////////////////////////////////////////////////////////////////////
@@ -430,6 +433,7 @@ def one_player(window, clock, window_size, sound_controller):
             '''
             tst.movement() # Checks if tetrominoes should move to a static block
 
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         # Gravity-based movement
         if gravity_timer >= gravity_interval:
