@@ -170,26 +170,22 @@ class TetrisController:
 
 
     def plummet(self): # When called allows current tetrominoes to plummet down on the y-axis to the nearest block
-        evaluate_slice = []
-        # Defines length from bottom of the current tetrominoes to the bottom of the tetris grid
-        print(self.current_tetrominoes.block_locations)
-        for row in range(self.current_tetrominoes.position[1]+4, len(self.tetris_grid)): # '4' Defines the width of the tetrominoes shape matrices
-            evaluate_slice = self.tetris_grid[row][self.current_tetrominoes.position[0] : self.current_tetrominoes.position[0]+4]
-            #print(evaluate_slice)
+        if not self.current_tetrominoes.plumbed:
+            # Defines length from bottom of the current tetrominoes to the bottom of the tetris grid
+            search_width = [self.current_tetrominoes.block_locations[:][i][1] for i in range(len(self.current_tetrominoes.block_locations))]
+            search_height = [self.current_tetrominoes.block_locations[:][i][0] for i in range(len(self.current_tetrominoes.block_locations))]
+            search_width = [min(search_width), max(search_width)]
+            height_offset = max(search_height)+1
+            self.current_tetrominoes.plumbed = True
 
-            for spot in evaluate_slice:
-                if spot != None:
-                    self.current_tetrominoes.position[1] = row-4
-                    self.update_grid()
-                    return
-            if row == len(self.tetris_grid)-1:
-                self.current_tetrominoes.position[1] = row-4
-                return
-        #self.update_grid()
-        #self.movement()
-        print()
+            for row in range(self.current_tetrominoes.position[1]+4, len(self.tetris_grid)): # '4' Defines the width of the tetrominoes shape matrices
+                evaluate_slice = self.tetris_grid[row][(self.current_tetrominoes.position[0]+search_width[0]) : (self.current_tetrominoes.position[0]+search_width[1])+1]
 
-
+                for spot in evaluate_slice:
+                    if spot != None or row == len(self.tetris_grid)-1:
+                        self.current_tetrominoes.position[1] = row - (height_offset % 5)
+                        self.current_tetrominoes.update_blocks()
+                        return
 
 
     # Passes over tetrominoes object and renders the blocks defined grid coordinates in update_grid()

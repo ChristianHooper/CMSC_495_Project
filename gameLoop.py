@@ -323,6 +323,8 @@ def one_player(window, clock, window_size, sound_controller):
     game_over = True
     sound_controller.play_bgm()  # Play background music when game starts
 
+    plummet_timer = 0
+    plummet_timer_two = 0
     gravity_timer = 0  # Timer for gravity control
     key_press_timer = 0
     key_press_timer_two = 0
@@ -340,6 +342,8 @@ def one_player(window, clock, window_size, sound_controller):
         gravity_timer += clock.get_time() # Update gravity timing
         key_press_timer += clock.get_time() # Update player one timer for key presses
         key_press_timer_two += clock.get_time() # Update player two timer for key presses
+        plummet_timer += clock.get_time()
+        plummet_timer_two += clock.get_time()
 
         for event in pg.event.get():
             #pg.key.set_repeat(100, 100)
@@ -386,12 +390,11 @@ def one_player(window, clock, window_size, sound_controller):
                     key_press_timer = 0
 
             if keys[pg.K_e]: # Up key press
-                #pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
                 if key_press_timer >= key_press_interval:
-                    # TODO: Function for teleporting tetrominoes to the bottom of the grid
                     ts.plummet()
+                    ts.update_grid()
                     key_press_timer = 0
-                    ts.movement()
+                    plummet_timer = 0
 
             ts.movement() # Checks if tetrominoes should move to a static block
 
@@ -423,19 +426,20 @@ def one_player(window, clock, window_size, sound_controller):
                 if key_press_timer_two >= key_press_interval_two:
                     tst.tetrominoes_flipping()
                     key_press_timer_two = 0
-            '''
-            if keys[pg.K_e]: # Up key press
-                #pg.key.set_repeat(gravity_interval, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
-                if key_press_timer >= key_press_interval:
-                    # TODO: Function for teleporting tetrominoes to the bottom of the grid
-                    key_press_timer = 0
-                    ts.movement()
-            '''
+
+            if keys[pg.K_RSHIFT]: # Up key press
+                if key_press_timer_two >= key_press_interval_two:
+                    tst.plummet()
+                    tst.update_grid()
+                    key_press_timer_two = 0
+                    plummet_timer_two = 0
+
             tst.movement() # Checks if tetrominoes should move to a static block
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         # Gravity-based movement
+        if plummet_timer >= gravity_interval: ts.current_tetrominoes.plumbed = False
         if gravity_timer >= gravity_interval:
             if not ts.game_over:
                 ts.movement(y_change=1) # Move tetromino down on y-axis

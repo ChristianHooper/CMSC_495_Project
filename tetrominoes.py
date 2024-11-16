@@ -15,13 +15,14 @@ class tetrominoes:
         self.static = False # If the tetromino is not moving
         self.preview_shape = [] # An image of the shape when flipped prior to commit
         self.block_locations = []; self.update_blocks() # An array where each block exists
+        self.plumbed = False # If the tetrominoes has plummeted
 
 
 
     def number_convert(self): # Converts number matrices to object matrices (0,1) -> (None, Object)
         return [[None if x == 0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape]
 
-     # Updates the location of the blocks in the 4x4 matrices adding only the tetrominoes blocks to a coordinates list
+     # Updates the location of the blocks in the 4x4 matrices adding only the tetrominoes blocks to coordinates list
     def update_blocks(self):
         self.block_locations = []
         for y, row in enumerate(self.render_shape):
