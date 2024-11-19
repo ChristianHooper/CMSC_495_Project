@@ -4,6 +4,9 @@ import tetrominoes as tm
 import guiController as gui
 import pygame as pg
 
+import numpy as np
+import random
+
 '''
 An object that controls the game logic and rendering of a single game of tetris
 ----------
@@ -79,6 +82,22 @@ class TetrisController:
         self.collision_list = [] # List of colliding block used in flip function
         self.transfer = False # If the current tetrominoes is slated for static block conversion
 
+        # /////////////////////////////////////////[AI Game Variables]/////////////////////////////////////////
+        self.ai_grid = np.array(self.tetris_grid) # The grid used for searching in the ai space
+        self.column_read_out = np.array([[0,0]])
+        self.simple_read_out = np.array([[0,0]])
+
+        self.smoothness = 1 # Variance between heights
+        self.heights = 1 # Sum of all heights
+        self.maximum = 1 # Tallest stack
+        self.minimum = 1 # Lowest spot
+        self.lines = 1 # Number of lines that could be cleared
+        self.pits = 1  # Blocks that are shielded by an over hang
+        self.mark = object # Marks hole in grid
+
+        self.copy_grid = None
+        self.copy_tetrominoes = None
+        self.copy_position = None
 
 
     # Defines pixel coordinates [x, y] which are the render points mapped to the self.tetris_grid
@@ -235,6 +254,16 @@ class TetrisController:
             self.current_tetrominoes.static = True # Halts the self.current_tetrominoes object
             self.settle_tetromino() # Converts self.current tetrominoes object into blocks to be rendered
             self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
+
+            # AI
+            self.evaluation_grid()
+            self.height_summation()
+            self.smoothness_calculation()
+            self.maximum_height()
+            self.minimum_height()
+            self.possible_line()
+            self.burrow_calculation()
+
             self.current_tetrominoes = self.next_tetrominoes # Switches previewed tetrominoes for current controllable tetrominoes
             self.next_tetrominoes = self.generate_tetrominoes() # Generates a new preview tetrominoes
             if self.check_collision(): # Checks to see if game is over
@@ -299,9 +328,7 @@ class TetrisController:
             self.current_tetrominoes.position = apriori_position # Reset to previous position
             self.current_tetrominoes.render_shape = apriori_shape # Reset to previous shape
             self.current_tetrominoes.block_locations = apriori_block_location
-
-
-        self.collision_list = []
+        self.collision_list = [] # Resets collision list
 
 
     # Divides current self.current_tetrominoes once it becomes static into a persistent block list for logic and rendering
@@ -329,5 +356,92 @@ class TetrisController:
                     if block != None:
                         block.position[1] += 1 # Moves block object down by one grid square
         #self.cleared_rows = [] # Deletes clear row marker
+
+#/////////////////////////////////////////////////////////////[AI]///////////////////////////////////////////////////////////////////////
+
+    # Called to evaluate the state of the grid when a tetrominoes spawns for AI placement
+    def evaluation_grid(self, full=True):
+        evaluate_point = self.current_tetrominoes.position[0] # Row column (y,x); starting y-axis row for evaluation
+        self.ai_grid = np.array(self.tetris_grid) # Copies tetris grid of AI evaluation
+        null_count = 0 # Holds empty count
+        block_count = 0 # Holds block count
+        column_read = []
+        # Evaluates entire grid finding out how many blocks are and empty space exist in each column
+        if full:
+            for column in range(self.tetris_width):
+                null_count = 0
+                block_count = 0
+                # Counts current grid square if empty or not
+                for row in range(evaluate_point, self.tetris_length):
+                    if self.ai_grid[row][column] == None: null_count += 1
+                    if self.ai_grid[row][column] != None: block_count += 1
+                column_read.append([null_count, block_count]) # Appends column grid square count
+        self.column_read_out = np.array(column_read) # Converts number readout for processing
+        self.simple_read_out = self.column_read_out[:, 1]
+
+
+    # Summates all current static blocks
+    def height_summation(self): self.heights = self.normalize_height(np.sum(self.simple_read_out)); print(f'Sum: {self.heights}')
+    def normalize_height(self, summation):  return summation / (self.tetris_width * self.tetris_length) # Normalizes height sum between 0->1
+
+    # Calculates the smoothness of the static block stack by finding variance in the columns $var=\frac{\sum_{i=1}^{n}(x_i-x_{mean})^2}{n}$ (LaTeX)
+    def smoothness_calculation(self): self.smoothness =  self.normalize_smoothness(np.var(self.simple_read_out)); print(f'Smoothness: {self.smoothness}')
+    def normalize_smoothness(self, smooth):
+        variance_m = self.tetris_length**2 * ((self.tetris_width-1)/self.tetris_width**2) # Maximum variance = $length^2(\frac{(width-1)}{width^2})$ (LaTeX)
+        return self.smoothness / variance_m # Function grows exponentially
+
+    # Finds the height of the highest block
+    def maximum_height(self):
+        for y, row in enumerate(self.ai_grid):
+            if (row != None).any(): self.maximum = self.normalize_maximum(len(self.ai_grid)-y); print(f'Max: {self.maximum}'); return
+    def normalize_maximum(self, maximum): return maximum/self.tetris_length # Normalizes maximum height between 0->1
+
+    # Finds the lowest point of the grid no occupied by a block
+    def minimum_height(self): self.minimum = self.normalize_minimum(np.min(self.simple_read_out)); print(f'Min: {self.minimum}')
+    def normalize_minimum(self, minimum): return minimum/(self.tetris_length-4) # Normalizes minimum height between 0->1
+
+    # Checks to see if any lines could be cleared
+    def possible_line(self):
+        lines = 0
+        for row in self.ai_grid:
+            if not None in row[:]: lines += 1
+        self.lines = self.normalize_line(lines)
+        print(f'Lines: {self.lines}')
+    def normalize_line(self, lines): return lines/4 # Normalizes possible line score between 0->1
+
+    def burrow_calculation(self):
+        holder = set()
+        evaluate_point = len(self.ai_grid) - int(self.maximum*self.tetris_length) # The point of evaluation on y-axis
+
+        for y in range(evaluate_point, len(self.ai_grid)): # Start evaluation point below tetrominoes
+            for x, spot in enumerate(self.ai_grid[y]): # Defines index and n-value(y, x)
+                if spot == None and x in holder: self.ai_grid[y][x] = self.mark # Marks burrow location
+                if self.ai_grid[y][x] != None: holder.add(x) # Marks overhand location
+        self.pits = self.normalize_burrow(np.sum(self.ai_grid == self.mark)) # Normalizes burrow summation
+        print('Pits: ', self.pits)
+    def normalize_burrow(self, pit): return pit/(self.tetris_width * (self.tetris_length-4)) # Normalizes pit score between 0->1
+
+    # Calculates total score for any one single move based upon normalized values from grid analysis
+    def score(self, chromosome):
+        return (
+                chromosome['Smoothness'] * self.smoothness +
+                chromosome['Heights'] * self.heights +
+                chromosome['Maximum'] * self.maximum +
+                chromosome['Minimum'] * self.minimum +
+                chromosome['Lines'] * self.lines +
+                chromosome['Pit'] * self.pits
+        )
+
+    def load_state(self):
+        self.copy_grid = self.tetris_grid
+        self.copy_tetrominoes = self.current_tetrominoes
+        self.copy_position = self.current_tetrominoes.position
+
+    def save_state(self):
+        self.tetris_grid = self.copy_grid
+        self.current_tetrominoes = self.copy_tetrominoes
+        self.current_tetrominoes.position = self.copy_position
+
+
 
 
