@@ -70,16 +70,15 @@ def ai_training(window, clock, window_size, sound_controller):
         gravity_timer = 0  # Timer for gravity control
         gravity_interval = 50 # Milliseconds delay for each gravity step
         read = False
-        print(tst.tetris_grid)
-        print('\nRENDER POINTS: ', tst.render_points )
+        #print(tst.tetris_grid)
+        #print('\nRENDER POINTS: ', tst.render_points )
         while True:
-
+        
             #gravity_timer += clock.get_time()
         # Second player movement logic
         #if not tst.current_tetrominoes.static and not tst.game_over:
             if not tst.current_tetrominoes.static and read == False:
                 for ACTION in COMMANDS:
-
 
                     # Rotate logic player two
                     if ACTION == 'ROTATE': # Up key press
@@ -103,11 +102,13 @@ def ai_training(window, clock, window_size, sound_controller):
 
             if not tst.game_over:
                 if tst.transfer == True:
-                    base_tetrominoes = copy.deepcopy(tst.next_tetrominoes)
-                    tetris_grid_copy = copy.deepcopy(tst.tetris_grid)
+                    #tst.current_tetrominoes = tst.next_tetrominoes
+                    tst.movement()
+                    tst.transfer = False
+                    tst.save_state()
+
                     read = False
-                    #move_list.append(tst.score(ai.population[movement_number])) # Saves possible move information
-                    #running = False
+
                     return
 
                 tst.movement(y_change=1) # Move tetromino down on y-axis
@@ -142,9 +143,8 @@ def ai_training(window, clock, window_size, sound_controller):
     gravity_timer = 0  # Timer for gravity control
     gravity_interval = 1 # Milliseconds delay for each gravity step
     SEQUENCE = ai.movement_sequence
+    tst.save_state() # Copies over grid state
     base_tetrominoes = copy.deepcopy(tst.current_tetrominoes)
-    tetris_grid_copy = copy.deepcopy(tst.tetris_grid) # Copies over grid state
-    selected_tetrominoes = None
     loop = True
     movement_number = -1
     #tst.save_state()
@@ -159,20 +159,23 @@ def ai_training(window, clock, window_size, sound_controller):
             #print(move_array)
             selected_score = np.min(move_array) # Finds optimal move-set
             selected_index = np.random.choice(np.where(move_array == selected_score)[0]) # # Selects optimal move
-            tst = TetrisController(window_size, [0, 1], agents, player_two=True)
+            tst.load_state() # Load previous state
             selection_movement(ai.movement_sequence[selected_index])
+            
 
 
         movement_number += 1 # Mirror the COMMANDS index in SEQUENCE
         move_list = [] # Resets move list for sequencing
 
+        
+        #tst.transfer = False
+        #base_tetrominoes = copy.deepcopy(tst.current_tetrominoes)
+        print(f'\nTRANSFER: {tst.transfer}\n')
         #selection_movement(ai.movement_sequence[selected_index])
-        for COMMANDS in SEQUENCE:
-            tst = TetrisController(window_size, [0, 1], agents, player_two=True) # Resets game for optimal movement search
-            tst.tetris_grid = copy.deepcopy(tetris_grid_copy)
-            tst.current_tetrominoes = copy.deepcopy(base_tetrominoes) # Store selected tetrominoes
+        for command_place, COMMANDS in enumerate(SEQUENCE):
+            #tst.current_tetrominoes = copy.deepcopy(base_tetrominoes)
+            tst.load_state() # Resets game for optimal movement search
             running = True
-
             # Game-loop
             while running:
 
@@ -190,7 +193,7 @@ def ai_training(window, clock, window_size, sound_controller):
                             paused = True # Sets pause condition to true
                             paused = pause_loop(paused) # Sets pause condition to false
 
-                        #/////////////////////////////////////////////////////////////[AI Movement]///////////////////////////////////////////////////////////////////////
+                #/////////////////////////////////////////////////////////////[AI Movement]///////////////////////////////////////////////////////////////////////
 
                 #keys = pg.key.get_pressed()
 
@@ -279,7 +282,7 @@ def ai_training(window, clock, window_size, sound_controller):
                     return None
                 #if ts.game_over and agents == 1: return None # Checks is game is over
 
-                clock.tick(100000) # Adheres game ticks to set FPS
+                clock.tick(1000) # Adheres game ticks to set FPS
                 #clock.tick()
                 #print(f"SPF: {clock.tick() / 1000}", end="\r")
             #print("Exiting game loop")

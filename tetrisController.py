@@ -5,6 +5,7 @@ import guiController as gui
 import pygame as pg
 
 import numpy as np
+import copy
 import random
 
 '''
@@ -54,6 +55,14 @@ class TetrisController:
         self.border = [x * gui.grid_square for x in border]
         self.window_size = window_size
 
+        '''
+        self.tetris_grid
+        self.static_blocks
+        self.current_tetrominoes
+        self.render_points
+
+        '''
+
         self.tetris_surface_size = (
             ((self.window_size[1]/1) - (self.border[1] * 2) - (self.border[0] * 2)) / 2, # x-axis
             (self.window_size[1]) - (self.border[1] * 2)) # y-axis
@@ -95,9 +104,12 @@ class TetrisController:
         self.pits = 1  # Blocks that are shielded by an over hang
         self.mark = object # Marks hole in grid
 
-        self.copy_grid = None
-        self.copy_tetrominoes = None
-        self.copy_position = None
+        # Copy of point used to save the state of the game
+        self.copy_grid = copy.deepcopy(self.tetris_grid)
+        self.copy_tetrominoes = copy.deepcopy(self.current_tetrominoes)
+        self.copy_static_blocks = copy.deepcopy(self.static_blocks)
+        self.copy_render_points = copy.deepcopy(self.render_points)
+        self.copy_transfer = copy.deepcopy(self.transfer)
 
 
     # Defines pixel coordinates [x, y] which are the render points mapped to the self.tetris_grid
@@ -263,7 +275,6 @@ class TetrisController:
             self.minimum_height()
             self.possible_line()
             self.burrow_calculation()
-
             self.current_tetrominoes = self.next_tetrominoes # Switches previewed tetrominoes for current controllable tetrominoes
             self.next_tetrominoes = self.generate_tetrominoes() # Generates a new preview tetrominoes
             if self.check_collision(): # Checks to see if game is over
@@ -381,11 +392,11 @@ class TetrisController:
 
 
     # Summates all current static blocks
-    def height_summation(self): self.heights = self.normalize_height(np.sum(self.simple_read_out)); print(f'Sum: {self.heights}')
+    def height_summation(self): self.heights = self.normalize_height(np.sum(self.simple_read_out)); # print(f'Sum: {self.heights}')
     def normalize_height(self, summation):  return summation / (self.tetris_width * self.tetris_length) # Normalizes height sum between 0->1
 
     # Calculates the smoothness of the static block stack by finding variance in the columns $var=\frac{\sum_{i=1}^{n}(x_i-x_{mean})^2}{n}$ (LaTeX)
-    def smoothness_calculation(self): self.smoothness =  self.normalize_smoothness(np.var(self.simple_read_out)); print(f'Smoothness: {self.smoothness}')
+    def smoothness_calculation(self): self.smoothness =  self.normalize_smoothness(np.var(self.simple_read_out)); # print(f'Smoothness: {self.smoothness}')
     def normalize_smoothness(self, smooth):
         variance_m = self.tetris_length**2 * ((self.tetris_width-1)/self.tetris_width**2) # Maximum variance = $length^2(\frac{(width-1)}{width^2})$ (LaTeX)
         return self.smoothness / variance_m # Function grows exponentially
@@ -393,11 +404,11 @@ class TetrisController:
     # Finds the height of the highest block
     def maximum_height(self):
         for y, row in enumerate(self.ai_grid):
-            if (row != None).any(): self.maximum = self.normalize_maximum(len(self.ai_grid)-y); print(f'Max: {self.maximum}'); return
+            if (row != None).any(): self.maximum = self.normalize_maximum(len(self.ai_grid)-y); # print(f'Max: {self.maximum}'); return
     def normalize_maximum(self, maximum): return maximum/self.tetris_length # Normalizes maximum height between 0->1
 
     # Finds the lowest point of the grid no occupied by a block
-    def minimum_height(self): self.minimum = self.normalize_minimum(np.min(self.simple_read_out)); print(f'Min: {self.minimum}')
+    def minimum_height(self): self.minimum = self.normalize_minimum(np.min(self.simple_read_out)); # print(f'Min: {self.minimum}')
     def normalize_minimum(self, minimum): return minimum/(self.tetris_length-4) # Normalizes minimum height between 0->1
 
     # Checks to see if any lines could be cleared
@@ -406,7 +417,7 @@ class TetrisController:
         for row in self.ai_grid:
             if not None in row[:]: lines += 1
         self.lines = self.normalize_line(lines)
-        print(f'Lines: {self.lines}')
+        # print(f'Lines: {self.lines}')
     def normalize_line(self, lines): return lines/4 # Normalizes possible line score between 0->1
 
     def burrow_calculation(self):
@@ -418,7 +429,7 @@ class TetrisController:
                 if spot == None and x in holder: self.ai_grid[y][x] = self.mark # Marks burrow location
                 if self.ai_grid[y][x] != None: holder.add(x) # Marks overhand location
         self.pits = self.normalize_burrow(np.sum(self.ai_grid == self.mark)) # Normalizes burrow summation
-        print('Pits: ', self.pits)
+        # print('Pits: ', self.pits)
     def normalize_burrow(self, pit): return pit/(self.tetris_width * (self.tetris_length-4)) # Normalizes pit score between 0->1
 
     # Calculates total score for any one single move based upon normalized values from grid analysis
@@ -433,15 +444,16 @@ class TetrisController:
         )
 
     def load_state(self):
-        self.copy_grid = self.tetris_grid
-        self.copy_tetrominoes = self.current_tetrominoes
-        self.copy_position = self.current_tetrominoes.position
+        self.tetris_grid = copy.deepcopy(self.copy_grid)
+        self.current_tetrominoes = copy.deepcopy(self.copy_tetrominoes)
+        self.static_blocks = copy.deepcopy(self.copy_static_blocks)
+        self.render_points = copy.deepcopy(self.copy_render_points)
+        self.transfer = copy.deepcopy(self.copy_transfer)
 
     def save_state(self):
-        self.tetris_grid = self.copy_grid
-        self.current_tetrominoes = self.copy_tetrominoes
-        self.current_tetrominoes.position = self.copy_position
-
-
-
+        self.copy_grid = copy.deepcopy(self.tetris_grid)
+        self.copy_tetrominoes = copy.deepcopy(self.current_tetrominoes)
+        self.copy_static_blocks = copy.deepcopy(self.static_blocks)
+        self.copy_render_points = copy.deepcopy(self.render_points)
+        self.copy_transfer = copy.deepcopy(self.transfer)
 
