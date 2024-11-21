@@ -65,15 +65,13 @@ def ai_training(window, clock, window_size, sound_controller):
         return False # Sets pause condition to false with return
 
 
-
+    # Places out the selected move for the AI, from the selected COMMANDS sequence
     def selection_movement(COMMANDS):
         gravity_timer = 0  # Timer for gravity control
         gravity_interval = 50 # Milliseconds delay for each gravity step
         read = False
-        #print(tst.tetris_grid)
-        #print('\nRENDER POINTS: ', tst.render_points )
         while True:
-        
+
             #gravity_timer += clock.get_time()
         # Second player movement logic
         #if not tst.current_tetrominoes.static and not tst.game_over:
@@ -98,7 +96,7 @@ def ai_training(window, clock, window_size, sound_controller):
             #read = True
         #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             # Gravity-based movement
-            #if gravity_timer >= gravity_interval:
+            # if gravity_timer >= gravity_interval:
 
             if not tst.game_over:
                 if tst.transfer == True:
@@ -106,9 +104,7 @@ def ai_training(window, clock, window_size, sound_controller):
                     tst.movement()
                     tst.transfer = False
                     tst.save_state()
-
                     read = False
-
                     return
 
                 tst.movement(y_change=1) # Move tetromino down on y-axis
@@ -128,7 +124,7 @@ def ai_training(window, clock, window_size, sound_controller):
             #ts.render_tetris(window) # Render the entire tetris game frame
             tst.render_tetris(window) # Render the entire tetris game frame
             pg.display.flip()
-            clock.tick(10)
+            clock.tick(1000)
 
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,156 +132,127 @@ def ai_training(window, clock, window_size, sound_controller):
     running = True
     paused = False # If the game is paused
     game_over = True
-    read = False
-    move_list = [] # Lists of possible moves over one sequence
-    KEY = 0
+    read = False # If movement ACTIONS from the COMMANDS sequence have been read
 
+    move_list = [] # Lists of possible moves over one sequence
     gravity_timer = 0  # Timer for gravity control
     gravity_interval = 1 # Milliseconds delay for each gravity step
-    SEQUENCE = ai.movement_sequence
-    tst.save_state() # Copies over grid state
-    base_tetrominoes = copy.deepcopy(tst.current_tetrominoes)
-    loop = True
-    movement_number = -1
-    #tst.save_state()
+
+    SEQUENCE = ai.movement_sequence # Defines the sequence of all possible moves an agent can play
+
+    tst.save_state() # Saves the starting grid state for initial agent_loop
+    agent_loop = True # Defines agent loop access
+    movement_number = -1 # Holds the movement number of the agent in agent_loop
+
 
 
 #/////////////////////////////////////////////////////////////[Game-Loop]///////////////////////////////////////////////////////////////////////
-    #for generation in range(len(ai.population)):
-    while loop:
-        if movement_number != -1:
+    for generation in range(len(ai.population)):
+        while agent_loop: # Loops though a game single agents game of tetris
+            if movement_number != -1: # Not run on the first agents move, but run every move after
 
-            move_array = np.array(move_list) # Movement score list for a sequence
-            #print(move_array)
-            selected_score = np.min(move_array) # Finds optimal move-set
-            selected_index = np.random.choice(np.where(move_array == selected_score)[0]) # # Selects optimal move
-            tst.load_state() # Load previous state
-            selection_movement(ai.movement_sequence[selected_index])
-            
+                move_array = np.array(move_list) # Movement score list for a sequence
+                selected_score = np.min(move_array) # Finds optimal move-set; selects list of COMMANDS sequence
+                selected_index = np.random.choice(np.where(move_array == selected_score)[0]) # Selects optimal move; single COMMANDS sequence
+                tst.load_state() # Load previous state
+                selection_movement(ai.movement_sequence[selected_index]) # Runs the optimal selected COMMANDS sequence
 
-
-        movement_number += 1 # Mirror the COMMANDS index in SEQUENCE
-        move_list = [] # Resets move list for sequencing
-
-        
-        #tst.transfer = False
-        #base_tetrominoes = copy.deepcopy(tst.current_tetrominoes)
-        print(f'\nTRANSFER: {tst.transfer}\n')
-        #selection_movement(ai.movement_sequence[selected_index])
-        for command_place, COMMANDS in enumerate(SEQUENCE):
-            #tst.current_tetrominoes = copy.deepcopy(base_tetrominoes)
-            tst.load_state() # Resets game for optimal movement search
-            running = True
-            # Game-loop
-            while running:
-
-                # Sets update timer variables
-                gravity_timer += clock.get_time() # Update gravity timing
+            movement_number += 1 # Tracks agents move number; mirrors the COMMANDS index in SEQUENCE
+            move_list = [] # Resets move list for sequencing
 
 
-                for event in pg.event.get():
-                    if event.type == pg.QUIT:
+            for COMMANDS in SEQUENCE: # Loops through all possible move-sets
+
+                tst.load_state() # Resets game for optimal movement search
+                running = True # # Sets running state for a single COMMANDS
+
+                while running: # 'Game-loop' to run single COMMANDS
+
+                    gravity_timer += clock.get_time() # Update gravity timing
+
+                    for event in pg.event.get(): # Event listener for quitting
+                        if event.type == pg.QUIT:
+                            return None
+
+                        elif event.type == pg.KEYDOWN: # Checks for a key press event
+                            if event.key == pg.K_SPACE: # Pauses game
+                                paused = True # Sets pause condition to true
+                                paused = pause_loop(paused) # Sets pause condition to false
+
+                    #/////////////////////////////////////////////////////////////[AI Movement]///////////////////////////////////////////////////////////////////////
+
+                    # Second player movement logic, is tetrominoes is in play and COMMANDS sequence hasn't been read
+                    if not tst.current_tetrominoes.static and not tst.game_over and read == False:
+                        for ACTION in COMMANDS: # Pull a single ACTION to be run from the COMMANDS sequence
+                            # Rotate logic player two
+                            if ACTION == 'ROTATE': # Up key press
+                                tst.tetrominoes_flipping()
+
+                            # Move left logic player two
+                            if ACTION == 'LEFT': # Left key press
+                                tst.movement(x_change=-1)
+
+                            if ACTION == 'RIGHT': # Right key press
+                                tst.movement(x_change=1)
+
+                            # Move down logic player two
+                            if ACTION == 'DOWN': # Down key press
+                                tst.gravity()
+                                score[1] += 1
+                                #tst.movement()
+
+                            '''
+                            if keys[pg.K_RSHIFT]: # Up key press
+                                if key_press_timer_two >= key_press_interval_two:
+                                    tst.plummet()
+                                    tst.update_grid()
+                                    key_press_timer_two = 0
+                                    plummet_timer_two = 0
+                            '''
+
+                            tst.movement() # Checks if tetrominoes should move to a static block
+                        read = True # Marks COMMANDS sequence as having been read
+
+                    #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    # Gravity-based movement
+                    if gravity_timer >= gravity_interval:
+
+                        if not tst.game_over:
+                            if tst.transfer == True:
+                                read = False
+                                move_list.append(tst.score(ai.population[generation])) # Saves possible move information
+                                running = False
+
+                            tst.movement(y_change=1) # Move tetrominoes down on y-axis
+                            tst.gravity()
+
+                        if tst.cleared_rows: # Second player line cleared
+                            scores = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
+                            score[1] = score[1] + scores[1] # Sets new score
+                            line_count[1] = line_count[1] + line_count[1] # Sets new line count
+                            if line_count[1] - (10*(level[1])) >= 0:
+                                level[1] = level[1] + 1
+
+                        tst.update_grid() # Updates grid of mechanics and rendering based upon movement changes
+                        gravity_timer = 0  # Resets the timer
+
+                    # Rendering
+                    window.fill(COLOR['black'])
+                    tst.render_tetris(window) # Render the entire tetris game frame
+                    pg.display.flip()
+
+                    if agents > 1 and tst.game_over: # TODO: Transfer function to next agent; wrong placement
+                        print("HELP")
+                        while True:
+                            window.fill(COLOR['black'])
+                            tst.render_tetris(window) # Render the entire tetris game frame
+                            pg.display.flip()
                         return None
 
-                    elif event.type == pg.KEYDOWN: # Checks for a key press event
-                        # Pauses game
-                        if event.key == pg.K_SPACE:
-                            paused = True # Sets pause condition to true
-                            paused = pause_loop(paused) # Sets pause condition to false
+                    clock.tick(1000) # Adheres game ticks to set FPS
+                    #clock.tick()
+                    #print(f"SPF: {clock.tick() / 1000}", end="\r")
 
-                #/////////////////////////////////////////////////////////////[AI Movement]///////////////////////////////////////////////////////////////////////
-
-                #keys = pg.key.get_pressed()
-
-                # Second player movement logic
-                if not tst.current_tetrominoes.static and not tst.game_over and read == False:
-                    for ACTION in COMMANDS:
-                        # Rotate logic player two
-                        if ACTION == 'ROTATE': # Up key press
-                            tst.tetrominoes_flipping()
-
-
-                        # Move left logic player two
-                        if ACTION == 'LEFT': # Left key press
-                            tst.movement(x_change=-1)
-
-
-                        if ACTION == 'RIGHT': # Right key press
-                            tst.movement(x_change=1)
-
-
-                        # Move down logic player two
-                        if ACTION == 'DOWN': # Down key press
-                            tst.gravity()
-                            score[1] += 1
-                            #tst.movement()
-
-                        '''
-                        if keys[pg.K_RSHIFT]: # Up key press
-                            if key_press_timer_two >= key_press_interval_two:
-                                tst.plummet()
-                                tst.update_grid()
-                                key_press_timer_two = 0
-                                plummet_timer_two = 0
-                        '''
-
-                        tst.movement() # Checks if tetrominoes should move to a static block
-                    read = True
-
-                #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                # Gravity-based movement
-                if gravity_timer >= gravity_interval:
-                #for row in tst.tetris_grid: print(row)
-                #print(tst.evaluation_grid(), "\n")
-
-                    if not tst.game_over:
-                        if tst.transfer == True:
-                            read = False
-                            move_list.append(tst.score(ai.population[movement_number])) # Saves possible move information
-                            running = False
-
-
-                        tst.movement(y_change=1) # Move tetromino down on y-axis
-                        tst.gravity()
-
-                    if tst.cleared_rows: # Second player line cleared
-                        scores = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
-                        score[1] = score[1] + scores[1] # Sets new score
-                        line_count[1] = line_count[1] + line_count[1] # Sets new line count
-                        if line_count[1] - (10*(level[1])) >= 0:
-                            level[1] = level[1] + 1
-
-
-                    #ts.update_grid() # Updates grid of mechanics and rendering based upon movement changes
-                    tst.update_grid() # Updates grid of mechanics and rendering based upon movement changes
-
-
-                    gravity_timer = 0  # Resets the timer
-                #key_press_timer = 0 # Resets the timer
-                #key_press_timer_two = 0
-
-                # Rendering
-                window.fill(COLOR['black'])
-                #gui.render_grid(window) # Render GUI placement grid tool
-                #ts.render_tetris(window) # Render the entire tetris game frame
-                tst.render_tetris(window) # Render the entire tetris game frame
-                pg.display.flip()
-
-
-                if agents > 1 and tst.game_over:
-                    print("HELP")
-                    while True:
-                        window.fill(COLOR['black'])
-                        tst.render_tetris(window) # Render the entire tetris game frame
-                        pg.display.flip()
-                    return None
-                #if ts.game_over and agents == 1: return None # Checks is game is over
-
-                clock.tick(1000) # Adheres game ticks to set FPS
-                #clock.tick()
-                #print(f"SPF: {clock.tick() / 1000}", end="\r")
-            #print("Exiting game loop")
-        #print(game_list)
 if __name__ == '__main__':
     main()
