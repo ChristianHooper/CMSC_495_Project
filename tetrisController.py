@@ -97,11 +97,11 @@ class TetrisController:
         self.simple_read_out = np.array([[0,0]])
 
         self.smoothness = 1 # Variance between heights
-        self.heights = 1 # Sum of all heights
-        self.maximum = 1 # Tallest stack
-        self.minimum = 1 # Lowest spot
-        self.lines = 1 # Number of lines that could be cleared
-        self.pits = 1  # Blocks that are shielded by an over hang
+        self.heights = 0 # Sum of all heights
+        self.maximum = 0 # Tallest stack
+        self.minimum = 0 # Lowest spot
+        self.lines = 0 # Number of lines that could be cleared
+        self.pits = 0  # Blocks that are shielded by an over hang
         self.mark = object # Marks hole in grid
 
         # Copy of point used to save the state of the game
@@ -392,45 +392,53 @@ class TetrisController:
 
 
     # Summates all current static blocks
-    def height_summation(self): self.heights = self.normalize_height(np.sum(self.simple_read_out)); # print(f'Sum: {self.heights}')
-    def normalize_height(self, summation):  return summation / (self.tetris_width * self.tetris_length) # Normalizes height sum between 0->1
+    def height_summation(self):self.heights=0; self.heights = self.normalize_height(np.sum(self.simple_read_out)); #print(f'Sum: {self.heights}')
+    def normalize_height(self, summation):  return  1 - (summation / (self.tetris_width * self.tetris_length))  # Normalizes height sum between 0->1
 
     # Calculates the smoothness of the static block stack by finding variance in the columns $var=\frac{\sum_{i=1}^{n}(x_i-x_{mean})^2}{n}$ (LaTeX)
-    def smoothness_calculation(self): self.smoothness =  self.normalize_smoothness(np.var(self.simple_read_out)); # print(f'Smoothness: {self.smoothness}')
+    def smoothness_calculation(self):
+        self.smoothness=0
+        self.smoothness = np.var(self.simple_read_out)
+        self.smoothness = self.normalize_smoothness(self.smoothness)
+        #print(f'Smoothness: {self.smoothness}')
     def normalize_smoothness(self, smooth):
         variance_m = self.tetris_length**2 * ((self.tetris_width-1)/self.tetris_width**2) # Maximum variance = $length^2(\frac{(width-1)}{width^2})$ (LaTeX)
-        return self.smoothness / variance_m # Function grows exponentially
+        return 1-(self.smoothness / variance_m) # Function grows exponentially
 
     # Finds the height of the highest block
     def maximum_height(self):
         for y, row in enumerate(self.ai_grid):
-            if (row != None).any(): self.maximum = self.normalize_maximum(len(self.ai_grid)-y); # print(f'Max: {self.maximum}'); return
-    def normalize_maximum(self, maximum): return maximum/self.tetris_length # Normalizes maximum height between 0->1
+            if (row != None).any():
+                self.maximum = self.normalize_maximum(len(self.ai_grid)-y); #print(f'Max: {self.maximum}')
+                if self.maximum <= 0.083: self.game_over = True
+                return
+    def normalize_maximum(self, maximum): return 1 - (maximum / self.tetris_length) # Normalizes maximum height between 0->1
 
     # Finds the lowest point of the grid no occupied by a block
-    def minimum_height(self): self.minimum = self.normalize_minimum(np.min(self.simple_read_out)); # print(f'Min: {self.minimum}')
-    def normalize_minimum(self, minimum): return minimum/(self.tetris_length-4) # Normalizes minimum height between 0->1
+    def minimum_height(self):self.minimum=0; self.minimum = self.normalize_minimum(np.min(self.simple_read_out)); #print(f'Min: {self.minimum}')
+    def normalize_minimum(self, minimum): return  1 - (minimum / (self.tetris_length-4)) # Normalizes minimum height between 0->1
 
     # Checks to see if any lines could be cleared
     def possible_line(self):
-        lines = 0
+        self.lines=0; lines = 0
         for row in self.ai_grid:
             if not None in row[:]: lines += 1
         self.lines = self.normalize_line(lines)
-        # print(f'Lines: {self.lines}')
+        #print(f'Lines: {self.lines}')
     def normalize_line(self, lines): return lines/4 # Normalizes possible line score between 0->1
 
+    # Finds grid space blocked by an overhang
     def burrow_calculation(self):
+        self.pits=0
         holder = set()
-        evaluate_point = len(self.ai_grid) - int(self.maximum*self.tetris_length) # The point of evaluation on y-axis
-
+        evaluate_point = len(self.ai_grid) - int((1-self.maximum)*self.tetris_length) # The point of evaluation on y-axis
         for y in range(evaluate_point, len(self.ai_grid)): # Start evaluation point below tetrominoes
             for x, spot in enumerate(self.ai_grid[y]): # Defines index and n-value(y, x)
                 if spot == None and x in holder: self.ai_grid[y][x] = self.mark # Marks burrow location
                 if self.ai_grid[y][x] != None: holder.add(x) # Marks overhand location
         self.pits = self.normalize_burrow(np.sum(self.ai_grid == self.mark)) # Normalizes burrow summation
-        # print('Pits: ', self.pits)
-    def normalize_burrow(self, pit): return pit/(self.tetris_width * (self.tetris_length-4)) # Normalizes pit score between 0->1
+        #print('Pits: ', self.pits)
+    def normalize_burrow(self, pit): return -(pit / (self.tetris_width * (self.tetris_length-4))) # Normalizes pit score between 0->1
 
     # Calculates total score for any one single move based upon normalized values from grid analysis
     def score(self, chromosome):

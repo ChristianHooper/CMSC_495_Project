@@ -471,7 +471,6 @@ def one_player(window, clock, window_size, sound_controller):
                     level_text_two = font_tab.render(str(level[1]), True, COLOR['black'])
 
 
-
             ts.update_grid() # Updates grid of mechanics and rendering based upon movement changes
             tst.update_grid() # Updates grid of mechanics and rendering based upon movement changes
             gravity_timer = 0  # Resets the timer
