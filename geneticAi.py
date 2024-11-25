@@ -28,34 +28,38 @@ import numpy as np
 import dataStructures as ds
 import settingsController as sc
 from pprint import pprint
+import copy
 import rna
 import random
 
 class aiComplex:
-    def __init__(self):
+    def __init__(self, left_off=False):
         self.generations = ds.GENERATIONS # How many generation the model is trained
         self.grid_width = sc.settings_conduit['grid_size'] # Width of tetris grid
         self.grid_width = sc.settings_conduit['grid_size']*2 # Length of tetris grid
         self.population_size = ds.POPULATION # AI complex population size
-        self.population = self.population_genesis(self.population_size) # Population weights
+        self.population = self.population_genesis(self.population_size) # Current dna population
+        #else: rna.load_dna(); self.population = rna.evolution_process # Evolution from last ran point
+        #print(self.population)
         self.movement_sequence = self.possible_movement() # All possible movement sequence commands
         self.selected = []
         #print(self.movement_sequence)
 
     def population_genesis(self, population_size):
         population = []
-        for _ in range(population_size):
+        for _ in range(population_size): # REMOVED 'Heights':    random.uniform(0, 1), # Sum of all heights
             chromosome = { # Set of chromosomal weights
-                'Smoothness': random.uniform(-1, 1), # Variance between heights
-                'Heights':    random.uniform(-1, 1), # Sum of all heights
-                'Maximum':    random.uniform(-1, 1), # Tallest stack
-                'Minimum':    random.uniform(-1, 1), # Lowest spot
-                'Lines':      random.uniform(-1, 1), # Number of lines that could be cleared
-                'Pit':        random.uniform(-1, 1),  # Number of 3 sided space
+                'Smoothness': random.uniform(0, 1), # Variance between heights
+                'Maximum':    random.uniform(0, 1), # Tallest stack
+                'Minimum':    random.uniform(0, 1), # Lowest spot
+                'Lines':      random.uniform(0, 1), # Number of lines that could be cleared
+                'Pit':        random.uniform(0, 1),  # Number of 3 sided space
+                'Hole':       random.uniform(0, 1), # Percentage of hole compared to normal blocks
                 'Age':   0
             }
             population.append(chromosome)
         return population
+
 
     # Creates an array of list of all possible moves
     def possible_movement(self):
@@ -82,38 +86,86 @@ class aiComplex:
             holder_column.append(hold)
         return holder_column + mirror_holder # Returns entire movement sequence commands
 
+
+
     # Updates population genetic information for the next generation
-    def update_population(self, generation): self.population = rna.evolution_process[generation]; return self.population
+    def update_population(self, generation): self.population = rna.entire_genome[generation]; return self.population
 
+
+
+    # Cross-breeds the current generation of agents
     def cross_breed(self, generation):
+        #print('\n\nBREED')
         selection_size = 4 # int(self.population_size/2) # Number defines selection size for breeding
-        age_list = np.zeros(self.population_size)
-        selected = np.zeros(selection_size) # Holds array of indices of selected parents
-        #pprint(rna.evolution_process)
-        for index, chromosome in enumerate(rna.evolution_process[generation]):
-            age_list[index] = rna.evolution_process[generation][index]['Age'] # Population data from gene seed, self.population should mirror is update_population() called
-
+        self.selected = None
+        age_list = np.zeros(len(self.population))
+        self.selected = [] # Holds array of indices of selected parents
+        population_rebirth = []
+        #print('population rebirth start:', population_rebirth)
+        # Population data from gene seed, self.population should mirror is update_population() called
+        for index, chromosome in enumerate(self.population):
+            age_list[index] = self.population[index]['Age']
+        #print('age list: ', age_list)
         selected_ages = np.partition(age_list, -selection_size)[-selection_size:] # Finds highest values
+        selected_ages.sort()
+        #print('selected ages:', selected_ages)
 
-        for parent in selected_ages: selected = np.where(age_list == parent)
-        print(selection_size)
-        print('SELE:', selected)
-        self.selected = list(selected[0]) # Converts selected to a list
+        for parent in selected_ages: self.selected.append(int(np.where(age_list == parent)[0][0])) # Finds the index of highest values and converts to a int list
 
-        print("Cross Breed Selection", self.selected)
 
+        print('BREED self.select: ', self.selected)
+        for individual in self.selected: population_rebirth.append(self.population[individual]) # Places successful genes in new generation list for transferring
         selection_range = len(self.selected)
-        print('RANGE: ', selection_range)
+        #print('selection range: ', selection_range)
+        # Mating-loop
+        for lordosis in range(0, selection_range): # Define mating range
+            for group in range(selection_range-1, lordosis, -1): # Defines mate
+                female = self.population[lordosis]
+                male = self.population[group]
+                child = { # Child of mates
+                    'Smoothness':(male['Smoothness'] + female['Smoothness']) / 2, # REMOVED: 'Heights':   (male['Heights'] + female['Heights']) / 2,
+                    'Maximum':   (male['Maximum'] + female['Maximum']) / 2,
+                    'Minimum':   (male['Minimum'] + female['Minimum']) / 2,
+                    'Lines':     (male['Lines'] + female['Lines']) / 2,
+                    'Pit':       (male['Pit'] + female['Pit']) / 2,
+                    'Hole':      (male['Pit'] + female['Pit']) / 2,
+                    'Age':       int((male['Age'] + female['Age']) / 2)
+                }
+                population_rebirth.append(child) # Add child to next generation population
+        #print('AP REBIRTH:',)
+        #pprint(self.population)
+        self.population = population_rebirth # Updates population for next generation
 
-        for lordosis in range(0, selection_range):
-            print(':')
-            for group in range(selection_range-1, lordosis, -1): # Define mating range
-                print('::')
-                female = self.population[generation][lordosis]
-                male = self.population[generation][group]
+        #print('POST REBIRTH:',)
+        #pprint(self.population)
 
-                print('PARENTS:', male, female, '\n')
-            print()
+        rna.population_dna = self.population # Places current chromosome into population DNA
+
+        rna.transfer_dna(generation+1) # Transcribes new chromosome and population in entire genome
+
+        #print('\nPopulation:')
+
+
+
+    # Selects agents indices to fill remaining birth slots and mutates a single gene
+    def mutation(self, generation):
+        #print('MUTATE')
+        attribute_list = ['Smoothness', 'Maximum', 'Minimum', 'Lines', 'Pit', 'Hole']
+        #print('self.selected: ', self.selected)
+        mutants = self.selected[-(self.population_size - len(self.population)):] # 12 to be replace with self.population_size TODO
+        #print('mutants:', mutants)
+        pprint(self.population)
+        for mutant in mutants:
+            if mutant < 10:
+                selected = copy.deepcopy(self.population[mutant]) # Asexual reproduction
+                for point in range(random.randint(1,4)):
+                    selected[random.choice(attribute_list)] += random.uniform(-0.1, 0.1) # Mutates gene
+                    print('Point-Mutation')
+
+                self.population.append(selected) # Updates population for next generation
+        rna.population_dna = self.population # Places current chromosome into population DNA
+        rna.transfer_dna(generation+1) # Transcribes new chromosome and population in entire genome
+        #pprint(self.population[generation])
 
 
 

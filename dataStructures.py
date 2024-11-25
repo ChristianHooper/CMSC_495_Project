@@ -83,5 +83,5 @@ TETROMINOES = {
     #'the_devil':[[1,0,1,0], [0,1,0,1], [1,0,1,0], [0,1,0,1]],
 }
 
-POPULATION = 4
-GENERATIONS = 1
+POPULATION = 12
+GENERATIONS = 50

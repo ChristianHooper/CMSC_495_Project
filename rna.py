@@ -1,13 +1,14 @@
 import dataStructures as ds
+import copy
 from pprint import pprint
 import pygame as np
 import json
 import os
 
 SETTINGS_FILE = 'geneSeed.json' # Path to JSON save data, immutable
-population_dna = {} # Global variable for function access
-evolution_process = [[] for _ in range(ds.GENERATIONS)]
-print(evolution_process)
+population_dna = [{} for _ in range(ds.POPULATION)] # Basic storage for population
+# Basic storage for entire genome, copies so it isn't creating a reference
+entire_genome = [copy.deepcopy(population_dna) for _ in range(ds.GENERATIONS)]
 current_generation = 0
 
 '''
@@ -15,43 +16,39 @@ load_setting
 -------------
 Used to load the default setting into game to initialize the controller.
 '''
-def load_dna(): # Loads JSON setting into game
-    global population_dna
+def load_genome(): # Loads all DNA from JSON gene seed
+    global entire_genome
     if os.path.exists(SETTINGS_FILE):  # Check if data file exists
         with open(SETTINGS_FILE, 'r') as data:  # Read file
             try:
-                population_dna = json.load(data)  # Load JSON into dictionary
+                entire_genome = json.load(data)  # Load JSON into dictionary
             except json.JSONDecodeError:
                 print("!<[JSON Format Error]>!")
 
 
-'''
-save_settings
--------------
-Used to transfer modified values in the setting dictionary to JSON for data persistence.
-'''
-def transfer_dna(generation): # Saves controller changes to JSON file
-    global evolution_process
+def load_population_dna(generation): # Loads from population from gene seed
     global population_dna
-    current_data = []
-    '''
-    if os.path.exists(SETTINGS_FILE):
-        with open(SETTINGS_FILE, 'r') as data:
-            try:
-                current_data = json.load(data)
-            except json.JSONDecodeError:
-                print("!<[JSON Decode Error]>!")
-                current_data = []
-    '''
-    # Append the new data
+    global entire_genome
+    load_genome() # Gets current DNA data before making changes
+    population_dna = entire_genome[generation] # Load JSON into dictionary
 
-    #current_data.append(population_dna)
-    evolution_process[generation].append(population_dna)
-    #pprint(evolution_process)
 
-def evolution_data():
-    global evolution_process
+'''
+transfer_dna
+-------------
+Used to transfer modified population DNA in the geneSeed for data persistence.
+'''
+def transfer_dna(generation):
+    global entire_genome
+    global population_dna
+    entire_genome[generation] = population_dna
+    evolve_genome()
+
+
+# Copies entire genome into geneSeed file
+def evolve_genome():
+    global entire_genome
     with open(SETTINGS_FILE, 'w') as data: # Write data back to the JSON file
-        json.dump(evolution_process, data, indent=4)
+        json.dump(entire_genome, data, indent=4)
 
-load_dna() # Initialize controller
+#evolve_genome() # Places an empty data structure into file

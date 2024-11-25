@@ -11,6 +11,7 @@ from geneticAi import aiComplex
 import rna
 
 # Import libraries
+from pprint import pprint
 import pygame as pg
 import numpy as np
 import random
@@ -146,28 +147,40 @@ def ai_training(window, clock, window_size, sound_controller):
     age = 0
     movement_number = -1 # Holds the movement number of the agent in agent_loop
 
+    rna.evolve_genome()
+
 
 #/////////////////////////////////////////////////////////////[Game-Loop]///////////////////////////////////////////////////////////////////////
     for generation in range(ai.generations):
 
-        #ai.cross_breed(generation)
-        #ai.mutate()
+        if generation != 0:
+            ai.update_population(generation-1) # Adds ages to the previous population
+            ai.cross_breed(generation-1)
+            ai.mutation(generation-1)
+        print('GEN:', generation)
+
+        #pprint(rna.entire_genome)
+        #print(ai.population)
         #population = ai.update_population(generation) # Updates so population pulls from new genetic data
 
         for agent in range(len(ai.population)):
+
             agents = 2
             tst = TetrisController(window_size, [0, 1], agents, player_two=True)
             tst.save_state() # Saves the starting grid state for initial agent_loop
+            #pprint(ai.population)
             chromosome = ai.population[agent]
             agent_loop = True
             age = 0
 
             while agent_loop: # Loops though a game single agents game of tetris
                 if movement_number != -1: # Not run on the first agents move, but run every move after
-
                     move_array = np.array(move_list) # Movement score list for a sequence
-                    selected_score = np.min(move_array) # Finds optimal move-set; selects list of COMMANDS sequence
+                    #pprint(move_array); print()
+                    selected_score = np.max(move_array) # Finds optimal move-set; selects list of COMMANDS sequence
+                    #pprint(selected_score); print()
                     selected_index = np.random.choice(np.where(move_array == selected_score)[0]) # Selects optimal move; single COMMANDS sequence
+                    #pprint(selected_index); print()
                     tst.load_state() # Load previous state
                     selection_movement(ai.movement_sequence[selected_index]) # Runs the optimal selected COMMANDS sequence
 
@@ -253,9 +266,9 @@ def ai_training(window, clock, window_size, sound_controller):
                             gravity_timer = 0  # Resets the timer
 
                         # Rendering
-                        window.fill(COLOR['black'])
-                        tst.render_tetris(window) # Render the entire tetris game frame
-                        pg.display.flip()
+                        #window.fill(COLOR['black'])
+                        #tst.render_tetris(window) # Render the entire tetris game frame
+                        #pg.display.flip()
 
                         if agents > 1 and tst.game_over: # TODO: Transfer function to next agent; wrong placement
 
@@ -263,19 +276,27 @@ def ai_training(window, clock, window_size, sound_controller):
                             tst.render_tetris(window) # Render the entire tetris game frame
                             pg.display.flip()
                             chromosome['Age'] = age
-                            rna.population_dna = chromosome
-                            print("GENERATION: ", generation)
-                            rna.transfer_dna(generation)
+                            print(chromosome['Age'])
+
+                            rna.load_population_dna(generation) # Load current population DNA
+
+                            rna.population_dna[agent] = chromosome # Places current chromosome into population DNA
+
+                            rna.transfer_dna(generation) # Transcribes new chromosome and population in entire genome
+
                             agent_loop = False
                             running = False
                             agents = 0
-                            print('AGE:', chromosome['Age'])
                             break
-                            # return None
-                        clock.tick(1000) # Adheres game ticks to set FPS
+
+                        clock.tick(100000) # Adheres game ticks to set FPS
                         #clock.tick()
                         #print(f"SPF: {clock.tick() / 1000}", end="\r")
-    rna.evolution_data() # Transcribes all generational DNA into gene seed file
-    ai.cross_breed(generation)
+    #ai.cross_breed(generation) # Final breeding protocol
+    #ai.mutation
+    rna.population_dna = ai.population
+    rna.transfer_dna(ai.generations-1)
+    print("EVOLVED{{{{{{}}}}}}")
+    rna.evolve_genome() # Transcribes all generational DNA into gene seed file
 if __name__ == '__main__':
     main()
