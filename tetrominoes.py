@@ -1,12 +1,43 @@
 from dataStructures import TETROMINOES, COLOR
 from tetrisBlock import block as bk
+
+# Imported libraries
 import numpy as np
 import random
+
+'''
+The class object used to represent tetrominoes objects used to play tetris.
+
+----------
+Attributes
+----------
+random_key :    A dictionary key used to access a tetrominoes shape matrices. |String|
+
+number_type :   A 2D list with a typically structure of a 4x4 matrices on 1s & 0s, to define the shape of the tetrominoes. | list[[4x4]] |
+
+color :         Color do the tetrominoes based upon the shape. | String |
+
+number_shape :  A dictionary key used to access a tetrominoes shape matrices. | String |
+
+block_size :    Size of the block on each tetrominoes, one pixel larger then the gird size. | int |
+
+render_shape :  4x4 matrices that resembles self.number_shape, but is made of Object(1) & None(0). | list[[4x4]] |
+
+position :      The top left position of where the self.render_shape matrices appears in the tetris game surface grid. |[int, int]|
+
+static :        Is the tetrominoes object is no longer moving and is slated to be decomposed into staticlly rendered blocks. |boolean|
+
+preview_shape : The object matrices image of the shape when flipped prior to commitment to new orientation. | list[[4x4]] |
+
+block_location: A list of where each block in the tetrominoes exist in the grid. | List[[],[],...,[]] |
+
+plumbed:        If the player has made the tetrominoes plummet within a small fraction of time. | boolean |
+
+'''
 
 class tetrominoes:
     def __init__(self, block_size, spawn):
         self.random_key = random.choice(list(TETROMINOES.keys()))
-        self.shape_type = TETROMINOES[self.random_key]
         self.color = COLOR[self.random_key]
         self.number_shape = TETROMINOES[self.random_key]
         self.block_size = block_size + 1
@@ -18,19 +49,31 @@ class tetrominoes:
         self.plumbed = False # If the tetrominoes has plummeted
 
 
-
-    def number_convert(self): # Converts number matrices to object matrices (0,1) -> (None, Object)
+    '''
+    number_convert
+    -------------
+    Converts number matrices to object matrices. (0, 1) -> (None, tetrisBlock)
+    '''
+    def number_convert(self):
         return [[None if x == 0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape]
 
-     # Updates the location of the blocks in the 4x4 matrices adding only the tetrominoes blocks to coordinates list
+
+    '''
+    update_blocks
+    -------------
+    Updates the location of the blocks in the 4x4 matrices adding only the tetrominoes blocks to coordinates list.
+    '''
     def update_blocks(self):
         self.block_locations = []
         for y, row in enumerate(self.render_shape):
             for x, block in enumerate(row):
                 if block != None: self.block_locations.append((y,x))
 
-
-    # Flips the block in the tetrominoes by 90 degrees through coordinate vector rotation transformation
+    '''
+    update_blocks
+    -------------
+    Flips the block in the tetrominoes by 90 degrees through coordinate vector rotation transformation. (Linear algebra)
+    '''
     def flip(self):
         tetrominoes_array = np.zeros([len(self.number_shape),len(self.number_shape)]) # Empty tetrominoes shape array
 

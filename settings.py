@@ -2,6 +2,11 @@ import pygame as pg
 import dataStructures as ds
 from button import Button
 
+'''
+settings
+-------------
+Configures and runs the settings menu ad it associated variables.
+'''
 def settings(window, clock, window_size):
 
     running_menu = True # Set running loop for main menu

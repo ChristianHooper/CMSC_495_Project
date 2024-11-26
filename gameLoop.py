@@ -1,19 +1,25 @@
 import settingsController as sc
-#from settingsController import settings_conduit as sc  # Settings controller
 from soundController import SoundController  # Import SoundController
 from tetrisController import TetrisController  # Updated class name
 from guiElement import element
 from button import Button
-import pygame as pg
 import dataStructures as ds
 from dataStructures import COLOR
-import numpy as np
 import guiController as gui
 
+# Imported libraries
+import pygame as pg
+import numpy as np
 
+'''
+one_player TODO: Rename function
+-------------
+Default called to create a single or multi-layer tetris game.
+'''
 def one_player(window, clock, window_size, sound_controller):
 
-    agents = sc.settings_conduit['aspect_ratio'] # Constraining factor for multiplayer
+    # Declares and defines GUI attributes and creates tetris game frame objects
+    agents = sc.settings_conduit['aspect_ratio'] # Constraining variable for multiplayer & single player
     ts = TetrisController(window_size, [0, 1], agents)  # TetrisController class, game logic & rendering
     tst = TetrisController(window_size, [0, 1], agents, player_two=True)  # TetrisController class, player two
     font_slab = ds.FONTS['default_medium']
@@ -21,6 +27,8 @@ def one_player(window, clock, window_size, sound_controller):
     if agents > 1: # Converts normal sized font to small font
         font_slab = ds.FONTS['default_small'] # Adjust font sizes if more than one player is playing
         font_tab = ds.FONTS['default_small']
+
+# ////////////////////////////////////////////////////////////[Game-Over GUI]////////////////////////////////////////////////////////////////////////
 
     end_menu = element(window, # GUI element for end of game window
                     gui.grid[10][4], # Location of surface, centered
@@ -68,7 +76,8 @@ def one_player(window, clock, window_size, sound_controller):
                         font=ds.FONTS['default_medium'],
                         font_position=[gui.grid_square/2, gui.grid_square/4] # Font position on surface
     )
-    score_input_box = pg.Rect(gui.grid[13][14], # Location
+
+    score_input_box = pg.Rect(gui.grid[13][14], # Score input box to record players high score; Location
                             [gui.grid_square*6, gui.grid_square*2]) # Size
 
 # ////////////////////////////////////////////////////////////[First-Player GUI]////////////////////////////////////////////////////////////////////////
@@ -131,7 +140,7 @@ def one_player(window, clock, window_size, sound_controller):
 
 # ////////////////////////////////////////////////////////////[Second-Player GUI]////////////////////////////////////////////////////////////////////////
 
-    if agents > 1:
+    if agents > 1: # If the game is multiplayer or not
         grab_bag_two = element(window, # GUI element for preview oncoming tetrominoes
                         gui.grid[int(4*agents*agents+1)][1], # Location of grab-bag
                         [(gui.grid_square*5)/agents, (gui.grid_square*7)/agents], # Width & Height of grab-bag
@@ -187,9 +196,12 @@ def one_player(window, clock, window_size, sound_controller):
 
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    # Function called to run end-game sequence
-    # Player=0 is player one; player=1 is player two
-    def conclude(game_over, player):
+    '''
+    conclude
+    -------------
+    Sequence run to conclude the game for both single and multiplayer sessions.
+    '''
+    def conclude(game_over, player): # player=0 is player one; player=1 is player two
         score_sort = sorted(sc.settings_conduit['scores'], key=lambda key : sc.settings_conduit['scores'][key])
         change_score = False # If a new high-score is recorded
         input_active = False
@@ -213,9 +225,12 @@ def one_player(window, clock, window_size, sound_controller):
                     if score_input_box.collidepoint(event.pos): input_active = True  # Activate the input box
                     else: input_active = False
 
+                    # Button used for entering in a new high-score
                     if event.button == 1: # Left-click button
                         mouse_position = pg.mouse.get_pos()
                         if next_button.clicked(mouse_position):
+
+                            # Scoring logic for leaderboard
                             if user_text not in score_sort:
                                 sc.settings_conduit['scores'].update({user_text: score[player]})
                                 del sc.settings_conduit['scores'][saved_key[0]] # If username enter already exists, doesn't delete slot
@@ -225,7 +240,7 @@ def one_player(window, clock, window_size, sound_controller):
                             sc.save_settings()
                             change_score = False
 
-                # Keyboard input for text
+                # Keyboard input for text taking username of player for leaderboard
                 if event.type == pg.KEYDOWN and input_active:
                     if event.key == pg.K_RETURN:
                         if user_text not in score_sort:
@@ -237,26 +252,28 @@ def one_player(window, clock, window_size, sound_controller):
                         sc.save_settings()
                         change_score = False
 
-
+                    # Backspace and letter constraints
                     elif event.key == pg.K_BACKSPACE:
                         user_text = user_text[:-1]
                     elif len(user_text) < 3 and event.unicode.isalpha():  # Limits input to 3 letters
                         user_text += event.unicode.upper()
 
+                # Defines & renders username input box
                 input_score_menu.surface.fill(COLOR['grey'])
                 input_score_menu.blit_update(window)
                 pg.draw.rect(window, COLOR['black'], score_input_box, border_radius=10)
                 pg.draw.rect(window, COLOR['white'], score_input_box, 2, border_radius=10)
 
+                # Render text linked to high score
                 score_text = ds.FONTS['default_medium'].render('New High-Score', True, COLOR['black'])
                 score_number = ds.FONTS['default_large'].render(f'{score[player]}', True, COLOR['red'])
                 input_text = ds.FONTS['default_large'].render(user_text, True, COLOR['white'])
 
+                # Render text and swaps buffer
                 window.blit(score_text, (score_input_box.x-gui.grid_square*2, score_input_box.y - gui.grid_square * 4))
                 window.blit(score_number, (score_input_box.center[0]-gui.grid_square*2, score_input_box.y - gui.grid_square * 2))
                 window.blit(input_text, (score_input_box.x+gui.grid_square, score_input_box.y+10))
                 next_button.render(window)
-                #input_score_menu.surface.blit(input_score_menu, [100, 100])
                 pg.display.flip()
 
         score_sort = sorted(sc.settings_conduit['scores'], key=lambda key : sc.settings_conduit['scores'][key]) # Resorts scores
@@ -283,6 +300,7 @@ def one_player(window, clock, window_size, sound_controller):
             score_fourth = ds.FONTS['default_medium'].render(f'Fourth Place:   {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
             score_fifth = ds.FONTS['default_medium'].render(f'Fifth Place:      {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
 
+            # Renders leaderboard
             end_menu.blit_update(window)
             high_score_subsurface.fill(COLOR['grey'])
             high_score_subsurface.blit(high_score_text, [10, 10])
@@ -292,17 +310,20 @@ def one_player(window, clock, window_size, sound_controller):
             high_score_subsurface.blit(score_fourth, [10, gui.grid_square*5])
             high_score_subsurface.blit(score_fifth, [10, gui.grid_square*6])
 
+            # Renders buttons & flips buffer
             restart_button.render(window)
             main_menu_button.render(window)
             if agents > 1 and player == 0: next_button.render(window)
-
             window.blit(high_score_subsurface, high_score_position)
             pg.display.flip()
 
         return None # Exiting return
 
-
-    # Function called to pause the game
+    '''
+    conclude
+    -------------
+    Function called to pause the game.
+    '''
     def pause_loop(pause):
         while pause: # Defines pause loop
             for event in pg.event.get(): # Check for game exit
@@ -318,19 +339,25 @@ def one_player(window, clock, window_size, sound_controller):
             pg.display.flip()
         return False # Sets pause condition to false with return
 
-    running = True
+    running = True # Defines if the game-loop is running
     paused = False # If the game is paused
-    game_over = True
+    game_over = True # Defines if the game is in a game over state
     sound_controller.play_bgm()  # Play background music when game starts
 
+    # Time variables used with clock ticks to meter plummet keypress calls
     plummet_timer = 0
     plummet_timer_two = 0
+
+    # Time variables used with clock ticks to define gravity speed
     gravity_timer = 0  # Timer for gravity control
+    gravity_interval = ds.GRAVITY_SPEED # Milliseconds delay for each gravity step
+
+    # Time variables used with clock ticks to meter keypress calls for tetrominoes movement
     key_press_timer = 0
     key_press_timer_two = 0
-    gravity_interval = ds.GRAVITY_SPEED # Milliseconds delay for each gravity step
     key_press_interval = 100 # Milliseconds delay for each gravity step
     key_press_interval_two = 100 # Milliseconds delay for each gravity step
+
     pg.key.set_repeat(100, 100) # Allows for repeated movement calls when keys are held down, increase tetrominoes' speed
 
 #/////////////////////////////////////////////////////////////[Game-Loop]///////////////////////////////////////////////////////////////////////
@@ -342,23 +369,22 @@ def one_player(window, clock, window_size, sound_controller):
         gravity_timer += clock.get_time() # Update gravity timing
         key_press_timer += clock.get_time() # Update player one timer for key presses
         key_press_timer_two += clock.get_time() # Update player two timer for key presses
-        plummet_timer += clock.get_time()
-        plummet_timer_two += clock.get_time()
+        plummet_timer += clock.get_time() # Update player one timer for plummet calls
+        plummet_timer_two += clock.get_time() # Update player two timer for plummet calls
 
         for event in pg.event.get():
-            #pg.key.set_repeat(100, 100)
             if event.type == pg.QUIT:
                 running = False
 
             elif event.type == pg.KEYDOWN: # Checks for a key press event
-                # Pauses game
-                if event.key == pg.K_SPACE:
+
+                if event.key == pg.K_SPACE: # Pauses game
                     paused = True # Sets pause condition to true
                     paused = pause_loop(paused) # Sets pause condition to false
 
 #/////////////////////////////////////////////////////////////[Player-One Keys]///////////////////////////////////////////////////////////////////////
 
-        keys = pg.key.get_pressed()
+        keys = pg.key.get_pressed() # Create an object for key press retrieval
 
         # First player movement logic
         if not ts.current_tetrominoes.static and not ts.game_over:
@@ -533,6 +559,7 @@ def one_player(window, clock, window_size, sound_controller):
 
         pg.display.flip()
 
+        # Checks if game is over form single and multi-player sessions
         if agents > 1 and ts.game_over and tst.game_over: conclude(game_over, 0); return conclude(game_over, 1)
         if ts.game_over and agents == 1: return conclude(game_over, 0) # Checks is game is over
 

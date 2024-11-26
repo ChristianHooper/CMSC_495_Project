@@ -1,5 +1,5 @@
+# Import files
 import settingsController as sc
-#from settingsController import settings_conduit as sc  # Settings controller
 from soundController import SoundController  # Import SoundController
 from tetrisController import TetrisController  # Updated class name
 from guiElement import element
@@ -19,9 +19,12 @@ import copy
 import sys
 import os
 
-
-def main():
-    # Render Parameter
+'''
+main
+-------------
+Used to set up the training run for the genetic AI complex.
+'''
+def main(): # Render Parameter, starting function for AI training
     pg.init() # Initialize pygame
     os.environ['SDL_VIDEO_WINDOW_POS'] = '100,100' # Positions game window at (0, 0) Left-side of screen
     running = True # If game is running
@@ -38,19 +41,24 @@ def main():
 
     ai_training(window, clock, window_size, sound_controller) # Start simulation run
 
-
+'''
+ai_training
+-------------
+Starts simulation runs for training AI complex.
+'''
 def ai_training(window, clock, window_size, sound_controller):
-
     agents = 2 # Constraining factor for multiplayer
-    #ts = TetrisController(window_size, [0, 1], agents)  # TetrisController class, game logic & rendering
     tst = TetrisController(window_size, [0, 1], agents, player_two=True)  # TetrisController class, player two
-    score = [0, 0]; level = [1, 1]; line_count = [0, 0]
+    score = [0, 0]; level = [1, 1]; line_count = [0, 0] # Score information
 
-    ai = aiComplex()
+    ai = aiComplex() # Creates the complex of AI agents to be trained
 
-#////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    # Function called to pause the game
+#/////////////////////////////////////////////////////////////////[Training Functions]///////////////////////////////////////////////////////////////////
+    '''
+    pause_loop
+    -------------
+    Function called to pause training during training-loop.
+    '''
     def pause_loop(pause):
         while pause: # Defines pause loop
             for event in pg.event.get(): # Check for game exit
@@ -66,50 +74,52 @@ def ai_training(window, clock, window_size, sound_controller):
             pg.display.flip()
         return False # Sets pause condition to false with return
 
-
-    # Places out the selected move for the AI, from the selected COMMANDS sequence
+    '''
+    selection_movement
+    -------------
+    Places out the selected move for the AI, from the selected COMMANDS sequence.
+    '''
     def selection_movement(COMMANDS):
         gravity_timer = 0  # Timer for gravity control
         gravity_interval = 50 # Milliseconds delay for each gravity step
         read = False
         while True:
 
-            #gravity_timer += clock.get_time()
-        # Second player movement logic
-        #if not tst.current_tetrominoes.static and not tst.game_over:
-            if not tst.current_tetrominoes.static and read == False:
+            if not tst.current_tetrominoes.static and read == False: # Run each ACTION in COMMANDS sequence
                 for ACTION in COMMANDS:
 
                     # Rotate logic player two
                     if ACTION == 'ROTATE': # Up key press
                         tst.tetrominoes_flipping()
-                    # Move left logic player two
-                    if ACTION == 'LEFT': # Left key press
+
+                    if ACTION == 'LEFT': # Move left
                         tst.movement(x_change=-1)
-                    if ACTION == 'RIGHT': # Right key press
+
+                    if ACTION == 'RIGHT': # Move right
                         tst.movement(x_change=1)
-                    # Move down logic player two
-                    if ACTION == 'DOWN': # Down key press
+
+                    if ACTION == 'DOWN': # Move down
                         tst.gravity()
                         score[1] += 1
-                        #tst.movement()
-                    tst.movement() # Checks if tetrominoes should move to a static block
-                read = True
-            #read = True
-        #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            # Gravity-based movement
-            # if gravity_timer >= gravity_interval:
 
+                    tst.movement() # Checks if tetrominoes should move to a static block
+                read = True # Marks COMMANDS sequence as read
+
+        #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            # if gravity_timer >= gravity_interval: # If set slows down training
+
+            # Defines if the game reaches an end state will running through selected move
             if not tst.game_over:
                 if tst.transfer == True:
-                    #tst.current_tetrominoes = tst.next_tetrominoes
                     tst.movement()
                     tst.transfer = False
                     tst.save_state()
                     read = False
                     return
 
-                tst.movement(y_change=1) # Move tetromino down on y-axis
+                # Move tetromino down on y-axis
+                tst.movement(y_change=1)
                 tst.gravity()
 
             if tst.cleared_rows: # Second player line cleared
@@ -120,10 +130,7 @@ def ai_training(window, clock, window_size, sound_controller):
                     level[1] = level[1] + 1
 
             tst.update_grid() # Updates grid of mechanics and rendering based upon movement changes
-            #gravity_timer = 0  # Resets the timer
             window.fill(COLOR['black'])
-            #gui.render_grid(window) # Render GUI placement grid tool
-            #ts.render_tetris(window) # Render the entire tetris game frame
             tst.render_tetris(window) # Render the entire tetris game frame
             pg.display.flip()
             clock.tick(1000)
@@ -131,9 +138,9 @@ def ai_training(window, clock, window_size, sound_controller):
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    running = True
+    running = True # Sets uo the game loop for running a single COMMANDS sequence
     paused = False # If the game is paused
-    game_over = True
+    game_over = True # Sets if the game has concluded for a single agent
     read = False # If movement ACTIONS from the COMMANDS sequence have been read
 
     chromosome = {} # Defines the current chromosome being evaluated
@@ -147,54 +154,49 @@ def ai_training(window, clock, window_size, sound_controller):
     age = 0
     movement_number = -1 # Holds the movement number of the agent in agent_loop
 
-    rna.evolve_genome()
+    rna.evolve_genome() # Transcribes entire empty genome framework in gene seed
 
+#/////////////////////////////////////////////////////////////[AI-Loop]///////////////////////////////////////////////////////////////////////
+    '''
+    Main recursive loop ran during AI the training phase.
+    '''
+    for generation in range(ai.generations): # Outer-loop that runs epochs for AI training
 
-#/////////////////////////////////////////////////////////////[Game-Loop]///////////////////////////////////////////////////////////////////////
-    for generation in range(ai.generations):
+        if generation != 0: # Skips breeding and mutating initial population
+            ai.update_population(generation-1) # Adds ages to the previous pulling from gene seed
+            ai.cross_breed(generation-1) # Breeds the latest generation
+            ai.mutation(generation-1) # Mutates the latest generation
+        print('GEN:', generation) # Tracks generation
 
-        if generation != 0:
-            ai.update_population(generation-1) # Adds ages to the previous population
-            ai.cross_breed(generation-1)
-            ai.mutation(generation-1)
-        print('GEN:', generation)
-
-        #pprint(rna.entire_genome)
-        #print(ai.population)
-        #population = ai.update_population(generation) # Updates so population pulls from new genetic data
-
-        for agent in range(len(ai.population)):
-
-            agents = 2
-            tst = TetrisController(window_size, [0, 1], agents, player_two=True)
-            tst.save_state() # Saves the starting grid state for initial agent_loop
-            #pprint(ai.population)
-            chromosome = ai.population[agent]
-            agent_loop = True
-            age = 0
+        for agent in range(len(ai.population)): # The loop used to evaluate a single agent
+            agents = 2 # Resets agent for loop
+            tst = TetrisController(window_size, [0, 1], agents, player_two=True) # Creates a new game for the agent to play
+            tst.save_state() # Saves the starting grid state for initial agent_loop to recall starting state
+            chromosome = ai.population[agent] # Gets current chromosome of Ai agent to evaluate
+            agent_loop = True # Set agent loop to true from play
+            age = 0 # Default age ever agents start with
 
             while agent_loop: # Loops though a game single agents game of tetris
-                if movement_number != -1: # Not run on the first agents move, but run every move after
-                    move_array = np.array(move_list) # Movement score list for a sequence
-                    #pprint(move_array); print()
-                    selected_score = np.max(move_array) # Finds optimal move-set; selects list of COMMANDS sequence
+                if movement_number != -1: # Not ran initially as it selected the best move for a tetrominoes piece after all possible move are considered
+                    move_array = np.array(move_list) # Defines the score for call possible moves in COMMANDS sequence
+                    #print(move_array); print()
+                    selected_score = np.max(move_array) # Finds optimal move-set; selects list of COMMANDS sequence, gets highest scores
                     #pprint(selected_score); print()
                     selected_index = np.random.choice(np.where(move_array == selected_score)[0]) # Selects optimal move; single COMMANDS sequence
                     #pprint(selected_index); print()
-                    tst.load_state() # Load previous state
+                    tst.load_state() # Load previous state, so the agent can make the move
                     selection_movement(ai.movement_sequence[selected_index]) # Runs the optimal selected COMMANDS sequence
 
                 movement_number += 1 # Tracks agents move number; mirrors the COMMANDS index in SEQUENCE
                 move_list = [] # Resets move list for sequencing
-                age += 1
+                age += 1 # Increase age after move is made
 
 
                 for COMMANDS in SEQUENCE: # Loops through all possible move-sets
                     tst.load_state() # Resets game for optimal movement search
                     if not tst.game_over: running = True # # Sets running state for a single COMMANDS
 
-                    while running: # 'Game-loop' to run single COMMANDS
-
+                    while running: # Runs single COMMANDS sequence
                         gravity_timer += clock.get_time() # Update gravity timing
 
                         for event in pg.event.get(): # Event listener for quitting
@@ -211,48 +213,36 @@ def ai_training(window, clock, window_size, sound_controller):
                         # Second player movement logic, is tetrominoes is in play and COMMANDS sequence hasn't been read
                         if not tst.current_tetrominoes.static and not tst.game_over and read == False:
                             for ACTION in COMMANDS: # Pull a single ACTION to be run from the COMMANDS sequence
-                                # Rotate logic player two
-                                if ACTION == 'ROTATE': # Up key press
+
+                                if ACTION == 'ROTATE': # Rotate
                                     tst.tetrominoes_flipping()
 
-                                # Move left logic player two
-                                if ACTION == 'LEFT': # Left key press
+                                if ACTION == 'LEFT': # Move left
                                     tst.movement(x_change=-1)
 
-                                if ACTION == 'RIGHT': # Right key press
+                                if ACTION == 'RIGHT': # Move right
                                     tst.movement(x_change=1)
 
-                                # Move down logic player two
-                                if ACTION == 'DOWN': # Down key press
+                                if ACTION == 'DOWN': # Move down
                                     tst.gravity()
                                     score[1] += 1
-                                    #tst.movement()
-
-                                '''
-                                if keys[pg.K_RSHIFT]: # Up key press
-                                    if key_press_timer_two >= key_press_interval_two:
-                                        tst.plummet()
-                                        tst.update_grid()
-                                        key_press_timer_two = 0
-                                        plummet_timer_two = 0
-                                '''
 
                                 tst.movement() # Checks if tetrominoes should move to a static block
-
                             read = True # Marks COMMANDS sequence as having been read
 
                         #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                         # Gravity-based movement
-                        if gravity_timer >= gravity_interval:
+                        if gravity_timer >= gravity_interval: # Used to slow down AI training; or use clock ticks
 
-                            if not tst.game_over:
+                            if not tst.game_over: # Checks if game is over
                                 if tst.transfer == True:
                                     read = False
                                     move_list.append(tst.score(chromosome)) # Scores possible movement choice
                                     running = False
 
-                                tst.movement(y_change=1) # Move tetrominoes down on y-axis
+                                 # Movement y-axis
+                                tst.movement(y_change=1)
                                 tst.gravity()
 
                             if tst.cleared_rows: # Second player line cleared
@@ -265,38 +255,30 @@ def ai_training(window, clock, window_size, sound_controller):
                             tst.update_grid() # Updates grid of mechanics and rendering based upon movement changes
                             gravity_timer = 0  # Resets the timer
 
-                        # Rendering
-                        #window.fill(COLOR['black'])
-                        #tst.render_tetris(window) # Render the entire tetris game frame
-                        #pg.display.flip()
-
-                        if agents > 1 and tst.game_over: # TODO: Transfer function to next agent; wrong placement
-
+                        # Runs after an agent play a game and have run into a game over state, copies chromosome over to gene seed
+                        if agents > 1 and tst.game_over:
                             window.fill(COLOR['black'])
                             tst.render_tetris(window) # Render the entire tetris game frame
                             pg.display.flip()
-                            chromosome['Age'] = age
+
+                            chromosome['Age'] = age # Writes age to gene seed
                             print(chromosome['Age'])
-
                             rna.load_population_dna(generation) # Load current population DNA
-
                             rna.population_dna[agent] = chromosome # Places current chromosome into population DNA
+                            rna.transfer_dna(generation) # Transcribes new chromosome and population to gene seed
 
-                            rna.transfer_dna(generation) # Transcribes new chromosome and population in entire genome
-
+                            # Resets loops for additional agents
                             agent_loop = False
                             running = False
                             agents = 0
                             break
 
-                        clock.tick(100000) # Adheres game ticks to set FPS
-                        #clock.tick()
-                        #print(f"SPF: {clock.tick() / 1000}", end="\r")
-    #ai.cross_breed(generation) # Final breeding protocol
-    #ai.mutation
-    rna.population_dna = ai.population
-    rna.transfer_dna(ai.generations-1)
-    print("EVOLVED{{{{{{}}}}}}")
-    rna.evolve_genome() # Transcribes all generational DNA into gene seed file
+                        clock.tick(100000) # Sets clock rate
+
+    rna.population_dna = ai.population # Updates final population
+    rna.transfer_dna(ai.generations-1) # Transcribes final population
+    rna.evolve_genome() # Transcribes all generational DNA into gene seed file; failsafe
+    print("EVOLVED")
+
 if __name__ == '__main__':
     main()

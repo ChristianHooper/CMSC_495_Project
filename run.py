@@ -1,3 +1,7 @@
+'''
+{Main script to run G5-Tetris game}
+'''
+
 # Project Files
 import dataStructures as ds # Non game-loop use
 import guiController as gui # GUI controller for element placement
@@ -15,13 +19,12 @@ import numpy as np
 import sys
 import os
 
-'''
-Main script to run G5-Tetris game.
-'''
 
-# Game-loop functions
-def get_time(): return pygame.time.get_ticks() # Gets current ticks
-
+'''
+main
+-------------
+The entry point function fro the program that sets game variables and runs the game state machine which is the central hub for game navigation.
+'''
 def main(): # Main function that acts as the game controller
 
     # Render Parameter
@@ -40,8 +43,8 @@ def main(): # Main function that acts as the game controller
     sound_controller = SoundController()
     sound_controller.play_bgm()  # Start background music
 
-    # Game state-machine
-    while running:
+# ////////////////////////////////////////////////////////////[Game state-machine]////////////////////////////////////////////////////////////////////////
+    while running: # Program-loop
 
         if game_state == None:
             running = False # Exit state condition
@@ -82,7 +85,6 @@ def main(): # Main function that acts as the game controller
     #sound_controller.stop_background_music() # Stop background music when exiting
     pg.quit()
     sys.exit()
-
 
 # /////////////////////////////////////////////////////////////////////////////////////////////
 

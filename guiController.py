@@ -6,6 +6,9 @@ import pygame as pg
 guiController is a development tool for aligning GUI elements to a dynamic screen wide grid.
 The main object calls are made to: 'grid', 'grid_square', and the function 'render_grid'
 
+----------
+Attributes
+----------
 grid : Is a 3-D list the holds each point of the grid which spans the length and width of the screen render size.
         Default grid size 32 grid square across x-axis, a call to the center of the grid would look like:
         gui.grid[16][8] returning [512, 256] which can then be used to position object within the grid.
@@ -46,7 +49,11 @@ def init():
         for col_n in range(len(grid_x)):
             holder.append([grid_x[row_n], grid_y[col_n]])
 
-# Development tool for setting gui elements, creates a dot grid in conjunction with grid array object.
+'''
+render_grid
+-------------
+Development tool for setting gui elements, creates a dot grid in conjunction with grid array object.
+'''
 def render_grid(window):
         for row_n in range(len(grid)): # Grid controller test
             for col_n in range(len(grid[0])):

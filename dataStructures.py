@@ -10,14 +10,14 @@ Calls made in game-loop should generally only be made if imported directly.
 Calls outside of game-loop can reference imported file object.
 '''
 
-GAME_STATE = {
+GAME_STATE = { # Game state for game state navigation
     'menu':     0, # Main menu
     'settings': 1, # User define setting menu
     'p1_game':  2, # Single player tetris
     'tutorial': 3  # Tutorial screen
 }
 
-COLOR = { # Defines colors
+COLOR = { # Defines all colors found in game
     'Z':      (245, 45, 40), # Red
     'S':      (55, 245, 90), # Green
     'J':     (50, 100, 245), # Blue
@@ -30,7 +30,7 @@ COLOR = { # Defines colors
     # GUI Colors
     'red':        (245, 45, 40),
     'green':      (55, 245, 90),
-    'blue':       (50, 100, 245), # Blue
+    'blue':       (50, 100, 245),
     'white':      (230, 230, 245),
     'black':      (10, 10, 20 ),
     'grey':       (100, 100, 140),
@@ -49,10 +49,10 @@ SCREEN_SIZE = { # Defines possible screen resolutions
     '3840x2160': (3840, 2160),
     }
 
-GRAVITY_SPEED = 500 # Milliseconds
-KEY_PRESS_SPEED = 100 # Milliseconds
+GRAVITY_SPEED = 500 # Starting default gravity speed for tetris game (milliseconds)
+KEY_PRESS_SPEED = 100 # Default key press response rate in tetris game (milliseconds)
 
-FONTS = { # Fonts with sizes
+FONTS = { # All font objects used across the game
     'default_large': pg.font.Font('resources/retro_gaming.ttf', 50),
     'default_medium': pg.font.Font('resources/retro_gaming.ttf', 24),
     'default_small': pg.font.Font('resources/retro_gaming.ttf', 18),
@@ -65,12 +65,13 @@ FPS_CAP = { # Game FPS cap
     'default': 60
     }
 
-GRID_SIZE = (8, 10, 12, 16, 20, 24, 32) # Grid sizes for tetris surface
+GRID_SIZE = (8, 10, 12, 16, 20, 24, 32) # Basic sizes for tetris surface; can be any number that even
 
 ASPECT = 2 # Aspect ratio of tetris frame render
 
-GUI_GRID = 32 # The number of grids squares on the window screen width, works best as an even number.
-TETROMINOES = {
+GUI_GRID = 32 # The number of grids squares on the window screen width, works best as an even number
+
+TETROMINOES = { # Shape and size of the tetrominoes defines by matrices, can be larger or smaller that 4x4
     'I':    [[0,0,1,0], [0,0,1,0], [0,0,1,0], [0,0,1,0]],
     'J':    [[0,0,1,0], [0,0,1,0], [0,1,1,0], [0,0,0,0]],
     'L':    [[0,1,0,0], [0,1,0,0], [0,1,1,0], [0,0,0,0]],
@@ -83,5 +84,6 @@ TETROMINOES = {
     #'the_devil':[[1,0,1,0], [0,1,0,1], [1,0,1,0], [0,1,0,1]],
 }
 
-POPULATION = 12
-GENERATIONS = 50
+POPULATION = 12 # AI agent population to be tested in each epoch/generation
+
+GENERATIONS = 50 # Number of generation AI testing simulation is run

@@ -2,15 +2,17 @@ from settingsController import settings_conduit as sc
 from dataStructures import COLOR, GUI_GRID
 import tetrominoes as tm
 import guiController as gui
-import pygame as pg
-import pprint as pprint
 
+# Imported libraries
+import pprint as pprint
+import pygame as pg
 import numpy as np
 import copy
 import random
 
 '''
-An object that controls the game logic and rendering of a single game of tetris
+An object that controls the game logic and rendering of a single game of tetris; heart of the program.
+
 ----------
 Attributes
 ----------
@@ -43,6 +45,12 @@ render_points : A 2D list of indices render points mapped to self.tetris_grid |[
 line_cleared : Temporarily holds the row index for a lines to be cleared |[int,]|
 
 game_over : Boolean that defines if game is over. |boolean|
+
+cleared_rows : Holds the values for the row that have be clears, column value the y-axis. | [int, int, int, int]|
+
+collision_list : Lists colliding grid spaces when flipping the tetrominoes, based upon the pre-image of the flip. |[[int,int], []...]|
+
+transfer : If the current tetrominoes is slated for static block conversion, used in conjunction with collision methods. |boolean|
 '''
 
 
@@ -55,15 +63,6 @@ class TetrisController:
         self.gen = agents # Number of players apart of the game-loop
         self.border = [x * gui.grid_square for x in border]
         self.window_size = window_size
-
-        '''
-        self.tetris_grid
-        self.static_blocks
-        self.current_tetrominoes
-        self.render_points
-
-        '''
-
         self.tetris_surface_size = (
             ((self.window_size[1]/1) - (self.border[1] * 2) - (self.border[0] * 2)) / 2, # x-axis
             (self.window_size[1]) - (self.border[1] * 2)) # y-axis
@@ -93,9 +92,10 @@ class TetrisController:
         self.transfer = False # If the current tetrominoes is slated for static block conversion
 
         # /////////////////////////////////////////[AI Game Variables]/////////////////////////////////////////
+
         self.ai_grid = np.array(self.tetris_grid) # The grid used for searching in the ai space
-        self.column_read_out = np.array([[0,0]])
-        self.simple_read_out = np.array([[0,0]])
+        self.column_read_out = np.array([[0,0]]) # Full read out array of the grid
+        self.simple_read_out = np.array([[0,0]]) # Simplified column read out array of the grid
 
         self.smoothness = 1 # Variance between heights
         self.heights = 0 # Sum of all heights
@@ -114,9 +114,13 @@ class TetrisController:
         self.copy_transfer = copy.deepcopy(self.transfer)
 
 
-    # Defines pixel coordinates [x, y] which are the render points mapped to the self.tetris_grid
-    # Indices of the grid match indices of self.tetris_grid
-    # This means that indices of self.tetris grid can call indices of grid to get pixel render locations and vise-versa
+    '''
+    create_coordinates
+    -------------
+    Defines pixel coordinates [x, y] which are the render points mapped to the self.tetris_grid.
+    Indices of the grid match indices of self.tetris_grid.
+    This means that indices of self.tetris grid can call indices of grid to get pixel render locations and vise-versa.
+    '''
     def create_coordinates(self):
         grid = [] # Whole 2D grid object to be return as the self.tetris_coordinates
         for row_n in range(len(self.tetris_grid) + 1):
@@ -128,7 +132,11 @@ class TetrisController:
         return grid
 
 
-    # Renders all contents of the tetris controller after game logic
+    '''
+    render_tetris
+    -------------
+    Renders all contents of the tetris controller after game logic.
+    '''
     def render_tetris(self, window):
         self.tetris_surface.fill(self.tetris_surface_color) # Fills the tetris game object with set color
         self.update_grid() # Updates current object position prior to rendering
@@ -152,17 +160,25 @@ class TetrisController:
                     (self.tetris_coordinates[line_col][0][0], 0),
                     (self.tetris_coordinates[line_col][0][0], self.tetris_surface_size[1]),
                 )
-        #self.render_next_tetromino(window) # Display the next tetromino
         window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface and lal drawings onto game window
 
 
-    def generate_tetrominoes(self): # Creates a new tetrominoes object composed of tetrisBlock objects
+    '''
+    generate_tetrominoes
+    -------------
+    Creates a new tetrominoes object composed of tetrisBlock objects.
+    '''
+    def generate_tetrominoes(self):
         return tm.tetrominoes(
             self.tetris_block_size, # Size of block in tetrominoes
             [3, 0]) # Spawn location, starting position
 
 
-    # Calculates the score and line count when clearing lines
+    '''
+    line_score
+    -------------
+    Calculates the score and line count when clearing lines.
+    '''
     def line_score(self, score, level):
         cleared = len(self.cleared_rows)
         self.cleared_rows = [] # Deletes clear row marker
@@ -172,8 +188,12 @@ class TetrisController:
             case 3: return (300 * (level + cleared), 3)
             case 4: return (1200 * (level + cleared), 4)
 
-    # Updates state of the tetris grid and render list
-    # Transcribes tetrominoes shape into the self.tetris_grid
+
+    '''
+    line_score
+    -------------
+    Updates state of the tetris grid and render list, transcribes tetrominoes shape into the self.tetris_grid.
+    '''
     def update_grid(self):
         self.render_points = [] # Empties old render points
         self.tetris_grid = [[None for x in range(sc['grid_size'])] for y in range(sc['grid_size'] * 2)] # Empties self.tetris_grid to be recalculated
@@ -202,7 +222,12 @@ class TetrisController:
                             self.render_points.append([col, row])  # Creates a list of indices for blocks to be rendered on the grid
 
 
-    def plummet(self): # When called allows current tetrominoes to plummet down on the y-axis to the nearest block
+    '''
+    plummet
+    -------------
+    When called allows current tetrominoes to plummet down on the y-axis to the nearest block.
+    '''
+    def plummet(self):
         if not self.current_tetrominoes.plumbed:
             # Defines length from bottom of the current tetrominoes to the bottom of the tetris grid
             search_width = [self.current_tetrominoes.block_locations[:][i][1] for i in range(len(self.current_tetrominoes.block_locations))]
@@ -221,7 +246,11 @@ class TetrisController:
                         return
 
 
-    # Passes over tetrominoes object and renders the blocks defined grid coordinates in update_grid()
+    '''
+    plummet
+    -------------
+    Passes over tetrominoes object and renders the blocks defined grid coordinates in update_grid().
+    '''
     def render_tetrominoes(self):
         for x in self.render_points: # Gets render coordinates for grid one-by-one
             block = self.tetris_grid[x[1]][x[0]] # Defines singular block from the tetris grid
@@ -232,7 +261,12 @@ class TetrisController:
             pg.draw.rect(self.tetris_surface, block.color, block.small_block) # Draws block onto tetris surface before being blit
 
 
-    def render_next_tetromino(self, window, position): # Renders the coming tetrominoes before being placed in the controllable self.current_tetrominoes
+    '''
+    render_next_tetromino
+    -------------
+    Renders the coming tetrominoes before being placed in the controllable self.current_tetrominoes.
+    '''
+    def render_next_tetromino(self, window, position):
         for y, row in enumerate(self.next_tetrominoes.render_shape):
             for x, block in enumerate(row):
                 if block: # Renders grab-bag tetrominoes
@@ -243,7 +277,12 @@ class TetrisController:
                     ((self.tetris_block_size/self.gen)+1, (self.tetris_block_size/self.gen)+1)))
 
 
-    def gravity(self): # Used for constant gravity pull and player induced block movement
+    '''
+    gravity
+    -------------
+    Used for constant gravity pull and player induced block movement.
+    '''
+    def gravity(self):
         for block_position in self.current_tetrominoes.block_locations: # Gets the position of the blocks in the 4x4 matrices of the current tetrominoes
             # Transfers matrices coordinates to grid coordinates based upon current tetrominoes
             grid_position = [block_position[0] + self.current_tetrominoes.position[1], block_position[1] + self.current_tetrominoes.position[0]]
@@ -254,7 +293,11 @@ class TetrisController:
         self.current_tetrominoes.position[1] += 1
 
 
-    # Checks the x&y-axis for collisions, and increments the movement based upon direction input
+    '''
+    movement
+    -------------
+    Checks the x&y-axis for collisions, and increments the movement based upon direction input.
+    '''
     def movement(self, x_change=0, y_change=0):
         if x_change != 0 and not self.check_collision(offset_x=x_change): # Horizontal check
             self.current_tetrominoes.position[0] += x_change
@@ -285,7 +328,12 @@ class TetrisController:
                 return
             self.transfer = False
 
-    # Checks if the tetrominoes object collides with the tetris game frame of block object, checks x&y-axis separately
+
+    '''
+    check_collision
+    -------------
+    Checks if the tetrominoes object collides with the tetris game frame of block object, checks x&y-axis separately.
+    '''
     def check_collision(self, offset_x=0, offset_y=0):
         for y, row in enumerate(self.current_tetrominoes.render_shape): # Defines row list 0-3, get respective row number through y (render shape 4x4)
             for x, block in enumerate(row): # Get block value at x of a row in the 4x4 shape
@@ -302,7 +350,11 @@ class TetrisController:
         return False # If collision False
 
 
-    # Checks if the tetrominoes object collides with the tetris game frame of block object, used to check flipping conditions
+    '''
+    flipping_collision
+    -------------
+    Checks if the tetrominoes object collides with the tetris game frame of block object, used to check flipping conditions.
+    '''
     def flipping_collision(self):
         for y, row in enumerate(self.current_tetrominoes.preview_shape): # Defines row list 0-3, get respective row number through y (render shape 4x4)
             for x, block in enumerate(row): # Get block value at x of a row in the 4x4 shape
@@ -313,8 +365,11 @@ class TetrisController:
                     self.tetris_grid[y_pos][x_pos] in self.static_blocks): self.collision_list.append([y_pos, x_pos])
 
 
-
-    # Called when flipping the current tetrominoes object, checking for possible collision on flip
+    '''
+    tetrominoes_flipping
+    -------------
+    Called when flipping the current tetrominoes object, checking for possible collision on flip.
+    '''
     def tetrominoes_flipping(self):
         self.current_tetrominoes.flip() # Create an image of the tetrominoes if flipped
         self.flipping_collision() # Test image for collision
@@ -344,7 +399,11 @@ class TetrisController:
         self.collision_list = [] # Resets collision list
 
 
-    # Divides current self.current_tetrominoes once it becomes static into a persistent block list for logic and rendering
+    '''
+    settle_tetromino
+    -------------
+    Divides current self.current_tetrominoes once it becomes static into a persistent block list for logic and rendering.
+    '''
     def settle_tetromino(self):
         for y, row in enumerate(self.tetris_grid):
             for x, block in enumerate(row):
@@ -352,7 +411,11 @@ class TetrisController:
                     self.static_blocks.add(block)
 
 
-    # Checks entire grid and clear line moving current block down by one
+    '''
+    clear_lines
+    -------------
+    Checks entire grid and clear line moving current block down by one.
+    '''
     def clear_lines(self):
         self.cleared_rows = [index for index, row in enumerate(self.tetris_grid) if all(row)] # Tag rows to be clear
 
@@ -372,7 +435,11 @@ class TetrisController:
 
 #/////////////////////////////////////////////////////////////[AI]///////////////////////////////////////////////////////////////////////
 
-    # Called to evaluate the state of the grid when a tetrominoes spawns for AI placement
+    '''
+    settle_tetromino
+    -------------
+    Called to evaluate the state of the grid when a tetrominoes spawns for AI placement.
+    '''
     def evaluation_grid(self, full=True):
         evaluate_point = self.current_tetrominoes.position[0] # Row column (y,x); starting y-axis row for evaluation
         self.ai_grid = np.array(self.tetris_grid) # Copies tetris grid of AI evaluation
@@ -398,7 +465,12 @@ class TetrisController:
     def normalize_height(self, summation):  return  1 - (summation / (self.tetris_width * self.tetris_length))  # Normalizes height sum between 0->1
     '''
 
-    # Calculates the smoothness of the static block stack by finding variance in the columns $var=\frac{\sum_{i=1}^{n}(x_i-x_{mean})^2}{n}$ (LaTeX)
+
+    '''
+    settle_tetromino
+    -------------
+    Calculates the smoothness of the static block stack by finding variance in the columns.
+    '''#$var=\frac{\sum_{i=1}^{n}(x_i-x_{mean})^2}{n}$ (LaTeX)
     def smoothness_calculation(self):
         self.smoothness = np.var(self.simple_read_out)
         self.smoothness = self.normalize_smoothness(self.smoothness)
@@ -408,7 +480,11 @@ class TetrisController:
         return 1-(self.smoothness / variance_m) # Function grows exponentially
 
 
-    # Finds the height of the highest block
+    '''
+    maximum_height
+    -------------
+    Finds the height of the highest block.
+    '''
     def maximum_height(self):
         for y, row in enumerate(self.ai_grid):
             if (row != None).any():
@@ -418,7 +494,11 @@ class TetrisController:
     def normalize_maximum(self, maximum): return 1 - (maximum / self.tetris_length) # Normalizes maximum height between 0->1
 
 
-    # Finds the lowest point and highest point og the gir and calculates the difference between the two
+    '''
+    minimum_height
+    -------------
+    Finds the lowest point and highest point og the gir and calculates the difference between the two.
+    '''
     def minimum_height(self):
         minimum = np.min(self.simple_read_out)
         maximum = np.max(self.simple_read_out)
@@ -428,7 +508,11 @@ class TetrisController:
     def normalize_minimum(self, value): return  -(value / (self.tetris_length-4)) # Normalizes minimum height between 0->1
 
 
-    # Checks to see if any lines could be cleared
+    '''
+    possible_line
+    -------------
+    Checks to see if any lines could be cleared.
+    '''
     def possible_line(self):
         lines = 0
         for row in self.ai_grid:
@@ -438,7 +522,11 @@ class TetrisController:
     def normalize_line(self, lines): return lines # Normalizes possible line score between 0->1
 
 
-    # Finds grid space blocked by an overhang
+    '''
+    burrow_calculation
+    -------------
+    Finds grid space blocked by an overhanging tetrominoes.
+    '''
     def burrow_calculation(self):
         holder = set()
         total_blocks = len(self.render_points)
@@ -458,7 +546,11 @@ class TetrisController:
     def normalize_burrow(self, pit): return -(pit / (self.tetris_width * (self.tetris_length-4))) # Normalizes pit score between 0->1
 
 
-    # Calculates total score for any one single move based upon normalized values from grid analysis
+    '''
+    score
+    -------------
+    Calculates total score for any one single move based upon normalized values from grid analysis
+    '''
     def score(self, chromosome): # REMOVED: chromosome['Heights'] * self.heights +
         return (
                 chromosome['Smoothness'] * self.smoothness +
@@ -470,6 +562,11 @@ class TetrisController:
         )
 
 
+    '''
+    load state
+    -------------
+    Loads the saved state of the grid.
+    '''
     def load_state(self):
         self.tetris_grid = copy.deepcopy(self.copy_grid)
         self.current_tetrominoes = copy.deepcopy(self.copy_tetrominoes)
@@ -477,10 +574,14 @@ class TetrisController:
         self.render_points = copy.deepcopy(self.copy_render_points)
         self.transfer = copy.deepcopy(self.copy_transfer)
 
+    '''
+    load state
+    -------------
+    Saves the state of the grid to be loaded.
+    '''
     def save_state(self):
         self.copy_grid = copy.deepcopy(self.tetris_grid)
         self.copy_tetrominoes = copy.deepcopy(self.current_tetrominoes)
         self.copy_static_blocks = copy.deepcopy(self.static_blocks)
         self.copy_render_points = copy.deepcopy(self.render_points)
         self.copy_transfer = copy.deepcopy(self.transfer)
-

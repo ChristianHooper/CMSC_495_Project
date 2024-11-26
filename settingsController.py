@@ -2,6 +2,10 @@ import pygame as np
 import json
 import os
 
+'''
+Default controller for saving and accessing persistent data from JSON file, saved_data.json
+'''
+
 SETTINGS_FILE = 'saved_data.json' # Path to JSON save data, immutable
 settings_conduit = {} # Global variable for function access
 

@@ -4,6 +4,11 @@ import pygame as pg
 import dataStructures as ds
 from button import Button
 
+'''
+main_menu
+-------------
+Configures and runs the main menu sequence the player is initial presented with when the game starts.
+'''
 def main_menu(window, clock, window_size):
 
     running_menu = True
@@ -56,6 +61,7 @@ def main_menu(window, clock, window_size):
             hover_color=ds.COLOR['white'],
             )
 
+    # Runs the main menu loop
     while running_menu:
         for event in pg.event.get():
             if event.type == pg.QUIT: return None
@@ -64,20 +70,23 @@ def main_menu(window, clock, window_size):
             elif event.type == pg.MOUSEBUTTONDOWN:
 
                 if event.button == 1: # Left-click button
+
+                    # One-players tetris game
                     mouse_position = pg.mouse.get_pos()
                     if game_button.clicked(mouse_position):
                         sc.settings_conduit['aspect_ratio']=1
                         sc.save_settings()
-                        return ds.GAME_STATE['p1_game']
+                        return ds.GAME_STATE['p1_game'] # Game state machine return
 
+                    # Two-players tetris game
                     if game_button_two.clicked(mouse_position):
                         sc.settings_conduit['aspect_ratio']=2
                         sc.save_settings()
-                        return ds.GAME_STATE['p1_game']
+                        return ds.GAME_STATE['p1_game'] # Game state machine return
 
-                    if settings_button.clicked(mouse_position): return ds.GAME_STATE['settings']
-                    if tutorial_button.clicked(mouse_position): return ds.GAME_STATE['tutorial']
-                    if exit_button.clicked(mouse_position): return None
+                    if settings_button.clicked(mouse_position): return ds.GAME_STATE['settings'] # Leads to settings menu
+                    if tutorial_button.clicked(mouse_position): return ds.GAME_STATE['tutorial'] # Leads to tutorial menu
+                    if exit_button.clicked(mouse_position): return None # Exits game; Game state machine return
 
 
         # Render order

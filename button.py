@@ -26,8 +26,11 @@ class Button:
         self.bound = None
         # self.click_sound = pg.mixer.Sound('filepath/.wav')
 
-
-
+    '''
+    render
+    -------------
+    When called it renders the button with interactive functionality.
+    '''
     def render(self, window): # Renders button onto window
         text_surface = self.font.render(self.text, True, self.text_color) # Creates text surface to be imposed on button
         self.bound = text_surface.get_rect(center=self.position) # Put position origin point in the middle of the button
@@ -38,6 +41,11 @@ class Button:
         window.blit(text_surface, self.bound)
 
 
+    '''
+    render
+    -------------
+    Returns boolean if the user clicked on the button with the mouse or not.
+    '''
     def clicked(self, mouse_click):
         if self.bound.collidepoint(mouse_click):
             #self.click_sound.play() # Play sound when clicked

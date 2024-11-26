@@ -58,8 +58,11 @@ class element:
 
         window.blit(self.border, self.position) # Composed gui element for rendering
 
-
-    # Blits any elements or changes into the whole gui element to be rendered onto the game surface window.
+    '''
+    render_grid
+    -------------
+    Blits any elements or changes into the whole gui element to be rendered onto the game surface window.
+    '''
     def blit_update(self,window, element_sequence=[(None,None)]):
 
         self.surface.fill(self.fill_color) # Blit local single font to main surface
