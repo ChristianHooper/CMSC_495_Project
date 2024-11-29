@@ -165,7 +165,6 @@ def ai_training(window, clock, window_size, sound_controller):
         if generation != 0: # Skips breeding and mutating initial population
             ai.update_population(generation-1) # Adds ages to the previous pulling from gene seed
             ai.cross_breed(generation-1) # Breeds the latest generation
-            ai.mutation(generation-1) # Mutates the latest generation
         print('GEN:', generation) # Tracks generation
 
         for agent in range(len(ai.population)): # The loop used to evaluate a single agent
@@ -238,8 +237,9 @@ def ai_training(window, clock, window_size, sound_controller):
                             if not tst.game_over: # Checks if game is over
                                 if tst.transfer == True:
                                     read = False
-                                    move_list.append(tst.score(chromosome)) # Scores possible movement choice
                                     running = False
+                                    tst.movement(y_change=1)
+                                    move_list.append(tst.score(chromosome)) # Scores possible movement choice
 
                                  # Movement y-axis
                                 tst.movement(y_change=1)
@@ -272,7 +272,9 @@ def ai_training(window, clock, window_size, sound_controller):
                             running = False
                             agents = 0
                             break
-
+                        #window.fill(COLOR['black'])
+                        #tst.render_tetris(window) # Render the entire tetris game frame
+                        #pg.display.flip()
                         clock.tick(100000) # Sets clock rate
 
     rna.population_dna = ai.population # Updates final population

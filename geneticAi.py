@@ -67,8 +67,11 @@ class aiComplex:
     Creates the initial populations chromosomes.
     '''
     def population_genesis(self, population_size):
+        adam = {} # Zeros gene origin member
+        eve = {} # Ones gene origin member
         population = []
-        for _ in range(population_size): # REMOVED 'Heights':    random.uniform(0, 1), # Sum of all heights
+        attribute_list = ['Smoothness', 'Maximum', 'Minimum', 'Lines', 'Pit', 'Hole', 'Age']
+        for _ in range(population_size-2): # REMOVED 'Heights':    random.uniform(0, 1), # Sum of all heights
             chromosome = { # Set of chromosomal weights
                 'Smoothness': random.uniform(0, 1), # Variance between heights
                 'Maximum':    random.uniform(0, 1), # Tallest stack
@@ -79,6 +82,9 @@ class aiComplex:
                 'Age':   0 # How many moves the AI agent lasted before running into a Game Over state; the evaluation metric for for AIs
             }
             population.append(chromosome)
+        # Adds extremes to gene pool
+        for gene in attribute_list: adam[gene] = 1; eve[gene] = 0
+        population.append(adam); population.append(eve)
         return population
 
     '''
@@ -164,6 +170,7 @@ class aiComplex:
         self.population = population_rebirth # Updates population for next generation
         rna.population_dna = self.population # Places current chromosome into population DNA
         rna.transfer_dna(generation+1) # Transcribes new chromosome and population in entire genome
+        self.mutation(generation)
 
     '''
     cross_breed
@@ -177,9 +184,8 @@ class aiComplex:
         for mutant in mutants: # Loops through chromosomes to mutate
             if mutant < 10: # Checks number exist in current breed population
                 selected = copy.deepcopy(self.population[mutant]) # Asexual reproduction
-                for point in range(random.randint(1,4)): # Selects how many genes to mutate randomly
+                for point in range(1): # Selects how many genes to mutate randomly
                     selected[random.choice(attribute_list)] += random.uniform(-0.1, 0.1) # Mutates random chromosomes genes
-
                 self.population.append(selected) # Updates population for next generation
         rna.population_dna = self.population # Places current chromosome into population DNA
         rna.transfer_dna(generation+1) # Transcribes new chromosome and population in entire genome

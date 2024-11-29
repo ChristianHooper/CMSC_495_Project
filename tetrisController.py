@@ -97,7 +97,7 @@ class TetrisController:
         self.column_read_out = np.array([[0,0]]) # Full read out array of the grid
         self.simple_read_out = np.array([[0,0]]) # Simplified column read out array of the grid
 
-        self.smoothness = 1 # Variance between heights
+        self.smoothness = 0 # Variance between heights
         self.heights = 0 # Sum of all heights
         self.maximum = 0 # Tallest stack
         self.minimum = 0 # Lowest spot
@@ -441,11 +441,12 @@ class TetrisController:
     Called to evaluate the state of the grid when a tetrominoes spawns for AI placement.
     '''
     def evaluation_grid(self, full=True):
-        evaluate_point = self.current_tetrominoes.position[0] # Row column (y,x); starting y-axis row for evaluation
-        self.ai_grid = np.array(self.tetris_grid) # Copies tetris grid of AI evaluation
+        evaluate_point = 4 # Row column (y,x); starting y-axis row for evaluation
+        self.ai_grid = copy.deepcopy(np.array(self.tetris_grid)) # Copies tetris grid of AI evaluation
         null_count = 0 # Holds empty count
         block_count = 0 # Holds block count
         column_read = []
+
         # Evaluates entire grid finding out how many blocks are and empty space exist in each column
         if full:
             for column in range(self.tetris_width):
@@ -453,11 +454,11 @@ class TetrisController:
                 block_count = 0
                 # Counts current grid square if empty or not
                 for row in range(evaluate_point, self.tetris_length):
-                    if self.ai_grid[row][column] == None: null_count += 1
-                    if self.ai_grid[row][column] != None: block_count += 1
+                    if self.ai_grid[row][column] == None and block_count == 0: null_count += 1
+                    if self.ai_grid[row][column] != None or block_count > 0: block_count += 1
                 column_read.append([null_count, block_count]) # Appends column grid square count
-        self.column_read_out = np.array(column_read) # Converts number readout for processing
-        self.simple_read_out = self.column_read_out[:, 1]
+        self.column_read_out = np.array(column_read) # Converts number readout for processing, holds vertical count of each columns fillable and non fillable grid spaces
+        self.simple_read_out = self.column_read_out[:, 1] # Holds count of unfillable grid spaces over each column
 
     '''
     # Summates all current static blocks
@@ -483,13 +484,14 @@ class TetrisController:
     '''
     maximum_height
     -------------
-    Finds the height of the highest block.
+    Finds the height of the highest block; only evaluates if block placement will make a new maximum height,
     '''
     def maximum_height(self):
         for y, row in enumerate(self.ai_grid):
             if (row != None).any():
                 self.maximum = self.normalize_maximum(len(self.ai_grid)-y); #print(f'Max: {self.maximum}')
                 if self.maximum <= 0.083: self.game_over = True # Ends game if heights is four grid spaces from the top
+                #print(self.maximum)
                 return
     def normalize_maximum(self, maximum): return 1 - (maximum / self.tetris_length) # Normalizes maximum height between 0->1
 
@@ -497,7 +499,7 @@ class TetrisController:
     '''
     minimum_height
     -------------
-    Finds the lowest point and highest point og the gir and calculates the difference between the two.
+    Finds the lowest point and highest point of the gird and calculates the difference between the two.
     '''
     def minimum_height(self):
         minimum = np.min(self.simple_read_out)
@@ -519,7 +521,7 @@ class TetrisController:
             if not None in row[:]: lines += 1
         self.lines = self.normalize_line(lines)
         #print(f'Lines: {self.lines}')
-    def normalize_line(self, lines): return lines # Normalizes possible line score between 0->1
+    def normalize_line(self, lines): return lines # Normalizes possible line score between 0->4
 
 
     '''
@@ -552,14 +554,15 @@ class TetrisController:
     Calculates total score for any one single move based upon normalized values from grid analysis
     '''
     def score(self, chromosome): # REMOVED: chromosome['Heights'] * self.heights +
-        return (
+        score = (
                 chromosome['Smoothness'] * self.smoothness +
                 chromosome['Maximum'] * self.maximum +
                 chromosome['Minimum'] * self.minimum +
                 chromosome['Lines'] * self.lines +
                 chromosome['Pit'] * self.pits +
                 chromosome['Hole'] * self.hole_percent
-        )
+        ); #print('SCORE:',score)
+        return score
 
 
     '''
