@@ -57,7 +57,7 @@ FONTS = { # All font objects used across the game
     'default_large': pg.font.Font('resources/retro_gaming.ttf', 50),
     'default_medium': pg.font.Font('resources/retro_gaming.ttf', 24),
     'default_small': pg.font.Font('resources/retro_gaming.ttf', 18),
-    'title_font': pg.font.Font('resources/block_talk.ttf', 164)
+    'title_font': pg.font.Font('resources/Gabato.ttf', 64)
     # 'retro_large': pg.font.Font('resources/retro_gaming.ttf' , 50)
 }
 

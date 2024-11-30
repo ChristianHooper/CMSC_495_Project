@@ -3,6 +3,7 @@ import guiController as gui
 import pygame as pg
 import dataStructures as ds
 from button import Button
+import math
 
 '''
 main_menu
@@ -10,6 +11,11 @@ main_menu
 Configures and runs the main menu sequence the player is initial presented with when the game starts.
 '''
 def main_menu(window, clock, window_size):
+
+    # Animation variables
+    animation_time = 0
+    stretch = 128
+    increase = 8
 
     running_menu = True
     large_font = ds.FONTS['default_large'] # File path to custom font: if possible add later (https://www.dafont.com/)
@@ -103,6 +109,10 @@ def main_menu(window, clock, window_size):
                     if tutorial_button.clicked(mouse_position): return ds.GAME_STATE['tutorial'] # Leads to tutorial menu
                     if exit_button.clicked(mouse_position): return None # Exits game; Game state machine return
 
+        animation_time += clock.get_time()
+        alpha = (math.sin(animation_time/stretch) + 1) * (increase/2)
+        title_text = pg.font.Font('resources/Gabato.ttf', int(164+alpha)).render('G5-Tetris', True, ds.COLOR['white']) # Title text attributes
+        title_position = title_text.get_rect(center=gui.grid[16][3]) # Position of where text will render
 
         # Render order
         window.fill(ds.COLOR['black'])
@@ -112,6 +122,7 @@ def main_menu(window, clock, window_size):
         game_button_ai.render(window)
         settings_button.render(window)
         tutorial_button.render(window)
-        gui.render_grid(window)
+        #gui.render_grid(window)
         exit_button.render(window) # Render grid window for element placement
+        clock.tick(10)
         pg.display.flip()
