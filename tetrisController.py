@@ -138,7 +138,7 @@ class TetrisController:
     -------------
     Renders all contents of the tetris controller after game logic.
     '''
-    def render_tetris(self, window):
+    def render_tetris(self, window, render=True):
         self.tetris_surface.fill(self.tetris_surface_color) # Fills the tetris game object with set color
         self.update_grid() # Updates current object position prior to rendering
         self.render_tetrominoes() # Renders self.current_tetrominoes
@@ -161,7 +161,7 @@ class TetrisController:
                     (self.tetris_coordinates[line_col][0][0], 0),
                     (self.tetris_coordinates[line_col][0][0], self.tetris_surface_size[1]),
                 )
-        window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface and lal drawings onto game window
+        if render: window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface and lal drawings onto game window
 
 
     '''
@@ -440,7 +440,7 @@ class TetrisController:
 #/////////////////////////////////////////////////////////////[AI]///////////////////////////////////////////////////////////////////////
 
     '''
-    settle_tetromino
+    evaluation_grid
     -------------
     Called to evaluate the state of the grid when a tetrominoes spawns for AI placement.
     '''
@@ -473,7 +473,7 @@ class TetrisController:
 
 
     '''
-    settle_tetromino
+    smoothness_calculation
     -------------
     Calculates the smoothness of the static block stack by finding variance in the columns.
     '''#$var=\frac{\sum_{i=1}^{n}(x_i-x_{mean})^2}{n}$ (LaTeX)
