@@ -14,7 +14,8 @@ GAME_STATE = { # Game state for game state navigation
     'menu':     0, # Main menu
     'settings': 1, # User define setting menu
     'p1_game':  2, # Single player tetris
-    'tutorial': 3  # Tutorial screen
+    'tutorial': 3,  # Tutorial screen
+    'ai': 4 # AI versus player
 }
 
 COLOR = { # Defines all colors found in game
@@ -96,4 +97,4 @@ PRIME = { # Selected chromosome of AI agent
             "Pit": 0.7249497156837208,
             "Hole": 0.7249497156837208,
             "Age": 616
-        },
+        }

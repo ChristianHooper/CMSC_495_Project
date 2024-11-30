@@ -2,7 +2,7 @@
     "screen_size": "1024x768",
     "fps_cap": 60,
     "grid_size": 12,
-    "aspect_ratio": 1,
+    "aspect_ratio": 2,
     "scores": {
         "IVY": 50069,
         "MVP": 7734,

@@ -112,6 +112,7 @@ class TetrisController:
         self.copy_static_blocks = copy.deepcopy(self.static_blocks)
         self.copy_render_points = copy.deepcopy(self.render_points)
         self.copy_transfer = copy.deepcopy(self.transfer)
+        self.copy_next_tetrominoes = copy.deepcopy(self.next_tetrominoes)
 
 
     '''
@@ -298,7 +299,7 @@ class TetrisController:
     -------------
     Checks the x&y-axis for collisions, and increments the movement based upon direction input.
     '''
-    def movement(self, x_change=0, y_change=0):
+    def movement(self, x_change=0, y_change=0, ai_eval=False):
         if x_change != 0 and not self.check_collision(offset_x=x_change): # Horizontal check
             self.current_tetrominoes.position[0] += x_change
 
@@ -313,13 +314,16 @@ class TetrisController:
             self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
 
             # AI
-            self.evaluation_grid()
-            #self.height_summation()
-            self.smoothness_calculation()
-            self.maximum_height()
-            self.minimum_height()
-            self.possible_line()
-            self.burrow_calculation()
+            if ai_eval:
+                self.evaluation_grid()
+                #self.height_summation()
+                self.smoothness_calculation()
+                self.maximum_height()
+                self.minimum_height()
+                self.possible_line()
+                self.burrow_calculation()
+                return
+
             self.current_tetrominoes = self.next_tetrominoes # Switches previewed tetrominoes for current controllable tetrominoes
             self.next_tetrominoes = self.generate_tetrominoes() # Generates a new preview tetrominoes
             if self.check_collision(): # Checks to see if game is over
@@ -459,6 +463,7 @@ class TetrisController:
                 column_read.append([null_count, block_count]) # Appends column grid square count
         self.column_read_out = np.array(column_read) # Converts number readout for processing, holds vertical count of each columns fillable and non fillable grid spaces
         self.simple_read_out = self.column_read_out[:, 1] # Holds count of unfillable grid spaces over each column
+    #print(self.simple_read_out)
 
     '''
     # Summates all current static blocks
@@ -561,7 +566,7 @@ class TetrisController:
                 chromosome['Lines'] * self.lines +
                 chromosome['Pit'] * self.pits +
                 chromosome['Hole'] * self.hole_percent
-        ); #print('SCORE:',score)
+        ); #print('SCORE:',score); print()
         return score
 
 
@@ -573,6 +578,7 @@ class TetrisController:
     def load_state(self):
         self.tetris_grid = copy.deepcopy(self.copy_grid)
         self.current_tetrominoes = copy.deepcopy(self.copy_tetrominoes)
+        #self.next_tetrominoes = copy.deepcopy(self.copy_next_tetrominoes)
         self.static_blocks = copy.deepcopy(self.copy_static_blocks)
         self.render_points = copy.deepcopy(self.copy_render_points)
         self.transfer = copy.deepcopy(self.copy_transfer)
@@ -585,6 +591,7 @@ class TetrisController:
     def save_state(self):
         self.copy_grid = copy.deepcopy(self.tetris_grid)
         self.copy_tetrominoes = copy.deepcopy(self.current_tetrominoes)
+        #self.copy_next_tetrominoes = copy.deepcopy(self.next_tetrominoes)
         self.copy_static_blocks = copy.deepcopy(self.static_blocks)
         self.copy_render_points = copy.deepcopy(self.render_points)
         self.copy_transfer = copy.deepcopy(self.transfer)

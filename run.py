@@ -8,6 +8,7 @@ import guiController as gui # GUI controller for element placement
 from settingsController import settings_conduit as sc # JSON settings controller
 from tetrominoes import tetrominoes # Tetris blocks
 from gameLoop import one_player # Runs game-loop
+from aiGameLoop import ai_player
 from settings import settings # Runs settings menu
 from tutorial import tutorial
 from mainMenu import main_menu # Runs main menu
@@ -68,6 +69,14 @@ def main(): # Main function that acts as the game controller
         # Game-loop
         if game_state == ds.GAME_STATE['p1_game']:
             attending_state = one_player(window, clock, window_size, sound_controller)
+            if attending_state == None:
+                running = False
+            else:
+                game_state = attending_state
+
+        # AI game mode
+        if game_state == ds.GAME_STATE['ai']:
+            attending_state = ai_player(window, clock, window_size, sound_controller)
             if attending_state == None:
                 running = False
             else:

@@ -34,8 +34,17 @@ def main_menu(window, clock, window_size):
                     hover_color=ds.COLOR['white'],
                     )
 
+    game_button_ai = Button( # Defines button that starts single player tetris game
+                position = gui.grid[16][13], # grid (x, y)
+                button_color=ds.COLOR['green'],
+                text_color=ds.COLOR['red'],
+                font=large_font,
+                text='AI Versus', # Text
+                hover_color=ds.COLOR['white'],
+                )
+
     settings_button = Button( # Defines button that navigates to user settings
-                position=gui.grid[16][13], # grid (x, y)
+                position=gui.grid[16][16], # grid (x, y)
                 button_color=ds.COLOR['green'],
                 text_color=ds.COLOR['red'],
                 font=large_font,
@@ -44,7 +53,7 @@ def main_menu(window, clock, window_size):
                 )
 
     tutorial_button = Button( # Defines button that navigates to tutorial
-            position=gui.grid[16][16], # grid (x, y)
+            position=gui.grid[16][19], # grid (x, y)
             button_color=ds.COLOR['green'],
             text_color=ds.COLOR['red'],
             font=large_font,
@@ -53,7 +62,7 @@ def main_menu(window, clock, window_size):
             )
 
     exit_button = Button( # Defines button exit button
-            position=gui.grid[16][19], # grid (x, y)
+            position=gui.grid[16][22], # grid (x, y)
             button_color=ds.COLOR['green'],
             text_color=ds.COLOR['red'],
             font=large_font,
@@ -84,6 +93,12 @@ def main_menu(window, clock, window_size):
                         sc.save_settings()
                         return ds.GAME_STATE['p1_game'] # Game state machine return
 
+                    # AI versus tetris game
+                    if game_button_ai.clicked(mouse_position):
+                        sc.settings_conduit['aspect_ratio']=2
+                        sc.save_settings()
+                        return ds.GAME_STATE['ai'] # Game state machine return
+
                     if settings_button.clicked(mouse_position): return ds.GAME_STATE['settings'] # Leads to settings menu
                     if tutorial_button.clicked(mouse_position): return ds.GAME_STATE['tutorial'] # Leads to tutorial menu
                     if exit_button.clicked(mouse_position): return None # Exits game; Game state machine return
@@ -94,6 +109,7 @@ def main_menu(window, clock, window_size):
         window.blit(title_text, title_position)
         game_button.render(window)
         game_button_two.render(window)
+        game_button_ai.render(window)
         settings_button.render(window)
         tutorial_button.render(window)
         gui.render_grid(window)
