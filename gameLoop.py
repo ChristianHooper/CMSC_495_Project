@@ -195,7 +195,7 @@ def one_player(window, clock, window_size, sound_controller):
         level_text_two = font_tab.render(str(level[1]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
 
 
-#////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     '''
     conclude
     -------------
@@ -347,6 +347,8 @@ def one_player(window, clock, window_size, sound_controller):
     # Time variables used with clock ticks to meter plummet keypress calls
     plummet_timer = 0
     plummet_timer_two = 0
+    plummet_interval = 1000
+    plummet_interval_two = 1000
 
     # Time variables used with clock ticks to define gravity speed
     gravity_timer = 0  # Timer for gravity control
@@ -416,9 +418,11 @@ def one_player(window, clock, window_size, sound_controller):
                     key_press_timer = 0
 
             if keys[pg.K_e]: # Up key press
-                if key_press_timer >= key_press_interval:
+                if key_press_timer >= key_press_interval and ts.current_tetrominoes.plumbed != True:
                     ts.plummet()
                     ts.update_grid()
+                    score[0] += 20
+                    score_text = font_tab.render(str(score[0]), True, COLOR['black'])
                     key_press_timer = 0
                     plummet_timer = 0
 
@@ -454,9 +458,11 @@ def one_player(window, clock, window_size, sound_controller):
                     key_press_timer_two = 0
 
             if keys[pg.K_RSHIFT]: # Up key press
-                if key_press_timer_two >= key_press_interval_two:
+                if key_press_timer_two >= key_press_interval_two and tst.current_tetrominoes.plumbed != True:
                     tst.plummet()
                     tst.update_grid()
+                    score[1] += 20
+                    score_text_two = font_tab.render(str(score[1]), True, COLOR['black'])
                     key_press_timer_two = 0
                     plummet_timer_two = 0
 
@@ -464,8 +470,12 @@ def one_player(window, clock, window_size, sound_controller):
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+        # Run time gap for plummet commands
+        if plummet_timer >= plummet_interval: ts.current_tetrominoes.plumbed = False
+        if plummet_timer_two >= plummet_interval_two: tst.current_tetrominoes.plumbed = False
+
         # Gravity-based movement
-        if plummet_timer >= gravity_interval: ts.current_tetrominoes.plumbed = False
         if gravity_timer >= gravity_interval:
             if not ts.game_over:
                 ts.movement(y_change=1) # Move tetromino down on y-axis
@@ -477,7 +487,7 @@ def one_player(window, clock, window_size, sound_controller):
             if ts.cleared_rows: # Ran when a line is cleared to update score variables
                 scores = ts.line_score(score[0], line_count[0]) # Calculates new scores and lien count
                 score[0] = score[0] + scores[0] # Sets new score
-                line_count[0] = line_count[0] + scores[1] # Sets new line count
+                line_count[0] = line_count[0] + scores[0] # Sets new line count
                 score_text = font_tab.render(str(score[0]), True, COLOR['black'])
                 line_text = font_tab.render(str(line_count[0]), True, COLOR['black'])
                 if line_count[0] - (10*(level[0])) >= 0:

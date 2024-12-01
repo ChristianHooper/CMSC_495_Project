@@ -566,7 +566,7 @@ def ai_player(window, clock, window_size, sound_controller):
                 line_text = font_tab.render(str(line_count[0]), True, COLOR['black'])
                 if line_count[0] - (10*(level[0])) >= 0:
                     level[0] = level[0] + 1
-                    gravity_interval = gravity_interval - 25
+                    gravity_interval = gravity_interval - 50
                     level_text = font_tab.render(str(level[0]), True, COLOR['black'])
 
             ts.update_grid() # Updates grid of mechanics and rendering based upon movement changes
