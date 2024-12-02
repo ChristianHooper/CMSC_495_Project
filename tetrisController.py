@@ -1,5 +1,6 @@
 from settingsController import settings_conduit as sc
 from dataStructures import COLOR, GUI_GRID
+from soundController import SoundController
 import tetrominoes as tm
 import guiController as gui
 
@@ -55,7 +56,7 @@ transfer : If the current tetrominoes is slated for static block conversion, use
 
 
 class TetrisController:
-    def __init__(self, window_size, border, agents, player_two=False):
+    def __init__(self, window_size, border, agents, player_two=False, fx=True, ai=False):
         # Initialize attributes
         self.tetris_grid = [[None for _ in range(sc['grid_size'])] for _ in range((sc['grid_size'] * 2))]
         self.tetris_width = len(self.tetris_grid[0])
@@ -90,6 +91,10 @@ class TetrisController:
         self.collision_list = [] # List of colliding block used in flip function
         self.transfer = False # If the current tetrominoes is slated for static block conversion
 
+        # Sound
+        self.fx = fx # If sounds it turned on for the tetris game
+        self.sound = SoundController()
+
         # /////////////////////////////////////////[AI Game Variables]/////////////////////////////////////////
 
         self.ai_grid = np.array(self.tetris_grid) # The grid used for searching in the ai space
@@ -104,6 +109,7 @@ class TetrisController:
         self.pits = 0  # Blocks that are shielded by an over hang
         self.hole_percent = 0
         self.mark = object # Marks hole in grid
+        self.ai = ai
 
         # Copy of point used to save the state of the game
         self.copy_grid = copy.deepcopy(self.tetris_grid)
@@ -177,21 +183,6 @@ class TetrisController:
     '''
     line_score
     -------------
-    Calculates the score and line count when clearing lines.
-    '''
-    def line_score(self, score, level):
-        cleared = len(self.cleared_rows)
-        self.cleared_rows = [] # Deletes clear row marker
-        match cleared:
-            case 1: return (40 * (level + cleared), 1)
-            case 2: return (100 * (level + cleared), 2)
-            case 3: return (300 * (level + cleared), 3)
-            case 4: return (1200 * (level + cleared), 4)
-
-
-    '''
-    line_score
-    -------------
     Updates state of the tetris grid and render list, transcribes tetrominoes shape into the self.tetris_grid.
     '''
     def update_grid(self):
@@ -228,6 +219,7 @@ class TetrisController:
     When called allows current tetrominoes to plummet down on the y-axis to the nearest block.
     '''
     def plummet(self):
+        if self.fx: self.sound.play_drop()
         if not self.current_tetrominoes.plumbed:
             # Defines length from bottom of the current tetrominoes to the bottom of the tetris grid
             search_width = [self.current_tetrominoes.block_locations[:][i][1] for i in range(len(self.current_tetrominoes.block_locations))]
@@ -258,8 +250,11 @@ class TetrisController:
             block.position = x # Sets the indices for the position of the block in the tetris grid
             block.small_block.x = self.tetris_coordinates[x[1]][x[0]][1] # Sets render location on block on x-axis
             block.small_block.y = self.tetris_coordinates[x[1]][x[0]][0] # Sets render location on block on y-axis
-            pg.draw.rect(self.tetris_surface, block.color, block.small_block) # Draws block onto tetris surface before being blit
+            block.boarder_block.x = self.tetris_coordinates[x[1]][x[0]][1]+block.boarder_size/2 # Sets render location on block on x-axis
+            block.boarder_block.y = self.tetris_coordinates[x[1]][x[0]][0]+block.boarder_size/2 # Sets render location on block on y-axis
 
+            pg.draw.rect(self.tetris_surface, block.boarder_color, block.small_block) # Draws block onto tetris surface before being blit
+            pg.draw.rect(self.tetris_surface, block.color, block.boarder_block) # Draws block onto tetris surface before being blit
 
     '''
     render_next_tetromino
@@ -310,7 +305,7 @@ class TetrisController:
         elif self.transfer: # If collision detected with tetris game frame or another block
             self.current_tetrominoes.static = True # Halts the self.current_tetrominoes object
             self.settle_tetromino() # Converts self.current tetrominoes object into blocks to be rendered
-            self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
+            if not ai_eval: self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks
 
             # AI
             if ai_eval:
@@ -327,6 +322,7 @@ class TetrisController:
             self.next_tetrominoes = self.generate_tetrominoes() # Generates a new preview tetrominoes
             if self.check_collision(): # Checks to see if game is over
                 self.game_over = True
+                self.sound.play_game_over()
                 #print(f'GameOver: {self.game_over}')
                 return
             self.transfer = False
@@ -400,6 +396,7 @@ class TetrisController:
             self.current_tetrominoes.render_shape = apriori_shape # Reset to previous shape
             self.current_tetrominoes.block_locations = apriori_block_location
         self.collision_list = [] # Resets collision list
+        if self.ai != True and self.fx: self.sound.play_rotate()
 
 
     '''
@@ -415,6 +412,21 @@ class TetrisController:
 
 
     '''
+    line_score
+    -------------
+    Calculates the score and line count when clearing lines.
+    '''
+    def line_score(self, score, level):
+        cleared = len(self.cleared_rows)
+        self.cleared_rows = [] # Deletes clear row marker
+        match cleared:
+            case 1: return int(40 * (level + cleared))
+            case 2: return int(100 * (level + cleared))
+            case 3: return int(300 * (level + cleared))
+            case 4: return int(1200 * (level + cleared))
+
+
+    '''
     clear_lines
     -------------
     Checks entire grid and clear line moving current block down by one.
@@ -423,6 +435,7 @@ class TetrisController:
         self.cleared_rows = [index for index, row in enumerate(self.tetris_grid) if all(row)] # Tag rows to be clear
 
         if self.cleared_rows: # If there are lines to be cleared
+            if self.fx: self.sound.play_line_clear()
             for row_index in self.cleared_rows: # Gets row
                 for block in self.tetris_grid[row_index]: # Gets block
                     if block in self.static_blocks:

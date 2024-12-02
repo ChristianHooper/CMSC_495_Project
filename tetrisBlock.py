@@ -14,10 +14,14 @@ decimate :     If the block is slated to be de destroyed. |boolean|
 '''
 
 class block:
-    def __init__(self, block_size, color):
+    def __init__(self, block_size, color, boarder_color):
         self.position = [0, 0]
         #print("BLOCKSIZE: ", block_size)
+        self.boarder_size = block_size/4
         self.small_block = pg.Rect((self.position[0], self.position[1], block_size, block_size))
+        self.boarder_block = self.small_block.inflate(-self.boarder_size, -self.boarder_size)
         self.block_size = block_size
         self.color = color
+        self.boarder_color = boarder_color
+        #self.boarder_color = list(color)
         self.decimate = False

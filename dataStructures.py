@@ -28,13 +28,24 @@ COLOR = { # Defines all colors found in game
     'T':      (200, 60, 245), # Purple
     'i':      (240, 240, 250), # White
 
-    # GUI Colors
+    # Tetrominoes Colors
     'red':        (245, 45, 40),
     'green':      (55, 245, 90),
     'blue':       (50, 100, 245),
     'white':      (230, 230, 245),
     'black':      (10, 10, 20 ),
     'grey':       (100, 100, 140),
+
+    # Tetrominoes Colors
+    'deep_red':        (207, 45, 40), # Red
+    'deep_green':      (55, 207, 90), # Green
+    'deep_blue':       (40, 80, 207), # Blue
+    'deep_light_blue': (100, 207, 207), # Light-blue
+    'deep_yellow':     (207, 200, 40), # Yellow
+    'deep_orange':     (207, 120, 40), # Orange
+    'deep_purple':     (160, 60, 207), # Purple
+    'deep_white':      (200, 200, 210), # White
+
 
     # Color Theme
     'powder_pink':     (241, 194, 242),
@@ -43,6 +54,7 @@ COLOR = { # Defines all colors found in game
     'vapor_blue':      (87, 170, 242),
     'abandon_food_court_in_the_middle_of_the_night_blue':       (141, 145, 219),
     'mono_white':      (217, 214, 255),
+    'normal_map_blue': (128, 128, 255),
     'royal_jelly':     (250, 221, 98)
     }
 
@@ -103,7 +115,7 @@ PRIME = { # Selected chromosome of AI agent
             "Maximum": 0.6312906097241524,
             "Minimum": 0.07999705718157621,
             "Lines": 0.20483005766792878,
-            "Pit": 0.7249497156837208,
-            "Hole": 0.9249497156837208, # 0.7249497156837208
+            "Pit": 0.7249497156837208, # 0.7249497156837208
+            "Hole": 1.0249497156837208, # 0.7249497156837208
             "Age": 616
         }

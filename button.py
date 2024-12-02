@@ -37,7 +37,7 @@ class Button:
     def render(self, window): # Renders button onto window
         text_surface = self.font.render(self.text, True, self.text_color) # Creates text surface to be imposed on button
         text_rect = text_surface.get_rect(center=self.position) # Put position origin point in the middle of the button
-        back_rect = text_rect.inflate(5, 5)
+        back_rect = text_rect.inflate(8, 8)
         self.bound = text_rect.inflate(self.inflate[0], self.inflate[1])
         mouse_position = pg.mouse.get_pos() # Gets mouse position
         hovered = self.bound.collidepoint(mouse_position) # If mouse is over button

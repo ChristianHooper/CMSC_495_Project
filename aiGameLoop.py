@@ -27,8 +27,8 @@ def ai_player(window, clock, window_size, sound_controller):
     agents = sc.settings_conduit['aspect_ratio'] # Constraining variable for multiplayer & single player
 
     ts = TetrisController(window_size, [0, 1], agents)  # TetrisController class, game logic & rendering
-    tst = TetrisController(window_size, [0, 1], agents, player_two=True)  # TetrisController class, player two
-    ai_tetris_copy = TetrisController(window_size, [0, 1], agents, player_two=True) # Tetris game frame used as a holder over for ai movement calculations
+    tst = TetrisController(window_size, [0, 1], agents, player_two=True, ai=True)  # TetrisController class, player two
+    ai_tetris_copy = TetrisController(window_size, [0, 1], agents, player_two=True, ai=True) # Tetris game frame used as a holder over for ai movement calculations
     ai_tetris_copy.current_tetrominoes = tst.current_tetrominoes # Syncs first tetrominoes
 
     font_slab = ds.FONTS['default_medium']
@@ -36,6 +36,11 @@ def ai_player(window, clock, window_size, sound_controller):
     if agents > 1: # Converts normal sized font to small font
         font_slab = ds.FONTS['default_small'] # Adjust font sizes if more than one player is playing
         font_tab = ds.FONTS['default_small']
+
+    # Sound controller
+    sound = sound_controller # Creates sound controller for game-loop
+    sound.play_start()
+    sound.play_bgm()
 
 # ////////////////////////////////////////////////////////////[Game-Over GUI]////////////////////////////////////////////////////////////////////////
 
@@ -188,7 +193,7 @@ def ai_player(window, clock, window_size, sound_controller):
         ); line_subsurface_two = line_ui_two.surface.subsurface(0, 0, line_ui_two.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
         line_position_two = [line_ui_two.position[0]+gui.grid_square/2, int(line_ui_two.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
         line_text_two = font_tab.render(str(line_count[1]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
-
+        line_text_two = font_tab.render(str(line_count[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
 
         level_ui_two = element(window, # GUI element for viewing current line count
                         gui.grid[int(4*agents*agents+1)][20], # Location of line counter element
@@ -334,6 +339,7 @@ def ai_player(window, clock, window_size, sound_controller):
     Function called to pause the game.
     '''
     def pause_loop(pause):
+        sound.play_pause()
         while pause: # Defines pause loop
             for event in pg.event.get(): # Check for game exit
                 if event.type == pg.QUIT:
@@ -394,14 +400,14 @@ def ai_player(window, clock, window_size, sound_controller):
 
                     tst.render_tetris(window,render=False) # Updates grid; does not slate for buffer swap
                     tst.gravity() # Move tetromino down on y-axis
-
+                    '''
                     if tst.cleared_rows: # Second player line cleared
                         scores = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
                         score[1] = score[1] + scores[1] # Sets new score
                         line_count[1] = line_count[1] + line_count[1] # Sets new line count
                         if line_count[1] - (10*(level[1])) >= 0:
                             level[1] = level[1] + 1
-
+                    '''
             move_array = np.array(move_list) # Defines the score for call possible moves in COMMANDS sequence
             #print(move_array); print()
             selected_score = np.max(move_array) # Finds optimal move-set; selects list of COMMANDS sequence, gets highest scores
@@ -559,15 +565,18 @@ def ai_player(window, clock, window_size, sound_controller):
                 ts.gravity()
 
             if ts.cleared_rows: # Ran when a line is cleared to update score variables
-                scores = ts.line_score(score[0], line_count[0]) # Calculates new scores and lien count
-                score[0] = score[0] + scores[0] # Sets new score
-                line_count[0] = line_count[0] + scores[1] # Sets new line count
+                line_count[0] += len(ts.cleared_rows) # Sets new line count
+                product = ts.line_score(score[0], line_count[0]) # Calculates new scores and line count; [0]New score, [1]new line
+                score[0] += product # Sets new score
+
                 score_text = font_tab.render(str(score[0]), True, COLOR['black'])
                 line_text = font_tab.render(str(line_count[0]), True, COLOR['black'])
                 if line_count[0] - (10*(level[0])) >= 0:
                     level[0] = level[0] + 1
+                    sound.play_level_up()
                     gravity_interval = gravity_interval - 50
                     level_text = font_tab.render(str(level[0]), True, COLOR['black'])
+
 
             ts.update_grid() # Updates grid of mechanics and rendering based upon movement changes
             if move_selection != None: tst.update_grid() # Updates grid of mechanics and rendering based upon movement changes
@@ -604,14 +613,15 @@ def ai_player(window, clock, window_size, sound_controller):
 
             # AI score calculations
             if move_selection != None and tst.cleared_rows:
-                scores = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
-                score[1] = score[1] + scores[1] # Sets new score
-                line_count[1] = line_count[1] + line_count[1] # Sets new line count
+                line_count[1] += len(tst.cleared_rows) # Sets new line count
+                product = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
+                score[1] += product # Sets new score
+
                 score_text_two = font_tab.render(str(score[1]), True, COLOR['black'])
                 line_text_two = font_tab.render(str(line_count[1]), True, COLOR['black'])
                 if line_count[1] - (10*(level[1])) >= 0:
                     level[1] = level[1] + 1
-                    #gravity_interval = gravity_interval - 25 # Not needed, handled in first player
+                    sound.play_level_up()
                     level_text_two = font_tab.render(str(level[1]), True, COLOR['black'])
             ai_timer = 0 # Resets AI timer
 
@@ -642,7 +652,7 @@ def ai_player(window, clock, window_size, sound_controller):
             # Render line score UI
             line_ui_two.blit_update(window)
             line_subsurface_two.fill((200, 200, 245))
-            line_subsurface_two.blit(line_text, [10,10])
+            line_subsurface_two.blit(line_text_two, [10,10])
             window.blit(line_subsurface_two, line_position_two)
 
             # Render current level UI

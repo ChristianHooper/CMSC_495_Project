@@ -39,6 +39,7 @@ class tetrominoes:
     def __init__(self, block_size, spawn):
         self.random_key = random.choice(list(TETROMINOES.keys()))
         self.color = COLOR[self.random_key]
+        self.boarder_color = self.get_boarder()
         self.number_shape = TETROMINOES[self.random_key]
         self.block_size = block_size + 1
         self.render_shape = self.number_convert()
@@ -49,13 +50,24 @@ class tetrominoes:
         self.plumbed = False # If the tetrominoes has plummeted
 
 
+    def get_boarder(self):
+        match self.random_key:
+            case 'Z': return COLOR['deep_red'] # Deep red
+            case 'S': return COLOR['deep_green'] # Deep Green
+            case 'J': return COLOR['deep_blue'] # Deep blue
+            case 'I': return COLOR['deep_light_blue'] # Deep light-blue
+            case 'O': return COLOR['deep_yellow'] # Deep yellow
+            case 'L': return COLOR['deep_orange'] # Deep orange
+            case 'T': return COLOR['deep_purple'] # Deep purple
+            case 'i': return COLOR['deep_white'] # Deep white
+            case _:   return COLOR['glass_purple'] # Dark Purple
     '''
     number_convert
     -------------
     Converts number matrices to object matrices. (0, 1) -> (None, tetrisBlock)
     '''
     def number_convert(self):
-        return [[None if x == 0 else bk(self.block_size, self.color) for x in row] for row in self.number_shape]
+        return [[None if x == 0 else bk(self.block_size, self.color, self.boarder_color) for x in row] for row in self.number_shape]
 
 
     '''

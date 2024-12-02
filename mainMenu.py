@@ -24,13 +24,15 @@ def main_menu(window, clock, window_size):
     sc.save_settings()
 
     # Spawn and adjust tetris game frames
-    bg_tetris_one = TetrisController(window_size, [0,0], 1)
+    bg_tetris_one = TetrisController(window_size, [0,0], 1, fx=False)
     bg_tetris_one.centering = [0,0]
     bg_tetris_one.save_state() # Saves origin state for repeating game
-    bg_tetris_two = TetrisController(window_size, [0,0], 1)
+
+    bg_tetris_two = TetrisController(window_size, [0,0], 1, fx=False)
     bg_tetris_two.centering = [bg_tetris_one.tetris_surface_size[0], 0]
     bg_tetris_two.save_state() # Saves origin state for repeating game
-    bg_tetris_three = TetrisController(window_size, [0,0], 1)
+
+    bg_tetris_three = TetrisController(window_size, [0,0], 1, fx=False)
     bg_tetris_three.centering = [bg_tetris_two.tetris_surface_size[1], 0]
     bg_tetris_three.save_state() # Saves origin state for repeating game
     direction_one = 0
@@ -92,7 +94,7 @@ def main_menu(window, clock, window_size):
 
     settings_button = Button( # Defines button that navigates to user settings
                 position=gui.grid[16][16], # grid (x, y)
-                button_color=ds.COLOR['glass_purple'],
+                button_color=ds.COLOR['normal_map_blue'],
                 text_color=ds.COLOR['powder_pink'],
                 font=large_font,
                 text='Settings', # Text
@@ -103,7 +105,7 @@ def main_menu(window, clock, window_size):
 
     tutorial_button = Button( # Defines button that navigates to tutorial
             position=gui.grid[16][19], # grid (x, y)
-            button_color=ds.COLOR['glass_purple'],
+            button_color=ds.COLOR['normal_map_blue'],
             text_color=ds.COLOR['powder_pink'],
             font=large_font,
             text='Tutorial', # Text
@@ -114,7 +116,7 @@ def main_menu(window, clock, window_size):
 
     exit_button = Button( # Defines button exit button
             position=gui.grid[16][22], # grid (x, y)
-            button_color=ds.COLOR['powder_pink'],
+            button_color=ds.COLOR['glass_purple'],
             text_color=ds.COLOR['powder_pink'],
             font=large_font,
             text='Exit', # Text
@@ -128,9 +130,7 @@ def main_menu(window, clock, window_size):
         for event in pg.event.get():
             if event.type == pg.QUIT: return None
 
-            elif event.type == sound.bgm_end_event:
-                print('SOUND ENDED')
-                sound.bgm_ending()
+            elif event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
 
             # Listener for player button click on main menu
             elif event.type == pg.MOUSEBUTTONDOWN:
@@ -165,6 +165,7 @@ def main_menu(window, clock, window_size):
 
         gravity_timer += clock.get_time()
 
+        # Title animation
         animation_time += clock.get_time() # Defines x-value for equation
         alpha = (math.sin(animation_time/stretch) + 1) * (increase/2) # Animation algorithm; $f(x)=(\sin(\frac{x}{x-axis_stretch}+1)\cdot{\frac{y-axis_height}{2}})$
         title_text = pg.font.Font('resources/Gabato.ttf', int(164+alpha)).render('G5-Tetris', True, ds.COLOR['royal_jelly']) # Title text attributes

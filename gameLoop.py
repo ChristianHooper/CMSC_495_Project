@@ -27,6 +27,12 @@ def one_player(window, clock, window_size, sound_controller):
     if agents > 1: # Converts normal sized font to small font
         font_slab = ds.FONTS['default_small'] # Adjust font sizes if more than one player is playing
         font_tab = ds.FONTS['default_small']
+    sound = sound_controller # Creates sound controller for game-loop
+    sound.play_start()
+    sound.play_bgm()
+    boarder_size = 4
+    if agents > 1: boarder_size = 8
+    #elif agents > 1: boarder_size = 4
 
 # ////////////////////////////////////////////////////////////[Game-Over GUI]////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +76,7 @@ def one_player(window, clock, window_size, sound_controller):
                         gui.grid[10][4], # Location of surface, centered
                         [gui.grid_square*12, gui.grid_square*12], # Width & Height
                         fill_color=COLOR['white'],
-                        border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
+                        border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
                         border_color=(64,64,64, 128),
                         text='Enter New High Score', # Rendered text
                         font=ds.FONTS['default_medium'],
@@ -85,10 +91,11 @@ def one_player(window, clock, window_size, sound_controller):
     grab_bag = element(window, # GUI element for preview oncoming tetrominoes
                     gui.grid[int(4/agents/agents)][1], # Location of grab-bag
                     [(gui.grid_square*5)/agents, (gui.grid_square*7)/agents], # Width & Height of grab-bag
-                    fill_color=(128,128,128),
-                    border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                    border_color=(64,64,64), # Border color
+                    fill_color=COLOR['soft_purple'],
+                    border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
+                    border_color=COLOR['normal_map_blue'], # Border color
                     font=font_slab,
+                    text_color=COLOR['royal_jelly'],
                     text='Next',
                     font_position=[gui.grid_square/agents, gui.grid_square/4]
     ); next_position = [grab_bag.position[0]*agents, grab_bag.position[1]+(gui.grid_square*2.25)/agents] # The pixel position the new next_tetrominoes object will render
@@ -97,10 +104,11 @@ def one_player(window, clock, window_size, sound_controller):
     score_ui = element(window, # GUI element for preview oncoming tetrominoes
                     gui.grid[int(4/agents/agents)][10], # Location of score element
                     [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of score element
-                    fill_color=(128,128,128),
-                    border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                    border_color=(64,64,64),
+                    fill_color=COLOR['soft_purple'],
+                    border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
+                    border_color=COLOR['normal_map_blue'],
                     font=font_slab,
+                    text_color=COLOR['royal_jelly'],
                     text='Score', # Rendered text
                     font_position=[gui.grid_square/2, (gui.grid_square/4)/agents] # Font position on surface
     ); score_subsurface = score_ui.surface.subsurface(0, 0, score_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current score will render
@@ -112,10 +120,11 @@ def one_player(window, clock, window_size, sound_controller):
     line_ui = element(window, # GUI element for viewing current line count
                     gui.grid[int(4/agents/agents)][int(15)], # Location of line counter element
                     [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of line counter element
-                    fill_color=(128,128,128),
-                    border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                    border_color=(64,64,64), # Border color
+                    fill_color=COLOR['soft_purple'],
+                    border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
+                    border_color=COLOR['normal_map_blue'], # Border color
                     font=font_slab,
+                    text_color=COLOR['royal_jelly'],
                     text='Line',
                     font_position=[gui.grid_square/agents, gui.grid_square/4]
     ); line_subsurface = line_ui.surface.subsurface(0, 0, line_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
@@ -127,10 +136,11 @@ def one_player(window, clock, window_size, sound_controller):
     level_ui = element(window, # GUI element for viewing current line count
                     gui.grid[int(4/agents/agents)][20], # Location of line counter element
                     [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of line counter element
-                    fill_color=(128,128,128),
-                    border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                    border_color=(64,64,64), # Border color
+                    fill_color=COLOR['soft_purple'],
+                    border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
+                    border_color=COLOR['normal_map_blue'], # Border color
                     text='Level',
+                    text_color=COLOR['royal_jelly'],
                     font=font_slab,
                     font_position=[(gui.grid_square/2)/agents, gui.grid_square/4]
     ); level_subsurface = level_ui.surface.subsurface(0, 0, level_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
@@ -221,6 +231,8 @@ def one_player(window, clock, window_size, sound_controller):
                 if event.type == pg.QUIT:
                     return None # Quits game
 
+                elif event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
+
                 if event.type == pg.MOUSEBUTTONDOWN: # Detect if the mouse click
                     if score_input_box.collidepoint(event.pos): input_active = True  # Activate the input box
                     else: input_active = False
@@ -295,10 +307,10 @@ def one_player(window, clock, window_size, sound_controller):
 
             # Calculate text output for first place
             score_one = ds.FONTS['default_medium'].render(f'First Place:      {score_sort[-1]} | {sc.settings_conduit["scores"][score_sort[-1]]}', True, COLOR['black'])
-            score_two = ds.FONTS['default_medium'].render(f'Second Place: {score_sort[-2]} | {sc.settings_conduit["scores"][score_sort[-2]]}', True, COLOR['black'])
-            score_third = ds.FONTS['default_medium'].render(f'Third Place:     {score_sort[-3]} | {sc.settings_conduit["scores"][score_sort[-3]]}', True, COLOR['black'])
-            score_fourth = ds.FONTS['default_medium'].render(f'Fourth Place:   {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
-            score_fifth = ds.FONTS['default_medium'].render(f'Fifth Place:      {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
+            score_two = ds.FONTS['default_medium'].render(f'Second Place:     {score_sort[-2]} | {sc.settings_conduit["scores"][score_sort[-2]]}', True, COLOR['black'])
+            score_third = ds.FONTS['default_medium'].render(f'Third Place:    {score_sort[-3]} | {sc.settings_conduit["scores"][score_sort[-3]]}', True, COLOR['black'])
+            score_fourth = ds.FONTS['default_medium'].render(f'Fourth Place:  {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
+            score_fifth = ds.FONTS['default_medium'].render(f'Fifth Place:    {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
 
             # Renders leaderboard
             end_menu.blit_update(window)
@@ -325,6 +337,7 @@ def one_player(window, clock, window_size, sound_controller):
     Function called to pause the game.
     '''
     def pause_loop(pause):
+        sound.play_pause()
         while pause: # Defines pause loop
             for event in pg.event.get(): # Check for game exit
                 if event.type == pg.QUIT:
@@ -333,6 +346,8 @@ def one_player(window, clock, window_size, sound_controller):
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
                         pause = False # Unpauses game
+
+                elif event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
 
             pause_text = ds.FONTS['default_large'].render("[Game Paused]", False, COLOR['white']) # Font object rendered for pausing game
             window.blit(pause_text, [gui.grid[16][10][0] - pause_text.get_width()/2 , gui.grid[16][10][1]]) # Centered font render
@@ -377,6 +392,8 @@ def one_player(window, clock, window_size, sound_controller):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+
+            elif event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
 
             elif event.type == pg.KEYDOWN: # Checks for a key press event
 
@@ -431,7 +448,7 @@ def one_player(window, clock, window_size, sound_controller):
 #/////////////////////////////////////////////////////////////[Player-Two Keys]///////////////////////////////////////////////////////////////////////
 
         # Second player movement logic
-        if not tst.current_tetrominoes.static and not tst.game_over:
+        if not tst.current_tetrominoes.static and not tst.game_over and agents > 1:
             # Move left logic player two
             if keys[pg.K_LEFT]: # Left key press
                 if key_press_timer_two >= key_press_interval_two:
@@ -457,7 +474,7 @@ def one_player(window, clock, window_size, sound_controller):
                     tst.tetrominoes_flipping()
                     key_press_timer_two = 0
 
-            if keys[pg.K_RSHIFT]: # Up key press
+            if keys[pg.K_RSHIFT]: # Plummet key press
                 if key_press_timer_two >= key_press_interval_two and tst.current_tetrominoes.plumbed != True:
                     tst.plummet()
                     tst.update_grid()
@@ -470,7 +487,6 @@ def one_player(window, clock, window_size, sound_controller):
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
         # Run time gap for plummet commands
         if plummet_timer >= plummet_interval: ts.current_tetrominoes.plumbed = False
         if plummet_timer_two >= plummet_interval_two: tst.current_tetrominoes.plumbed = False
@@ -480,30 +496,34 @@ def one_player(window, clock, window_size, sound_controller):
             if not ts.game_over:
                 ts.movement(y_change=1) # Move tetromino down on y-axis
                 ts.gravity()
-            if not tst.game_over:
+
+            if not tst.game_over and agents > 1:
                 tst.movement(y_change=1) # Move tetromino down on y-axis
                 tst.gravity()
 
             if ts.cleared_rows: # Ran when a line is cleared to update score variables
-                scores = ts.line_score(score[0], line_count[0]) # Calculates new scores and lien count
-                score[0] = score[0] + scores[0] # Sets new score
-                line_count[0] = line_count[0] + scores[0] # Sets new line count
+                line_count[0] += len(ts.cleared_rows) # Sets new line count
+                product = ts.line_score(score[0], line_count[0]) # Calculates new scores and line count; [0]New score, [1]new line
+                score[0] += product # Sets new score
+
                 score_text = font_tab.render(str(score[0]), True, COLOR['black'])
                 line_text = font_tab.render(str(line_count[0]), True, COLOR['black'])
                 if line_count[0] - (10*(level[0])) >= 0:
                     level[0] = level[0] + 1
-                    gravity_interval = gravity_interval - 25
+                    sound.play_level_up()
+                    gravity_interval = gravity_interval - 50
                     level_text = font_tab.render(str(level[0]), True, COLOR['black'])
 
             if tst.cleared_rows:
-                scores = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
-                score[1] = score[1] + scores[1] # Sets new score
-                line_count[1] = line_count[1] + line_count[1] # Sets new line count
+                line_count[1] += len(tst.cleared_rows) # Sets new line count
+                product = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
+                score[1] += product # Sets new score
+
                 score_text_two = font_tab.render(str(score[1]), True, COLOR['black'])
                 line_text_two = font_tab.render(str(line_count[1]), True, COLOR['black'])
                 if line_count[1] - (10*(level[1])) >= 0:
                     level[1] = level[1] + 1
-                    #gravity_interval = gravity_interval - 25 # Not needed, handled in first player
+                    sound.play_level_up()
                     level_text_two = font_tab.render(str(level[1]), True, COLOR['black'])
 
 
@@ -514,8 +534,8 @@ def one_player(window, clock, window_size, sound_controller):
             key_press_timer_two = 0
 
         # Rendering
-        window.fill(COLOR['black'])
-        gui.render_grid(window) # Render GUI placement grid tool
+        window.fill(COLOR['glass_purple'])
+        #gui.render_grid(window) # Render GUI placement grid tool
         ts.render_tetris(window) # Render the entire tetris game frame
 
         tst.render_tetris(window) # Render the entire tetris game frame
@@ -539,7 +559,7 @@ def one_player(window, clock, window_size, sound_controller):
             # Render line score UI
             line_ui_two.blit_update(window)
             line_subsurface_two.fill((200, 200, 245))
-            line_subsurface_two.blit(line_text, [10,10])
+            line_subsurface_two.blit(line_text_two, [10,10])
             window.blit(line_subsurface_two, line_position_two)
 
             # Render current level UI
