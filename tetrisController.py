@@ -63,18 +63,17 @@ class TetrisController:
         self.gen = agents # Number of players apart of the game-loop
         self.border = [x * gui.grid_square for x in border]
         self.window_size = window_size
-        self.tetris_surface_size = (
+        self.tetris_surface_size = [
             ((self.window_size[1]/1) - (self.border[1] * 2) - (self.border[0] * 2)) / 2, # x-axis
-            (self.window_size[1]) - (self.border[1] * 2)) # y-axis
-
+            (self.window_size[1]) - (self.border[1] * 2)] # y-axis
         self.tetris_block_size = self.tetris_surface_size[0] / sc['grid_size']
         self.tetris_coordinates = self.create_coordinates()
         self.tetris_surface = pg.Surface(self.tetris_surface_size)
         self.centering = [gui.grid[int(GUI_GRID / 2)][0][0] - (self.tetris_surface_size[0] / 2*self.gen), self.border[1]] # Defines general position of the grid
         if self.gen > 1: self.centering[0] -= gui.grid_square
         if player_two: self.centering[0] += self.centering[0] + self.gen + gui.grid_square*12
-        self.tetris_grid_color = COLOR['black']
-        self.tetris_surface_color = (100, 100, 100)
+        self.tetris_grid_color = COLOR['glass_purple']
+        self.tetris_surface_color = COLOR['soft_purple']
 
         # Transition set the position for all past static tetrominoes locations for copying over to tetris grid upon calling update_grid()
         self.static_blocks = set()
@@ -144,7 +143,7 @@ class TetrisController:
         self.render_tetrominoes() # Renders self.current_tetrominoes
 
         for line_row in range(len(self.tetris_coordinates)): # Renders horizontal grid lines
-            if line_row > 0:
+            if line_row >= 0:
                 pg.draw.aaline( # Draws horizontal line
                     self.tetris_surface,
                     self.tetris_grid_color,
@@ -154,14 +153,14 @@ class TetrisController:
                 )
 
         for line_col in range(len(self.tetris_coordinates)): # Renders vertical grid lines
-            if line_col > 0:
+            if line_col >= 0:
                 pg.draw.aaline( # Draws vertical line
                     self.tetris_surface,
                     self.tetris_grid_color,
                     (self.tetris_coordinates[line_col][0][0], 0),
                     (self.tetris_coordinates[line_col][0][0], self.tetris_surface_size[1]),
                 )
-        if render: window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface and lal drawings onto game window
+        if render: window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface drawings onto game window
 
 
     '''
@@ -248,7 +247,7 @@ class TetrisController:
 
 
     '''
-    plummet
+    render_tetrominoes
     -------------
     Passes over tetrominoes object and renders the blocks defined grid coordinates in update_grid().
     '''

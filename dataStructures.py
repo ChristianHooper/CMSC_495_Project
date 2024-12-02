@@ -35,6 +35,15 @@ COLOR = { # Defines all colors found in game
     'white':      (230, 230, 245),
     'black':      (10, 10, 20 ),
     'grey':       (100, 100, 140),
+
+    # Color Theme
+    'powder_pink':     (241, 194, 242),
+    'soft_purple':     (194, 145, 242),
+    'glass_purple':    (86, 77, 140),
+    'vapor_blue':      (87, 170, 242),
+    'abandon_food_court_in_the_middle_of_the_night_blue':       (141, 145, 219),
+    'mono_white':      (217, 214, 255),
+    'royal_jelly':     (250, 221, 98)
     }
 
 SCREEN_SIZE = { # Defines possible screen resolutions
