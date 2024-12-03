@@ -70,11 +70,22 @@ class TetrisController:
         self.tetris_block_size = self.tetris_surface_size[0] / sc['grid_size']
         self.tetris_coordinates = self.create_coordinates()
         self.tetris_surface = pg.Surface(self.tetris_surface_size)
+
         self.centering = [gui.grid[int(GUI_GRID / 2)][0][0] - (self.tetris_surface_size[0] / 2*self.gen), self.border[1]] # Defines general position of the grid
         if self.gen > 1: self.centering[0] -= gui.grid_square
         if player_two: self.centering[0] += self.centering[0] + self.gen + gui.grid_square*12
-        self.tetris_grid_color = COLOR['glass_purple']
+        self.tetris_grid_color = (154, 105, 202)
         self.tetris_surface_color = COLOR['soft_purple']
+
+        self.lining_size = 16
+        self.tetris_backing = self.tetris_surface.get_rect(topleft=self.centering) # Lining around tetris game frame
+        self.tetris_backing = self.tetris_backing.inflate(self.lining_size*2, self.lining_size*2)
+
+        self.tetris_fronting = self.tetris_surface.get_rect(topleft=self.centering) # Lining around tetris game frame
+        self.tetris_fronting = self.tetris_fronting.inflate(self.lining_size+self.lining_size//2, self.lining_size+self.lining_size//2)
+
+        self.tetris_inner = self.tetris_surface.get_rect(topleft=self.centering) # Lining around tetris game frame
+        self.tetris_inner = self.tetris_inner.inflate(self.lining_size-self.lining_size//2, self.lining_size-self.lining_size//2)
 
         # Transition set the position for all past static tetrominoes locations for copying over to tetris grid upon calling update_grid()
         self.static_blocks = set()
@@ -129,7 +140,7 @@ class TetrisController:
     '''
     def create_coordinates(self):
         grid = [] # Whole 2D grid object to be return as the self.tetris_coordinates
-        for row_n in range(len(self.tetris_grid) + 1):
+        for row_n in range(len(self.tetris_grid)+1):
             if row_n > 0:
                 grid.append(holder)
             holder = [] # Represents a single row at a time in grid
@@ -165,8 +176,14 @@ class TetrisController:
                     self.tetris_grid_color,
                     (self.tetris_coordinates[line_col][0][0], 0),
                     (self.tetris_coordinates[line_col][0][0], self.tetris_surface_size[1]),
+                    blend=1
                 )
-        if render: window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface drawings onto game window
+
+        if render:
+            if self.fx: pg.draw.rect(window, COLOR['abandon_food_court_in_the_middle_of_the_night_blue'], self.tetris_backing, self.lining_size)
+            if self.fx: pg.draw.rect(window, COLOR['vapor_blue'], self.tetris_fronting, self.lining_size//2)
+            if self.fx: pg.draw.rect(window, COLOR['normal_map_blue'], self.tetris_inner, self.lining_size//4)
+            window.blit(self.tetris_surface, self.centering) # Imposes tetris game surface drawings onto game window
 
 
     '''

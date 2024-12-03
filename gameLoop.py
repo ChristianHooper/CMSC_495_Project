@@ -114,7 +114,7 @@ def one_player(window, clock, window_size, sound_controller):
     ); score_subsurface = score_ui.surface.subsurface(0, 0, score_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current score will render
     subsurface_position = [score_ui.position[0]+gui.grid_square/2, int(score_ui.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
     score = [0, 0] # Declaring & initializing the players' starting scores
-    score_text =font_tab.render(str(score[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    score_text =font_tab.render(str(score[0]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
     line_ui = element(window, # GUI element for viewing current line count
@@ -130,7 +130,7 @@ def one_player(window, clock, window_size, sound_controller):
     ); line_subsurface = line_ui.surface.subsurface(0, 0, line_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
     line_position = [line_ui.position[0]+gui.grid_square/2, int(line_ui.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
     line_count = [0, 0] # Declaring & initializing the players' line scores
-    line_text = font_tab.render(str(line_count[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    line_text = font_tab.render(str(line_count[0]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
     level_ui = element(window, # GUI element for viewing current line count
@@ -146,7 +146,7 @@ def one_player(window, clock, window_size, sound_controller):
     ); level_subsurface = level_ui.surface.subsurface(0, 0, level_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
     level_position = [level_ui.position[0]+gui.grid_square/2, int(level_ui.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
     level = [1, 1] # Declaring & initializing the level
-    level_text = font_tab.render(str(level[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    level_text = font_tab.render(str(level[0]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 # ////////////////////////////////////////////////////////////[Second-Player GUI]////////////////////////////////////////////////////////////////////////
 
@@ -174,7 +174,7 @@ def one_player(window, clock, window_size, sound_controller):
                         font_position=[gui.grid_square/2, (gui.grid_square/4)/agents] # Font position on surface
         ); score_subsurface_two = score_ui_two.surface.subsurface(0, 0, score_ui_two.bounds[0]-gui.grid_square, gui.grid_square) # Box current score will render
         subsurface_position_two = [score_ui_two.position[0]+gui.grid_square/2, int(score_ui_two.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
-        score_text_two =font_tab.render(str(score[1]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+        score_text_two =font_tab.render(str(score[1]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
         line_ui_two = element(window, # GUI element for viewing current line count
@@ -188,7 +188,7 @@ def one_player(window, clock, window_size, sound_controller):
                         font_position=[gui.grid_square/agents, gui.grid_square/4]
         ); line_subsurface_two = line_ui_two.surface.subsurface(0, 0, line_ui_two.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
         line_position_two = [line_ui_two.position[0]+gui.grid_square/2, int(line_ui_two.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
-        line_text_two = font_tab.render(str(line_count[1]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+        line_text_two = font_tab.render(str(line_count[1]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
         level_ui_two = element(window, # GUI element for viewing current line count
@@ -202,7 +202,7 @@ def one_player(window, clock, window_size, sound_controller):
                         font_position=[(gui.grid_square/2)/agents, gui.grid_square/4]
         ); level_subsurface_two = level_ui_two.surface.subsurface(0, 0, level_ui_two.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
         level_position_two = [level_ui_two.position[0]+gui.grid_square/2, int(level_ui_two.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
-        level_text_two = font_tab.render(str(level[1]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+        level_text_two = font_tab.render(str(level[1]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
 # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -341,18 +341,27 @@ def one_player(window, clock, window_size, sound_controller):
         while pause: # Defines pause loop
             for event in pg.event.get(): # Check for game exit
                 if event.type == pg.QUIT:
-                    pause = False # Unpauses game
+                    return False # Unpauses game
 
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
-                        pause = False # Unpauses game
+                        return False # Unpauses game
+
+                # Listener for player button click
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    if event.button == 1: # Left-click button
+                        mouse_position = pg.mouse.get_pos()
+                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
+                        if main_menu_button.clicked(mouse_position): return ds.GAME_STATE['menu']
 
                 elif event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
 
             pause_text = ds.FONTS['default_large'].render("[Game Paused]", False, COLOR['white']) # Font object rendered for pausing game
             window.blit(pause_text, [gui.grid[16][10][0] - pause_text.get_width()/2 , gui.grid[16][10][1]]) # Centered font render
+            restart_button.render(window)
+            main_menu_button.render(window)
             pg.display.flip()
-        return False # Sets pause condition to false with return
+        #return False # Sets pause condition to false with return
 
     running = True # Defines if the game-loop is running
     paused = False # If the game is paused
@@ -400,6 +409,8 @@ def one_player(window, clock, window_size, sound_controller):
                 if event.key == pg.K_SPACE: # Pauses game
                     paused = True # Sets pause condition to true
                     paused = pause_loop(paused) # Sets pause condition to false
+                    if type(paused) == type(ds.GAME_STATE['menu']): return paused
+                    if paused == ds.GAME_STATE['p1_game']: return paused
 
 #/////////////////////////////////////////////////////////////[Player-One Keys]///////////////////////////////////////////////////////////////////////
 
@@ -424,7 +435,7 @@ def one_player(window, clock, window_size, sound_controller):
                 if key_press_timer >= key_press_interval:
                     ts.gravity()
                     score[0] += 1
-                    score_text = font_tab.render(str(score[0]), True, COLOR['black'])
+                    score_text = font_tab.render(str(score[0]), True, COLOR['glass_purple'])
                     key_press_timer = 0
 
             # Rotate logic player one
@@ -439,7 +450,7 @@ def one_player(window, clock, window_size, sound_controller):
                     ts.plummet()
                     ts.update_grid()
                     score[0] += 20
-                    score_text = font_tab.render(str(score[0]), True, COLOR['black'])
+                    score_text = font_tab.render(str(score[0]), True, COLOR['glass_purple'])
                     key_press_timer = 0
                     plummet_timer = 0
 
@@ -465,7 +476,7 @@ def one_player(window, clock, window_size, sound_controller):
                 if key_press_timer_two >= key_press_interval_two:
                     tst.gravity()
                     score[1] += 1
-                    score_text_two = font_tab.render(str(score[1]), True, COLOR['black'])
+                    score_text_two = font_tab.render(str(score[1]), True, COLOR['glass_purple'])
                     key_press_timer_two = 0
 
             # Rotate logic player two
@@ -479,7 +490,7 @@ def one_player(window, clock, window_size, sound_controller):
                     tst.plummet()
                     tst.update_grid()
                     score[1] += 20
-                    score_text_two = font_tab.render(str(score[1]), True, COLOR['black'])
+                    score_text_two = font_tab.render(str(score[1]), True, COLOR['glass_purple'])
                     key_press_timer_two = 0
                     plummet_timer_two = 0
 
@@ -506,25 +517,25 @@ def one_player(window, clock, window_size, sound_controller):
                 product = ts.line_score(score[0], line_count[0]) # Calculates new scores and line count; [0]New score, [1]new line
                 score[0] += product # Sets new score
 
-                score_text = font_tab.render(str(score[0]), True, COLOR['black'])
-                line_text = font_tab.render(str(line_count[0]), True, COLOR['black'])
+                score_text = font_tab.render(str(score[0]), True, COLOR['glass_purple'])
+                line_text = font_tab.render(str(line_count[0]), True, COLOR['glass_purple'])
                 if line_count[0] - (10*(level[0])) >= 0:
                     level[0] = level[0] + 1
                     sound.play_level_up()
                     gravity_interval = gravity_interval - 50
-                    level_text = font_tab.render(str(level[0]), True, COLOR['black'])
+                    level_text = font_tab.render(str(level[0]), True, COLOR['glass_purple'])
 
             if tst.cleared_rows:
                 line_count[1] += len(tst.cleared_rows) # Sets new line count
                 product = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
                 score[1] += product # Sets new score
 
-                score_text_two = font_tab.render(str(score[1]), True, COLOR['black'])
-                line_text_two = font_tab.render(str(line_count[1]), True, COLOR['black'])
+                score_text_two = font_tab.render(str(score[1]), True, COLOR['glass_purple'])
+                line_text_two = font_tab.render(str(line_count[1]), True, COLOR['glass_purple'])
                 if line_count[1] - (10*(level[1])) >= 0:
                     level[1] = level[1] + 1
                     sound.play_level_up()
-                    level_text_two = font_tab.render(str(level[1]), True, COLOR['black'])
+                    level_text_two = font_tab.render(str(level[1]), True, COLOR['glass_purple'])
 
 
             ts.update_grid() # Updates grid of mechanics and rendering based upon movement changes

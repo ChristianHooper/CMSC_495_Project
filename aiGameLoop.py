@@ -349,8 +349,19 @@ def ai_player(window, clock, window_size, sound_controller):
                     if event.key == pg.K_SPACE:
                         pause = False # Unpauses game
 
+                # Listener for player button click
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    if event.button == 1: # Left-click button
+                        mouse_position = pg.mouse.get_pos()
+                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['ai']
+                        if main_menu_button.clicked(mouse_position): return ds.GAME_STATE['menu']
+
+                elif event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
+
             pause_text = ds.FONTS['default_large'].render("[Game Paused]", False, COLOR['white']) # Font object rendered for pausing game
             window.blit(pause_text, [gui.grid[16][10][0] - pause_text.get_width()/2 , gui.grid[16][10][1]]) # Centered font render
+            restart_button.render(window)
+            main_menu_button.render(window)
             pg.display.flip()
         return False # Sets pause condition to false with return
 
@@ -485,6 +496,8 @@ def ai_player(window, clock, window_size, sound_controller):
                 if event.key == pg.K_SPACE: # Pauses game
                     paused = True # Sets pause condition to true
                     paused = pause_loop(paused) # Sets pause condition to false
+                    if type(paused) == type(ds.GAME_STATE['menu']): return paused
+                    if paused == ds.GAME_STATE['ai']: return paused
 
         #/////////////////////////////////////////////////////////////[Player-One Keys]///////////////////////////////////////////////////////////////
 
