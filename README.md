@@ -8,7 +8,7 @@ Final Project for CMSC-495 through UMGC.
 - Multiplayer Mode
 - AI Versus
 
-![Application Menu Screen]()
+![Application Menu Screen](resources/Application_Menu.png)
 
 # How to Use
 1. To clone and run this application, you will need to download Python 3.9 or higher.
