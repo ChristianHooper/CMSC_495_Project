@@ -39,6 +39,9 @@ def main(): # Main function that acts as the game controller
     window = pg.display.set_mode(window_size, pg.HWSURFACE | pg.DOUBLEBUF)
     clock = pg.time.Clock() # Starts game clock
     pg.display.set_caption("G5-Tetris") # Group-Five-Tetris
+    
+    icon = pg.image.load('resources/G5-Tetris.png')
+    pg.display.set_icon(icon)
 
     # Initialize Sound Controller
     sound_controller = SoundController()
