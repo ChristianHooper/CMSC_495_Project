@@ -37,8 +37,8 @@ def one_player(window, clock, window_size, sound_controller):
 # ////////////////////////////////////////////////////////////[Game-Over GUI]////////////////////////////////////////////////////////////////////////
 
     end_menu = element(window, # GUI element for end of game window
-                    gui.grid[10][4], # Location of surface, centered
-                    [gui.grid_square*12, gui.grid_square*12], # Width & Height
+                    gui.grid[8][4], # Location of surface, centered
+                    [gui.grid_square*16, gui.grid_square*12], # Width & Height
                     fill_color=COLOR['white'],
                     border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
                     border_color=(64,64,64, 128),
@@ -48,28 +48,34 @@ def one_player(window, clock, window_size, sound_controller):
     high_score_position = [end_menu.position[0]+gui.grid_square/2, int(end_menu.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
     high_score_text = ds.FONTS['default_medium'].render('High Scores', True, COLOR['white']) # Creates text surface score to be imposed on score_subsurface
 
-    restart_button = Button(gui.grid[13][15], # Restart game button
-                            COLOR['green'],
-                            COLOR['white'],
-                            ds.FONTS['default_medium'],
-                            'Restart',
-                            COLOR['red']
+    restart_button = Button(position = gui.grid[12][15], # Restart game button
+                            button_color = COLOR['vapor_blue'],
+                            text_color =COLOR['powder_pink'],
+                            font = ds.FONTS['default_medium2'],
+                            text = 'Restart',
+                            hover_color = COLOR['mono_white'],
+                            text_outline = True,
+                            outline_size = 4,
+                            inflate = [gui.grid_square/4, gui.grid_square/4]
     )
 
-    main_menu_button = Button(gui.grid[18][15], # Navigates to the main menu
-                            COLOR['green'],
-                            COLOR['white'],
-                            ds.FONTS['default_medium'],
-                            'Main Menu',
-                            COLOR['red']
+    main_menu_button = Button(position = gui.grid[19][15], # Navigates to the main menu
+                            button_color = COLOR['vapor_blue'],
+                            text_color = COLOR['powder_pink'],
+                            font = ds.FONTS['default_medium2'],
+                            text = 'Main Menu',
+                            hover_color = COLOR['mono_white'],
+                            text_outline = True,
+                            outline_size = 4,
+                            inflate = [gui.grid_square/4, gui.grid_square/4]
     )
 
-    next_button = Button(gui.grid[21][15], # Navigates to the main menu
-                            COLOR['green'],
-                            COLOR['white'],
-                            ds.FONTS['default_medium'],
-                            '>',
-                            COLOR['red']
+    next_button = Button(position = gui.grid[21][15], # Navigates to the main menu
+                        button_color = COLOR['green'],
+                        text_color = COLOR['white'],
+                        font = ds.FONTS['default_medium'],
+                        text = '>',
+                        hover_color = COLOR['red']
     )
 
     input_score_menu = element(window, # GUI element for end of game window
@@ -315,7 +321,7 @@ def one_player(window, clock, window_size, sound_controller):
             # Renders leaderboard
             end_menu.blit_update(window)
             high_score_subsurface.fill(COLOR['grey'])
-            high_score_subsurface.blit(high_score_text, [10, 10])
+            high_score_subsurface.blit(high_score_text, [151, 10])
             high_score_subsurface.blit(score_one, [10, gui.grid_square*2])
             high_score_subsurface.blit(score_two, [10, gui.grid_square*3])
             high_score_subsurface.blit(score_third, [10, gui.grid_square*4])

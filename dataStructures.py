@@ -76,6 +76,7 @@ KEY_PRESS_SPEED = 100 # Default key press response rate in tetris game (millisec
 
 FONTS = { # All font objects used across the game
     'default_large': pg.font.Font('resources/retro_gaming.ttf', 50),
+    'default_medium2': pg.font.Font('resources/retro_gaming.ttf', 34),
     'default_medium': pg.font.Font('resources/retro_gaming.ttf', 24),
     'default_small': pg.font.Font('resources/retro_gaming.ttf', 18),
     'title_font': pg.font.Font('resources/Gabato.ttf', 64)
@@ -97,10 +98,10 @@ TETROMINOES = { # Shape and size of the tetrominoes defines by matrices, can be 
     'I':    [[0,0,1,0], [0,0,1,0], [0,0,1,0], [0,0,1,0]],
     'J':    [[0,0,1,0], [0,0,1,0], [0,1,1,0], [0,0,0,0]],
     'L':    [[0,1,0,0], [0,1,0,0], [0,1,1,0], [0,0,0,0]],
-    'O':    [[0,1,1,0], [0,1,1,0], [0,0,0,0], [0,0,0,0]],
+    'O':    [[0,0,1,1], [0,0,1,1], [0,0,0,0], [0,0,0,0]],
     'S':    [[0,0,1,1], [0,1,1,0], [0,0,0,0], [0,0,0,0]],
     'T':    [[0,0,1,0], [0,1,1,1], [0,0,0,0], [0,0,0,0]],
-    'Z':    [[1,1,0,0], [0,1,1,0], [0,0,0,0], [0,0,0,0]],
+    'Z':    [[0,1,1,0], [0,0,1,1], [0,0,0,0], [0,0,0,0]],
     'i':    [[0,0,1,0], [0,0,1,0], [0,0,0,0], [0,0,0,0]],
     #'dev_I':    [[1,1,1,1], [0,0,1,0], [0,0,1,0], [1,1,1,1]],
     #'the_devil':[[1,0,1,0], [0,1,0,1], [1,0,1,0], [0,1,0,1]],

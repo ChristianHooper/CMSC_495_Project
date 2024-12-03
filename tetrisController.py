@@ -273,6 +273,7 @@ class TetrisController:
             pg.draw.rect(self.tetris_surface, block.boarder_color, block.small_block) # Draws block onto tetris surface before being blit
             pg.draw.rect(self.tetris_surface, block.color, block.boarder_block) # Draws block onto tetris surface before being blit
 
+
     '''
     render_next_tetromino
     -------------
@@ -284,9 +285,12 @@ class TetrisController:
                 if block: # Renders grab-bag tetrominoes
                     pos_x = int((position[0]/self.gen + x * self.tetris_block_size/self.gen))
                     pos_y = int(position[1] + y * self.tetris_block_size/self.gen)
+                    shaded_tetromino = pg.Rect((pos_x, pos_y, (self.tetris_block_size/self.gen)+1, (self.tetris_block_size/self.gen)+1))
+                    standard_tetromino = shaded_tetromino.inflate(-gui.grid_square/4, -gui.grid_square/4)
+                    pg.draw.rect(window, self.next_tetrominoes.boarder_color,
+                    shaded_tetromino)
                     pg.draw.rect(window, block.color,
-                    ((pos_x, pos_y), # Window position of render
-                    ((self.tetris_block_size/self.gen)+1, (self.tetris_block_size/self.gen)+1)))
+                    standard_tetromino)
 
 
     '''
