@@ -9,7 +9,7 @@ Main page for showing key bindings to convey to the player how to plat tetris.
 '''
 def tutorial(window, clock, window_size):
     running_menu = True
-    large_font = ds.FONTS['default_large']
+    medium_font = ds.FONTS['default_medium']
 
     # Font settings for tutorial text
     title_font = pg.font.Font(None, 48)
@@ -45,14 +45,16 @@ def tutorial(window, clock, window_size):
     sp_text_surfaces = [text_font.render(text, True, ds.COLOR['white']) for text in sp_controls]
     mp_text_surfaces = [text_font.render(text, True, ds.COLOR['white']) for text in mp_controls]
 
-    back_button = Button(
-        position=(window_size[0]/1.2, window_size[1]/1.2),
-        button_color=ds.COLOR['green'],
-        text_color=ds.COLOR['red'],
-        font=large_font,
-        text='Main Menu',
-        hover_color=ds.COLOR['white'],
-    )
+    back_button = Button( # Defines button that navigates back to the main menu
+                    position=(window_size[0]/1.3, window_size[1]/1.2),
+                    button_color=ds.COLOR['vapor_blue'],
+                    text_color=ds.COLOR['powder_pink'],
+                    font=medium_font,
+                    text='Main Menu',
+                    hover_color=ds.COLOR['mono_white'],
+                    text_outline=True,
+                    inflate=[16, 16]
+                    )
 
     while running_menu:
         for event in pg.event.get():
@@ -66,20 +68,20 @@ def tutorial(window, clock, window_size):
                         return ds.GAME_STATE['menu']
 
         # Render order
-        window.fill(ds.COLOR['black'])
+        window.fill(ds.COLOR['glass_purple'])
 
         # Draw title
         window.blit(title_text, title_rect)
 
         # Draw Single Player section
-        window.blit(sp_header, (window_size[0]*0.2, window_size[1]*0.25))
+        window.blit(sp_header, (window_size[0]*0.2, window_size[1]*0.2))
         for i, text_surface in enumerate(sp_text_surfaces):
-            window.blit(text_surface, (window_size[0]*0.2, window_size[1]*0.35 + i*30))
+            window.blit(text_surface, (window_size[0]*0.2, window_size[1]*0.25 + i*30))
 
         # Draw Multiplayer section
         window.blit(mp_header, (window_size[0]*0.2, window_size[1]*0.6))
         for i, text_surface in enumerate(mp_text_surfaces):
-            window.blit(text_surface, (window_size[0]*0.2, window_size[1]*0.7 + i*30))
+            window.blit(text_surface, (window_size[0]*0.2, window_size[1]*0.65 + i*30))
 
         # Draw button
         back_button.render(window)

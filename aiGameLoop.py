@@ -3,6 +3,7 @@ from soundController import SoundController  # Import SoundController
 from tetrisController import TetrisController  # Updated class name
 from guiElement import element
 from button import Button
+from background import Background
 from geneticAi import aiComplex
 import dataStructures as ds
 from dataStructures import COLOR
@@ -30,6 +31,7 @@ def ai_player(window, clock, window_size, sound_controller):
     tst = TetrisController(window_size, [0, 1], agents, player_two=True, ai=True)  # TetrisController class, player two
     ai_tetris_copy = TetrisController(window_size, [0, 1], agents, player_two=True, ai=True) # Tetris game frame used as a holder over for ai movement calculations
     ai_tetris_copy.current_tetrominoes = tst.current_tetrominoes # Syncs first tetrominoes
+    #bg = Background(window, window_size, speed=0.1, rgb=(106, 87, 150)) # Creates background
 
     font_slab = ds.FONTS['default_medium']
     font_tab = ds.FONTS['default_medium']
@@ -41,6 +43,9 @@ def ai_player(window, clock, window_size, sound_controller):
     sound = sound_controller # Creates sound controller for game-loop
     sound.play_start()
     sound.play_bgm()
+
+    boarder_size = 4
+    if agents > 1: boarder_size = 8
 
 # ////////////////////////////////////////////////////////////[Game-Over GUI]////////////////////////////////////////////////////////////////////////
 
@@ -105,58 +110,62 @@ def ai_player(window, clock, window_size, sound_controller):
     grab_bag = element(window, # GUI element for preview oncoming tetrominoes
                     gui.grid[int(4/agents/agents)][1], # Location of grab-bag
                     [(gui.grid_square*5)/agents, (gui.grid_square*7)/agents], # Width & Height of grab-bag
-                    fill_color=(128,128,128),
-                    border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                    border_color=(64,64,64), # Border color
+                    fill_color=COLOR['soft_purple'],
+                    border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
+                    border_color=COLOR['normal_map_blue'], # Border color
                     font=font_slab,
+                    text_color=COLOR['royal_jelly'],
                     text='Next',
                     font_position=[gui.grid_square/agents, gui.grid_square/4]
     ); next_position = [grab_bag.position[0]*agents, grab_bag.position[1]+(gui.grid_square*2.25)/agents] # The pixel position the new next_tetrominoes object will render
 
 
     score_ui = element(window, # GUI element for preview oncoming tetrominoes
-                    gui.grid[int(4/agents/agents)][10], # Location of score element
+                    gui.grid[int(4/agents/agents)][12], # Location of score element
                     [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of score element
-                    fill_color=(128,128,128),
-                    border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                    border_color=(64,64,64),
+                    fill_color=COLOR['soft_purple'],
+                    border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
+                    border_color=COLOR['normal_map_blue'],
                     font=font_slab,
+                    text_color=COLOR['royal_jelly'],
                     text='Score', # Rendered text
-                    font_position=[gui.grid_square/2, (gui.grid_square/4)/agents] # Font position on surface
+                    font_position=[gui.grid_square/3.5, (gui.grid_square/4)/agents] # Font position on surface
     ); score_subsurface = score_ui.surface.subsurface(0, 0, score_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current score will render
     subsurface_position = [score_ui.position[0]+gui.grid_square/2, int(score_ui.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
     score = [0, 0] # Declaring & initializing the players' starting scores
-    score_text =font_tab.render(str(score[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    score_text =font_tab.render(str(score[0]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
     line_ui = element(window, # GUI element for viewing current line count
-                    gui.grid[int(4/agents/agents)][int(15)], # Location of line counter element
+                    gui.grid[int(4/agents/agents)][16], # Location of line counter element
                     [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of line counter element
-                    fill_color=(128,128,128),
-                    border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                    border_color=(64,64,64), # Border color
+                    fill_color=COLOR['soft_purple'],
+                    border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
+                    border_color=COLOR['normal_map_blue'], # Border color
                     font=font_slab,
+                    text_color=COLOR['royal_jelly'],
                     text='Line',
-                    font_position=[gui.grid_square/agents, gui.grid_square/4]
+                    font_position=[gui.grid_square/3.5, (gui.grid_square/4)/agents] # Font position on surface
     ); line_subsurface = line_ui.surface.subsurface(0, 0, line_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
     line_position = [line_ui.position[0]+gui.grid_square/2, int(line_ui.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
     line_count = [0, 0] # Declaring & initializing the players' line scores
-    line_text = font_tab.render(str(line_count[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    line_text = font_tab.render(str(line_count[0]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
     level_ui = element(window, # GUI element for viewing current line count
                     gui.grid[int(4/agents/agents)][20], # Location of line counter element
                     [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of line counter element
-                    fill_color=(128,128,128),
-                    border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                    border_color=(64,64,64), # Border color
+                    fill_color=COLOR['soft_purple'],
+                    border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
+                    border_color=COLOR['normal_map_blue'], # Border color
                     text='Level',
+                    text_color=COLOR['royal_jelly'],
                     font=font_slab,
-                    font_position=[(gui.grid_square/2)/agents, gui.grid_square/4]
+                    font_position=[gui.grid_square/3.5, (gui.grid_square/4)/agents] # Font position on surface
     ); level_subsurface = level_ui.surface.subsurface(0, 0, level_ui.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
     level_position = [level_ui.position[0]+gui.grid_square/2, int(level_ui.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
     level = [1, 1] # Declaring & initializing the level
-    level_text = font_tab.render(str(level[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+    level_text = font_tab.render(str(level[0]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 # ////////////////////////////////////////////////////////////[Second-Player GUI]////////////////////////////////////////////////////////////////////////
 
@@ -164,55 +173,59 @@ def ai_player(window, clock, window_size, sound_controller):
         grab_bag_two = element(window, # GUI element for preview oncoming tetrominoes
                         gui.grid[int(4*agents*agents+1)][1], # Location of grab-bag
                         [(gui.grid_square*5)/agents, (gui.grid_square*7)/agents], # Width & Height of grab-bag
-                        fill_color=(128,128,128),
+                        fill_color=COLOR['soft_purple'],
                         border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                        border_color=(64,64,64), # Border color
+                        border_color=COLOR['normal_map_blue'], # Border color
                         font=font_slab,
+                        text_color=COLOR['royal_jelly'],
                         text='Next',
-                        font_position=[gui.grid_square/agents, gui.grid_square/4]
+                        font_position=[gui.grid_square/3.5, (gui.grid_square/4)/agents] # Font position on surface
         ); next_position_two = [grab_bag_two.position[0]*agents, grab_bag_two.position[1]+(gui.grid_square*2.25)/agents] # The pixel position the new next_tetrominoes object will render
 
 
         score_ui_two = element(window, # GUI element for preview oncoming tetrominoes
-                        gui.grid[int(4*agents*agents+1)][10], # Location of score element
+                        gui.grid[int(4*agents*agents+1)][12], # Location of score element
                         [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of score element
-                        fill_color=(128,128,128),
+                        fill_color=COLOR['soft_purple'],
                         border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                        border_color=(64,64,64),
+                        border_color=COLOR['normal_map_blue'],
                         font=font_slab,
+                        text_color=COLOR['royal_jelly'],
                         text='Score', # Rendered text
-                        font_position=[gui.grid_square/2, (gui.grid_square/4)/agents] # Font position on surface
+                        font_position=[gui.grid_square/3.5, (gui.grid_square/4)/agents] # Font position on surface
         ); score_subsurface_two = score_ui_two.surface.subsurface(0, 0, score_ui_two.bounds[0]-gui.grid_square, gui.grid_square) # Box current score will render
         subsurface_position_two = [score_ui_two.position[0]+gui.grid_square/2, int(score_ui_two.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
-        score_text_two =font_tab.render(str(score[1]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+        score_text_two =font_tab.render(str(score[1]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
         line_ui_two = element(window, # GUI element for viewing current line count
-                        gui.grid[int(4*agents*agents+1)][int(15)], # Location of line counter element
+                        gui.grid[int(4*agents*agents+1)][int(16)], # Location of line counter element
                         [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of line counter element
-                        fill_color=(128,128,128),
+                        fill_color=COLOR['soft_purple'],
                         border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                        border_color=(64,64,64), # Border color
+                        border_color=COLOR['normal_map_blue'], # Border color
                         font=font_slab,
+                        text_color=COLOR['royal_jelly'],
                         text='Line',
-                        font_position=[gui.grid_square/agents, gui.grid_square/4]
+                        font_position=[gui.grid_square/3.5, (gui.grid_square/4)/agents] # Font position on surface
         ); line_subsurface_two = line_ui_two.surface.subsurface(0, 0, line_ui_two.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
         line_position_two = [line_ui_two.position[0]+gui.grid_square/2, int(line_ui_two.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
-        line_text_two = font_tab.render(str(line_count[1]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
-        line_text_two = font_tab.render(str(line_count[0]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+        line_text_two = font_tab.render(str(line_count[1]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
+
 
         level_ui_two = element(window, # GUI element for viewing current line count
                         gui.grid[int(4*agents*agents+1)][20], # Location of line counter element
                         [(gui.grid_square*5)/agents, gui.grid_square*3], # Width & Height of line counter element
-                        fill_color=(128,128,128),
+                        fill_color=COLOR['soft_purple'],
                         border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
-                        border_color=(64,64,64), # Border color
+                        border_color=COLOR['normal_map_blue'], # Border color
                         text='Level',
+                        text_color=COLOR['royal_jelly'],
                         font=font_slab,
-                        font_position=[(gui.grid_square/2)/agents, gui.grid_square/4]
+                        font_position=[gui.grid_square/3.5, (gui.grid_square/4)/agents] # Font position on surface
         ); level_subsurface_two = level_ui_two.surface.subsurface(0, 0, level_ui_two.bounds[0]-gui.grid_square, gui.grid_square) # Box current line count will render
         level_position_two = [level_ui_two.position[0]+gui.grid_square/2, int(level_ui_two.position[1]+(gui.grid_square*1.75))] # Line counter element box pixel position
-        level_text_two = font_tab.render(str(level[1]), True, COLOR['black']) # Creates text surface score to be imposed on score_subsurface
+        level_text_two = font_tab.render(str(level[1]), True, COLOR['glass_purple']) # Creates text surface score to be imposed on score_subsurface
 
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -351,7 +364,7 @@ def ai_player(window, clock, window_size, sound_controller):
                 if event.type == pg.QUIT:
                     pause = False # Unpauses game
 
-                elif event.type == pg.KEYDOWN:
+                elif event.type == pg.KEYUP:
                     if event.key == pg.K_SPACE:
                         pause = False # Unpauses game
 
@@ -497,7 +510,7 @@ def ai_player(window, clock, window_size, sound_controller):
                 decimate_thread.set() # Finishes thread
                 running = False
 
-            elif event.type == pg.KEYDOWN: # Checks for a key press event
+            elif event.type == pg.KEYUP: # Checks for a key press event
 
                 if event.key == pg.K_SPACE: # Pauses game
                     paused = True # Sets pause condition to true
@@ -645,8 +658,9 @@ def ai_player(window, clock, window_size, sound_controller):
             ai_timer = 0 # Resets AI timer
 
         # Rendering
-        window.fill(COLOR['black'])
-        gui.render_grid(window) # Render GUI placement grid tool
+        window.fill(COLOR['glass_purple'])
+        #gui.render_grid(window) # Render GUI placement grid tool
+        #bg.render_ground(window) # Render background
         ts.render_tetris(window) # Render the entire tetris game frame
 
         if move_selection != None: tst.render_tetris(window) # Render the entire tetris game frame
@@ -665,38 +679,38 @@ def ai_player(window, clock, window_size, sound_controller):
             # Render line score UI
             score_ui_two.blit_update(window)
             score_subsurface_two.fill((200, 200, 245))
-            score_subsurface_two.blit(score_text_two, [10, 10])
+            score_subsurface_two.blit(score_text_two, [5, 5])
             window.blit(score_subsurface_two, subsurface_position_two)
 
             # Render line score UI
             line_ui_two.blit_update(window)
             line_subsurface_two.fill((200, 200, 245))
-            line_subsurface_two.blit(line_text_two, [10,10])
+            line_subsurface_two.blit(line_text_two, [5, 5])
             window.blit(line_subsurface_two, line_position_two)
 
             # Render current level UI
             level_ui_two.blit_update(window)
             level_subsurface_two.fill((200, 200, 245))
-            level_subsurface_two.blit(level_text_two, [10,10])
+            level_subsurface_two.blit(level_text_two, [5, 5])
             window.blit(level_subsurface_two, level_position_two)
 
         # Player One
         # Render score UI
         score_ui.blit_update(window)
         score_subsurface.fill((200, 200, 245))
-        score_subsurface.blit(score_text, [10, 1])
+        score_subsurface.blit(score_text, [5, 5])
         window.blit(score_subsurface, subsurface_position)
 
         # Render line score UI
         line_ui.blit_update(window)
         line_subsurface.fill((200, 200, 245))
-        line_subsurface.blit(line_text, [10, 1])
+        line_subsurface.blit(line_text, [5, 5])
         window.blit(line_subsurface, line_position)
 
         # Render current level UI
         level_ui.blit_update(window)
         level_subsurface.fill((200, 200, 245))
-        level_subsurface.blit(level_text, [10, 1])
+        level_subsurface.blit(level_text, [5, 5])
         window.blit(level_subsurface, level_position)
 
 

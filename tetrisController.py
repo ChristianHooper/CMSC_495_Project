@@ -286,7 +286,7 @@ class TetrisController:
                     pos_x = int((position[0]/self.gen + x * self.tetris_block_size/self.gen))
                     pos_y = int(position[1] + y * self.tetris_block_size/self.gen)
                     shaded_tetromino = pg.Rect((pos_x, pos_y, (self.tetris_block_size/self.gen)+1, (self.tetris_block_size/self.gen)+1))
-                    standard_tetromino = shaded_tetromino.inflate(-gui.grid_square/4, -gui.grid_square/4)
+                    standard_tetromino = shaded_tetromino.inflate(-gui.grid_square/4/self.gen, -gui.grid_square/4/self.gen)
                     pg.draw.rect(window, self.next_tetrominoes.boarder_color,
                     shaded_tetromino)
                     pg.draw.rect(window, block.color,
