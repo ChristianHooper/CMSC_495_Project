@@ -5,7 +5,7 @@ import random as rn
 
 
 '''
-# Create a background to be rendered on the base frame behind other GUI objects.
+Creates a background to be rendered on the base frame behind other GUI objects.
 '''
 class Background:
     def __init__(self, window, window_size, surface_number=24, transparency=255, rgb=(100, 100, 100), speed=1):
@@ -17,7 +17,7 @@ class Background:
         self.surface_color = (0, 0, 0, 0)
         # Animation variables
         self.surface_slopes = [rn.randint(0, window_size[0]) for _ in range(self.surface_number)]
-        self.surface_positions = [[rn.randint(-window_size[0]/4, window_size[0]+(window_size[0]/4)), rn.randint(0, window_size[1])] for _ in range(self.surface_number)]
+        self.surface_positions = [[rn.randint(int(-window_size[0]/4), int(window_size[0]+(window_size[0]/4))), rn.randint(0, window_size[1])] for _ in range(self.surface_number)]
         self.surface_rotation = [rn.randint(0, 360) for _ in range(self.surface_number)]
         self.speed = speed
         #self.surface_direction = [rn.choice([True, False]) for _ in range(self.surface_number)]
