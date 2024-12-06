@@ -317,12 +317,12 @@ def one_player(window, clock, window_size, sound_controller):
                         if next_button.clicked(mouse_position): return None
 
             # Calculate text output for first place
-            score_one = ds.FONTS['default_medium'].render(f'First Place:      {score_sort[-1]} | {sc.settings_conduit["scores"][score_sort[-1]]}', True, COLOR['black'])
-            score_two = ds.FONTS['default_medium'].render(f'Second Place:     {score_sort[-2]} | {sc.settings_conduit["scores"][score_sort[-2]]}', True, COLOR['black'])
-            score_third = ds.FONTS['default_medium'].render(f'Third Place:    {score_sort[-3]} | {sc.settings_conduit["scores"][score_sort[-3]]}', True, COLOR['black'])
-            score_fourth = ds.FONTS['default_medium'].render(f'Fourth Place:  {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
-            score_fifth = ds.FONTS['default_medium'].render(f'Fifth Place:    {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
-
+            score_one = ds.FONTS['default_medium'].render(f'First Place:      {score_sort[-1]} | {sc.settings_conduit["scores"][score_sort[-1]]}', True, COLOR['royal_jelly'])
+            score_two = ds.FONTS['default_small2'].render(f'Second Place:      {score_sort[-2]} | {sc.settings_conduit["scores"][score_sort[-2]]}', True, COLOR['vapor_blue'])
+            score_third = ds.FONTS['default_small2'].render(f'Third Place:          {score_sort[-3]} | {sc.settings_conduit["scores"][score_sort[-3]]}', True, COLOR['vapor_blue'])
+            score_fourth = ds.FONTS['default_small'].render(f'Fourth Place:          {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
+            score_fifth = ds.FONTS['default_small'].render(f'Fifth Place:              {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
+            
             # Renders leaderboard
             end_menu.blit_update(window)
             high_score_subsurface.fill(COLOR['grey'])

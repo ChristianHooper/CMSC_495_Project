@@ -2,12 +2,12 @@
     "screen_size": "1024x768",
     "fps_cap": 60,
     "grid_size": 32,
-    "aspect_ratio": 2,
+    "aspect_ratio": 1,
     "scores": {
         "IVY": 50069,
         "MVP": 7734,
         "AI": 126792,
         "": 20746665,
-        "RTC": 17334
+        "RTC": 138410
     }
 }
