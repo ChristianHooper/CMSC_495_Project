@@ -38,7 +38,7 @@ class SoundController:
             'Wax':          'audio/Wax.mp3',
             'Classic':      'sounds/background_music.mp3'
         }
-        self.volume = 0.02
+        self.volume = 0.05
 
         # Event for music transition
         self.bgm_end_event = pg.USEREVENT + 1

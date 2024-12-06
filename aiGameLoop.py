@@ -258,6 +258,8 @@ def ai_player(window, clock, window_size, sound_controller):
                 if event.type == pg.QUIT:
                     return None # Quits game
 
+                if event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
+
                 if event.type == pg.MOUSEBUTTONDOWN: # Detect if the mouse click
                     if score_input_box.collidepoint(event.pos): input_active = True  # Activate the input box
                     else: input_active = False
@@ -328,7 +330,7 @@ def ai_player(window, clock, window_size, sound_controller):
 
                     if event.button == 1: # Left-click button
                         mouse_position = pg.mouse.get_pos()
-                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
+                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['ai']
                         if main_menu_button.clicked(mouse_position): return ds.GAME_STATE['menu']
                         if next_button.clicked(mouse_position): return None
 
@@ -517,6 +519,8 @@ def ai_player(window, clock, window_size, sound_controller):
             if event.type == pg.QUIT:
                 decimate_thread.set() # Finishes thread
                 running = False
+
+            elif event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
 
             elif event.type == pg.KEYUP: # Checks for a key press event
 
