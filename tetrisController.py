@@ -4,7 +4,7 @@ from soundController import SoundController
 import tetrominoes as tm
 import guiController as gui
 
-# Imported libraries
+# Imported librarie
 import pprint as pprint
 import pygame as pg
 import numpy as np
@@ -323,7 +323,7 @@ class TetrisController:
             #self.current_tetrominoes.position[1] += y_change
         # DEPRECATED ---------------------------------------------------------------------------------------------------
 
-        elif self.transfer: # If collision detected with tetris game frame or another block
+        elif self.transfer and not self.game_over: # If collision detected with tetris game frame or another block
             self.current_tetrominoes.static = True # Halts the self.current_tetrominoes object
             self.settle_tetromino() # Converts self.current tetrominoes object into blocks to be rendered
             if not ai_eval: self.clear_lines() # Check to see if block line needs to be cleared from self.tetris_gris and self.static_blocks

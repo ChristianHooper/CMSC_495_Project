@@ -50,13 +50,13 @@ def ai_player(window, clock, window_size, sound_controller):
 # ////////////////////////////////////////////////////////////[Game-Over GUI]////////////////////////////////////////////////////////////////////////
 
     end_menu = element(window, # GUI element for end of game window
-                    gui.grid[10][4], # Location of surface, centered
-                    [gui.grid_square*12, gui.grid_square*12], # Width & Height
+                    gui.grid[8][4], # Location of surface, centered
+                    [gui.grid_square*16, gui.grid_square*12], # Width & Height
                     fill_color=COLOR['white'],
                     border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
                     border_color=(64,64,64, 128),
                     text='Game Over', # Rendered text
-                    font_position=[gui.grid_square/2, gui.grid_square/4] # Font position on surface
+                    font_position=[gui.grid_square/.35, gui.grid_square/64] # Font position on surface
     ); high_score_subsurface = end_menu.surface.subsurface(0, 0, end_menu.bounds[0]-gui.grid_square, (end_menu.bounds[1]/1.5)) # Box for render high scores
     high_score_position = [end_menu.position[0]+gui.grid_square/2, int(end_menu.position[1]+(gui.grid_square*1.75))] # Score box window pixel position
     high_score_text = ds.FONTS['default_medium'].render('High Scores', True, COLOR['white']) # Creates text surface score to be imposed on score_subsurface
@@ -83,26 +83,30 @@ def ai_player(window, clock, window_size, sound_controller):
                             inflate = [gui.grid_square/4, gui.grid_square/4]
     )
 
-    next_button = Button(position = gui.grid[21][15], # Navigates to the main menu
-                        button_color = COLOR['green'],
-                        text_color = COLOR['white'],
-                        font = ds.FONTS['default_medium'],
+    next_button = Button(position = gui.grid[21][13], # Navigates to the main menu
+                        button_color = COLOR['vapor_blue'],
+                        text_color = COLOR['powder_pink'],
+                        font = ds.FONTS['default_large'],
                         text = '>',
-                        hover_color = COLOR['red']
+                        hover_color = COLOR['mono_white'],
+                        text_outline = True,
+                        outline_size = 4,
+                        inflate = [gui.grid_square/4, gui.grid_square/4]
     )
 
+
     input_score_menu = element(window, # GUI element for end of game window
-                        gui.grid[10][4], # Location of surface, centered
-                        [gui.grid_square*12, gui.grid_square*12], # Width & Height
+                        gui.grid[10][7], # Location of surface, centered
+                        [gui.grid_square*12, gui.grid_square*8], # Width & Height
                         fill_color=COLOR['white'],
-                        border_size=[gui.grid_square/8, gui.grid_square/8], # Border width
+                        border_size=[gui.grid_square/boarder_size, gui.grid_square/boarder_size], # Border width
                         border_color=(64,64,64, 128),
-                        text='Enter New High Score', # Rendered text
+                        # text='Enter New High Score', # Rendered text
                         font=ds.FONTS['default_medium'],
                         font_position=[gui.grid_square/2, gui.grid_square/4] # Font position on surface
     )
 
-    score_input_box = pg.Rect(gui.grid[13][14], # Score input box to record players high score; Location
+    score_input_box = pg.Rect(gui.grid[13][12], # Score input box to record players high score; Location
                             [gui.grid_square*6, gui.grid_square*2]) # Size
 
 # ////////////////////////////////////////////////////////////[First-Player GUI]////////////////////////////////////////////////////////////////////////
@@ -298,14 +302,16 @@ def ai_player(window, clock, window_size, sound_controller):
                 pg.draw.rect(window, COLOR['white'], score_input_box, 2, border_radius=10)
 
                 # Render text linked to high score
-                score_text = ds.FONTS['default_medium'].render('New High-Score', True, COLOR['black'])
+                score_text = ds.FONTS['default_medium2'].render('New High-Score!', True, COLOR['black'])
+                enter_initials = ds.FONTS['default_small'].render('Enter your initials:', True, COLOR['black'])
                 score_number = ds.FONTS['default_large'].render(f'{score[player]}', True, COLOR['red'])
                 input_text = ds.FONTS['default_large'].render(user_text, True, COLOR['white'])
 
                 # Render text and swaps buffer
-                window.blit(score_text, (score_input_box.x-gui.grid_square*2, score_input_box.y - gui.grid_square * 4))
-                window.blit(score_number, (score_input_box.center[0]-gui.grid_square*2, score_input_box.y - gui.grid_square * 2))
-                window.blit(input_text, (score_input_box.x+gui.grid_square, score_input_box.y+10))
+                window.blit(score_text, (score_input_box.x-gui.grid_square*2.5, score_input_box.y - gui.grid_square * 4.5))
+                window.blit(enter_initials, (score_input_box.x-gui.grid_square*.5, score_input_box.y - gui.grid_square * 1))
+                window.blit(score_number, (score_input_box.center[0]-gui.grid_square*2, score_input_box.y - gui.grid_square * 3))
+                window.blit(input_text, (score_input_box.x+gui.grid_square, score_input_box.y))
                 next_button.render(window)
                 pg.display.flip()
 
@@ -327,16 +333,17 @@ def ai_player(window, clock, window_size, sound_controller):
                         if next_button.clicked(mouse_position): return None
 
             # Calculate text output for first place
-            score_one = ds.FONTS['default_medium'].render(f'First Place:      {score_sort[-1]} | {sc.settings_conduit["scores"][score_sort[-1]]}', True, COLOR['black'])
-            score_two = ds.FONTS['default_medium'].render(f'Second Place: {score_sort[-2]} | {sc.settings_conduit["scores"][score_sort[-2]]}', True, COLOR['black'])
-            score_third = ds.FONTS['default_medium'].render(f'Third Place:     {score_sort[-3]} | {sc.settings_conduit["scores"][score_sort[-3]]}', True, COLOR['black'])
-            score_fourth = ds.FONTS['default_medium'].render(f'Fourth Place:   {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
-            score_fifth = ds.FONTS['default_medium'].render(f'Fifth Place:      {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
+            score_one = ds.FONTS['default_medium'].render(f'First Place:      {score_sort[-1]} | {sc.settings_conduit["scores"][score_sort[-1]]}', True, COLOR['royal_jelly'])
+            score_two = ds.FONTS['default_small2'].render(f'Second Place:      {score_sort[-2]} | {sc.settings_conduit["scores"][score_sort[-2]]}', True, COLOR['vapor_blue'])
+            score_third = ds.FONTS['default_small2'].render(f'Third Place:          {score_sort[-3]} | {sc.settings_conduit["scores"][score_sort[-3]]}', True, COLOR['vapor_blue'])
+            score_fourth = ds.FONTS['default_small'].render(f'Fourth Place:          {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
+            score_fifth = ds.FONTS['default_small'].render(f'Fifth Place:              {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
+            # NOTE: the spacing between the "Place:"" and arguments is for formating in game
 
             # Renders leaderboard
             end_menu.blit_update(window)
             high_score_subsurface.fill(COLOR['grey'])
-            high_score_subsurface.blit(high_score_text, [10, 10])
+            high_score_subsurface.blit(high_score_text, [151, 10])
             high_score_subsurface.blit(score_one, [10, gui.grid_square*2])
             high_score_subsurface.blit(score_two, [10, gui.grid_square*3])
             high_score_subsurface.blit(score_third, [10, gui.grid_square*4])
@@ -346,9 +353,10 @@ def ai_player(window, clock, window_size, sound_controller):
             # Renders buttons & flips buffer
             restart_button.render(window)
             main_menu_button.render(window)
-            if agents > 1 and player == 0: next_button.render(window)
+            #if agents > 1 and player == 0: next_button.position = gui.grid[23][15]; next_button.render(window)
             window.blit(high_score_subsurface, high_score_position)
             pg.display.flip()
+
 
         return None # Exiting return
 

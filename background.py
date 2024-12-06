@@ -8,11 +8,12 @@ import random as rn
 Creates a background to be rendered on the base frame behind other GUI objects.
 '''
 class Background:
-    def __init__(self, window, window_size, surface_number=24, transparency=255, rgb=(100, 100, 100), speed=1):
+    def __init__(self, window, window_size, surface_number=24, transparency=200, rgb=(100, 100, 100), speed=1):
         self.window_size = window_size
         self.surface_transparency = transparency #How transparent the frames are
         self.surface_number = surface_number # The number of surfaces generated
-        self.circle_color = (rgb[0], rgb[1], rgb[2], self.surface_transparency) # The color and transparency of the surface
+        self.base_color = [rgb[0], rgb[1], rgb[2], self.surface_transparency] # The color and transparency of the surface
+        self.circle_colors = [[rgb[0]+rn.randint(0, n), rgb[1], rgb[2], self.surface_transparency] for n in range(self.surface_number)]
         self.surface_list = self.generate_surfaces() # List of surfaces defines with input variables
         self.surface_color = (0, 0, 0, 0)
         # Animation variables
@@ -22,9 +23,6 @@ class Background:
         self.speed = speed
         #self.surface_direction = [rn.choice([True, False]) for _ in range(self.surface_number)]
         #print(self.surface_positions)
-
-
-
 
 
     def generate_surfaces(self):
@@ -45,7 +43,7 @@ class Background:
             rotated_rect = rotated.get_rect(center=(surface_center))
             face.fill(self.surface_color)
             pg.draw.circle(face,
-            self.circle_color,
+            self.circle_colors[n],
             surface_center,
             face.get_width()/2)
 

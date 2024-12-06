@@ -13,7 +13,7 @@ Calls outside of game-loop can reference imported file object.
 GAME_STATE = { # Game state for game state navigation
     'menu':     0, # Main menu
     'settings': 1, # User define setting menu
-    'p1_game':  2, # Single player tetris
+    'tetris_game':  2, # Single player tetris
     'tutorial': 3,  # Tutorial screen
     'ai': 4 # AI versus player
 }

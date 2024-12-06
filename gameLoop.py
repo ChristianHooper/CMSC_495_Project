@@ -13,11 +13,11 @@ import pygame as pg
 import numpy as np
 
 '''
-one_player TODO: Rename function
+tetris_game
 -------------
 Default called to create a single or multi-layer tetris game.
 '''
-def one_player(window, clock, window_size, sound_controller):
+def tetris_game(window, clock, window_size, sound_controller):
 
     # Declares and defines GUI attributes and creates tetris game frame objects
     agents = sc.settings_conduit['aspect_ratio'] # Constraining variable for multiplayer & single player
@@ -71,13 +71,17 @@ def one_player(window, clock, window_size, sound_controller):
                             inflate = [gui.grid_square/4, gui.grid_square/4]
     )
 
-    next_button = Button(position = gui.grid[21][15], # Navigates to the main menu
-                        button_color = COLOR['green'],
-                        text_color = COLOR['white'],
-                        font = ds.FONTS['default_medium'],
+    next_button = Button(position = gui.grid[20][13], # Navigates to the main menu
+                        button_color = COLOR['vapor_blue'],
+                        text_color = COLOR['powder_pink'],
+                        font = ds.FONTS['default_medium2'],
                         text = '>',
-                        hover_color = COLOR['red']
+                        hover_color = COLOR['mono_white'],
+                        text_outline = True,
+                        outline_size = 4,
+                        inflate = [gui.grid_square/4, gui.grid_square/4]
     )
+
 
     input_score_menu = element(window, # GUI element for end of game window
                         gui.grid[10][7], # Location of surface, centered
@@ -298,7 +302,7 @@ def one_player(window, clock, window_size, sound_controller):
                 window.blit(enter_initials, (score_input_box.x-gui.grid_square*.5, score_input_box.y - gui.grid_square * 1))
                 window.blit(score_number, (score_input_box.center[0]-gui.grid_square*2, score_input_box.y - gui.grid_square * 3))
                 window.blit(input_text, (score_input_box.x+gui.grid_square, score_input_box.y))
-                next_button.render(window)
+                next_button.position = gui.grid[20][13]; next_button.render(window)
                 pg.display.flip()
 
         score_sort = sorted(sc.settings_conduit['scores'], key=lambda key : sc.settings_conduit['scores'][key]) # Resorts scores
@@ -314,7 +318,7 @@ def one_player(window, clock, window_size, sound_controller):
 
                     if event.button == 1: # Left-click button
                         mouse_position = pg.mouse.get_pos()
-                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
+                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['tetris_game']
                         if main_menu_button.clicked(mouse_position): return ds.GAME_STATE['menu']
                         if next_button.clicked(mouse_position): return None
 
@@ -324,7 +328,7 @@ def one_player(window, clock, window_size, sound_controller):
             score_third = ds.FONTS['default_small2'].render(f'Third Place:          {score_sort[-3]} | {sc.settings_conduit["scores"][score_sort[-3]]}', True, COLOR['vapor_blue'])
             score_fourth = ds.FONTS['default_small'].render(f'Fourth Place:          {score_sort[-4]} | {sc.settings_conduit["scores"][score_sort[-4]]}', True, COLOR['black'])
             score_fifth = ds.FONTS['default_small'].render(f'Fifth Place:              {score_sort[-5]} | {sc.settings_conduit["scores"][score_sort[-5]]}', True, COLOR['black'])
-            # NOTE: the spacing between the "Place:"" and arguments is for formating in game
+            # NOTE: the spacing between the "Place:"" and arguments is for formatting in game
 
             # Renders leaderboard
             end_menu.blit_update(window)
@@ -339,7 +343,7 @@ def one_player(window, clock, window_size, sound_controller):
             # Renders buttons & flips buffer
             restart_button.render(window)
             main_menu_button.render(window)
-            if agents > 1 and player == 0: next_button.render(window)
+            if agents > 1 and player == 0: next_button.position = gui.grid[23][15]; next_button.render(window)
             window.blit(high_score_subsurface, high_score_position)
             pg.display.flip()
 
@@ -368,7 +372,7 @@ def one_player(window, clock, window_size, sound_controller):
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     if event.button == 1: # Left-click button
                         mouse_position = pg.mouse.get_pos()
-                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['p1_game']
+                        if restart_button.clicked(mouse_position): return ds.GAME_STATE['tetris_game']
                         if main_menu_button.clicked(mouse_position): return ds.GAME_STATE['menu']
 
                 elif event.type == sound.bgm_end_event: sound.bgm_ending() # End sound event
@@ -430,7 +434,7 @@ def one_player(window, clock, window_size, sound_controller):
                     paused = True # Sets pause condition to true
                     paused = pause_loop(paused) # Sets pause condition to false
                     if type(paused) == type(ds.GAME_STATE['menu']): return paused
-                    if paused == ds.GAME_STATE['p1_game']: return paused
+                    if paused == ds.GAME_STATE['tetris_game']: return paused
                     pause_timer = 0
 
 #/////////////////////////////////////////////////////////////[Player-One Keys]///////////////////////////////////////////////////////////////////////
@@ -573,6 +577,9 @@ def one_player(window, clock, window_size, sound_controller):
 
         tst.render_tetris(window) # Render the entire tetris game frame
 
+        # Checks if game is over form single and multi-player sessions
+        if agents > 1 and ts.game_over and tst.game_over: conclude(game_over, 0); return conclude(game_over, 1)
+        if ts.game_over and agents == 1: return conclude(game_over, 0) # Checks is game is over
 
         # Render grab-bag
         grab_bag.blit_update(window)
@@ -621,10 +628,6 @@ def one_player(window, clock, window_size, sound_controller):
         window.blit(level_subsurface, level_position)
 
         pg.display.flip()
-
-        # Checks if game is over form single and multi-player sessions
-        if agents > 1 and ts.game_over and tst.game_over: conclude(game_over, 0); return conclude(game_over, 1)
-        if ts.game_over and agents == 1: return conclude(game_over, 0) # Checks is game is over
 
         #clock.tick(ds.FPS_CAP['default']) # Adheres game ticks to set FPS
         print(f"SPF: {clock.tick() / 1000}", end="\r")

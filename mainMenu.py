@@ -143,14 +143,14 @@ def main_menu(window, clock, window_size):
                         sc.settings_conduit['aspect_ratio']=1
                         sc.settings_conduit['grid_size']=12
                         sc.save_settings()
-                        return ds.GAME_STATE['p1_game'] # Game state machine return
+                        return ds.GAME_STATE['tetris_game'] # Game state machine return
 
                     # Two-players tetris game
                     if game_button_two.clicked(mouse_position):
                         sc.settings_conduit['aspect_ratio']=2
                         sc.settings_conduit['grid_size']=12
                         sc.save_settings()
-                        return ds.GAME_STATE['p1_game'] # Game state machine return
+                        return ds.GAME_STATE['tetris_game'] # Game state machine return
 
                     # AI versus tetris game
                     if game_button_ai.clicked(mouse_position):

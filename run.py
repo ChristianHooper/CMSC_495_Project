@@ -7,7 +7,7 @@ import dataStructures as ds # Non game-loop use
 import guiController as gui # GUI controller for element placement
 from settingsController import settings_conduit as sc # JSON settings controller
 from tetrominoes import tetrominoes # Tetris blocks
-from gameLoop import one_player # Runs game-loop
+from gameLoop import tetris_game # Runs game-loop
 from aiGameLoop import ai_player
 from settings import settings # Runs settings menu
 from tutorial import tutorial
@@ -39,9 +39,6 @@ def main(): # Main function that acts as the game controller
     window = pg.display.set_mode(window_size, pg.HWSURFACE | pg.DOUBLEBUF)
     clock = pg.time.Clock() # Starts game clock
     pg.display.set_caption("G5-Tetris") # Group-Five-Tetris
-    
-    icon = pg.image.load('resources/G5-Tetris.png')
-    pg.display.set_icon(icon)
 
     # Initialize Sound Controller
     sound_controller = SoundController()
@@ -70,8 +67,8 @@ def main(): # Main function that acts as the game controller
                 game_state = attending_state
 
         # Game-loop
-        if game_state == ds.GAME_STATE['p1_game']:
-            attending_state = one_player(window, clock, window_size, sound_controller)
+        if game_state == ds.GAME_STATE['tetris_game']:
+            attending_state = tetris_game(window, clock, window_size, sound_controller)
             if attending_state == None:
                 running = False
             else:
@@ -94,7 +91,7 @@ def main(): # Main function that acts as the game controller
                 game_state = attending_state
 
     # Cleans & terminates program
-    #sound_controller.stop_background_music() # Stop background music when exiting
+    sound_controller.stop_bgm() # Stop background music when exiting
     pg.quit()
     sys.exit()
 
