@@ -110,7 +110,7 @@ TETROMINOES = { # Shape and size of the tetrominoes defines by matrices, can be 
 
 POPULATION = 12 # AI agent population to be tested in each epoch/generation
 
-GENERATIONS = 100 # Number of generation AI testing simulation is run
+GENERATIONS = 500 # Number of generation AI testing simulation is run
 
 PRIME = { # Selected chromosome of AI agent
             "Smoothness": 0.2867956688508934,

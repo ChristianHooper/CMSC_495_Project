@@ -496,7 +496,6 @@ class TetrisController:
                 column_read.append([null_count, block_count]) # Appends column grid square count
         self.column_read_out = np.array(column_read) # Converts number readout for processing, holds vertical count of each columns fillable and non fillable grid spaces
         self.simple_read_out = self.column_read_out[:, 1] # Holds count of unfillable grid spaces over each column
-    #print(self.simple_read_out)
 
     '''
     # Summates all current static blocks

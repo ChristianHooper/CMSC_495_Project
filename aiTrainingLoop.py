@@ -29,6 +29,7 @@ def main(): # Render Parameter, starting function for AI training
     os.environ['SDL_VIDEO_WINDOW_POS'] = '100,100' # Positions game window at (0, 0) Left-side of screen
     running = True # If game is running
     window_size = ds.SCREEN_SIZE[sc.settings_conduit['screen_size']] # Default window size (x, y)
+    sc.settings_conduit['grid_size']=12
 
     # Window display on GPU, dual buffer
     window = pg.display.set_mode(window_size, pg.HWSURFACE | pg.DOUBLEBUF)
@@ -36,22 +37,23 @@ def main(): # Render Parameter, starting function for AI training
     pg.display.set_caption("G5-Tetris") # Group-Five-Tetris
 
     # Initialize Sound Controller
-    sound_controller = SoundController()
-    sound_controller.play_bgm()  # Start background music
+    #sound_controller = SoundController()
+    #sound_controller.play_bgm()  # Start background music
 
-    ai_training(window, clock, window_size, sound_controller) # Start simulation run
+    ai_training(window, clock, window_size) # Start simulation run
 
 '''
 ai_training
 -------------
 Starts simulation runs for training AI complex.
 '''
-def ai_training(window, clock, window_size, sound_controller):
+def ai_training(window, clock, window_size):
     agents = 2 # Constraining factor for multiplayer
-    tst = TetrisController(window_size, [0, 1], agents, player_two=True)  # TetrisController class, player two
+    tst = TetrisController(window_size, [0, 1], agents, player_two=True, fx=False, ai=True)  # TetrisController class, player two
     score = [0, 0]; level = [1, 1]; line_count = [0, 0] # Score information
 
     ai = aiComplex() # Creates the complex of AI agents to be trained
+    #print(ai.population)
 
 #/////////////////////////////////////////////////////////////////[Training Functions]///////////////////////////////////////////////////////////////////
     '''
@@ -122,10 +124,19 @@ def ai_training(window, clock, window_size, sound_controller):
                 tst.movement(y_change=1)
                 tst.gravity()
 
+            '''
             if tst.cleared_rows: # Second player line cleared
                 scores = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
                 score[1] = score[1] + scores[1] # Sets new score
                 line_count[1] = line_count[1] + line_count[1] # Sets new line count
+                if line_count[1] - (10*(level[1])) >= 0:
+                    level[1] = level[1] + 1
+            '''
+
+            if tst.cleared_rows:
+                line_count[1] += len(tst.cleared_rows) # Sets new line count
+                product = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
+                score[1] += product # Sets new score
                 if line_count[1] - (10*(level[1])) >= 0:
                     level[1] = level[1] + 1
 
@@ -238,19 +249,31 @@ def ai_training(window, clock, window_size, sound_controller):
                                 if tst.transfer == True:
                                     read = False
                                     running = False
-                                    tst.movement(y_change=1)
+                                    tst.movement(y_change=1, ai_eval=True)
                                     move_list.append(tst.score(chromosome)) # Scores possible movement choice
 
                                  # Movement y-axis
                                 tst.movement(y_change=1)
                                 tst.gravity()
 
+                            '''
                             if tst.cleared_rows: # Second player line cleared
                                 scores = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
                                 score[1] = score[1] + scores[1] # Sets new score
                                 line_count[1] = line_count[1] + line_count[1] # Sets new line count
                                 if line_count[1] - (10*(level[1])) >= 0:
                                     level[1] = level[1] + 1
+                            '''
+
+                            if tst.cleared_rows:
+                                line_count[1] += len(tst.cleared_rows) # Sets new line count
+                                product = tst.line_score(score[1], line_count[1]) # Calculates new scores and lien count
+                                score[1] += product # Sets new score
+                                if line_count[1] - (10*(level[1])) >= 0:
+                                    level[1] = level[1] + 1
+
+
+
 
                             tst.update_grid() # Updates grid of mechanics and rendering based upon movement changes
                             gravity_timer = 0  # Resets the timer
