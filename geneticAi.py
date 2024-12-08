@@ -73,12 +73,12 @@ class aiComplex:
         attribute_list = ['Smoothness', 'Maximum', 'Minimum', 'Lines', 'Pit', 'Hole', 'Age']
         for _ in range(population_size): # REMOVED 'Heights':    random.uniform(0, 1), # Sum of all heights
             chromosome = { # Set of chromosomal weights
-                'Smoothness': random.uniform(0, 0.5), # Variance between heights
-                'Maximum':    random.uniform(0.4, 0.9), # Tallest stack
-                'Minimum':    random.uniform(-0.1, 0.2), # Lowest spot
-                'Lines':      random.uniform(0, 0.4), # Number of lines that could be cleared
-                'Pit':        random.uniform(0.6, 1.1),  # Number of 3 sided space
-                'Hole':       random.uniform(0.6, 1.1), # Percentage of hole compared to normal blocks
+                'Smoothness': random.uniform(0.1, 0.4), # Variance between heights
+                'Maximum':    random.uniform(0.4, 0.8), # Tallest stack
+                'Minimum':    random.uniform(-0.1, 0.1), # Lowest spot
+                'Lines':      random.uniform(0.1, 0.3), # Number of lines that could be cleared
+                'Pit':        random.uniform(1.0, 2.0),  # Number of 3 sided space
+                'Hole':       random.uniform(1.0, 2.0), # Percentage of hole compared to normal blocks
                 'Age':   0 # How many moves the AI agent lasted before running into a Game Over state; the evaluation metric for for AIs
             }
             population.append(chromosome)

@@ -11,6 +11,7 @@ import guiController as gui
 
 # Imported libraries
 from pprint import pprint
+import random
 import pygame as pg
 import numpy as np
 import copy
@@ -400,7 +401,6 @@ def ai_player(window, clock, window_size, sound_controller):
     Places out the selected move for the AI, from the selected COMMANDS sequence.
     '''
     def selection_movement():
-        chromosome = ds.PRIME # Defines the chromosome
         read = False # If ACTIONS in COMMANDS have been run
         moving = True # If the tetrominoes is moving vertically
         move_list = [] # Lists of possible moves over one sequence
@@ -460,6 +460,8 @@ def ai_player(window, clock, window_size, sound_controller):
 
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    chromosome = random.choice((ds.THETA, ds.OMEGA, ds.PRIME)) # Selects chromosome randomly
 
     running = True # Defines if the game-loop is running
     paused = False # If the game is paused
@@ -675,19 +677,20 @@ def ai_player(window, clock, window_size, sound_controller):
         #bg.render_ground(window) # Render background
         ts.render_tetris(window) # Render the entire tetris game frame
 
+
         if move_selection != None: tst.render_tetris(window) # Render the entire tetris game frame
         elif move_selection == None: ai_tetris_copy.render_tetris(window)
 
         # Render grab-bag
         grab_bag.blit_update(window)
         ts.render_next_tetromino(window, next_position) # Display the next tetromino
-
+        ai_name = ds.FONTS['default_small'].render(chromosome['Age'], False, COLOR['deep_red']) # Renders AIs name
 
         if agents > 1:
+            window.blit(ai_name, gui.grid[17][5])
             # Render score UI
             grab_bag_two.blit_update(window)
             tst.render_next_tetromino(window, next_position_two) # Display the next tetromino
-
             # Render line score UI
             score_ui_two.blit_update(window)
             score_subsurface_two.fill((200, 200, 245))

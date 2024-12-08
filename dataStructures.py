@@ -112,12 +112,35 @@ POPULATION = 12 # AI agent population to be tested in each epoch/generation
 
 GENERATIONS = 500 # Number of generation AI testing simulation is run
 
-PRIME = { # Selected chromosome of AI agent
+# Chromosomes of AI agents
+PRIME = { # First generation AI, keeps an even stack but will create holes more often than other AIs (# Worst)
             "Smoothness": 0.2867956688508934,
             "Maximum": 0.6312906097241524,
             "Minimum": 0.07999705718157621,
             "Lines": 0.20483005766792878,
-            "Pit": 0.8249497156837208, # 0.7249497156837208
-            "Hole": 1.0249497156837208, # 0.7249497156837208
-            "Age": 616
+            "Pit": 0.7249497156837208,
+            "Hole": 0.7249497156837208,
+            "Age": "PRIME" #616
+        }
+
+
+OMEGA = { # Improved version of PRIME, is more likely to use wells (Second best)
+            "Smoothness": 0.25220735931102267,
+            "Maximum": 0.6980388502756927,
+            "Minimum": 0.0018409830379700258,
+            "Lines": 0.19092015949795282,
+            "Pit": 0.9983919932857324,
+            "Hole": 0.9983919932857324,
+            "Age": "OMEGA" #721
+        }
+
+
+THETA = { # Uses well strategy, can score quite high but over reliant of I & i tetrominoes (Best)
+            "Smoothness": 0.1521841107677646,
+            "Maximum": 0.48655131798983864,
+            "Minimum": -0.01965834444255479,
+            "Lines": 0.2608404432357759,
+            "Pit": 1.500047536988923,
+            "Hole": 1.500047536988923,
+            "Age": "THETA" #1412
         }
