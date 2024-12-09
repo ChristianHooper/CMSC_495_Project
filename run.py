@@ -4,8 +4,9 @@
 
 # Project Files
 import dataStructures as ds # Non game-loop use
-import guiController as gui # GUI controller for element placement
+import settingsController
 from settingsController import settings_conduit as sc # JSON settings controller
+import guiController as gui # GUI controller for element placement
 from tetrominoes import tetrominoes # Tetris blocks
 from gameLoop import tetris_game # Runs game-loop
 from aiGameLoop import ai_player

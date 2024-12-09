@@ -7,6 +7,7 @@ from button import Button
 from soundController import SoundController
 import math
 import random
+from resource_path import resource_path
 
 '''
 main_menu
@@ -168,7 +169,7 @@ def main_menu(window, clock, window_size):
         # Title animation
         animation_time += clock.get_time() # Defines x-value for equation
         alpha = (math.sin(animation_time/stretch) + 1) * (increase/2) # Animation algorithm; $f(x)=(\sin(\frac{x}{x-axis_stretch}+1)\cdot{\frac{y-axis_height}{2}})$
-        title_text = pg.font.Font('resources/Gabato.ttf', int(164+alpha)).render('G5-Tetris', True, ds.COLOR['royal_jelly']) # Title text attributes
+        title_text = pg.font.Font(resource_path('resources/Gabato.ttf'), int(164+alpha)).render('G5-Tetris', True, ds.COLOR['royal_jelly']) # Title text attributes
         title_position = title_text.get_rect(center=gui.grid[16][3]) # Position of where text will render
 
         # Tetris game frame logic

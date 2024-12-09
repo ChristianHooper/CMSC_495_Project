@@ -1,6 +1,9 @@
 from settingsController import settings_conduit as sc
 import pygame as pg
 import numpy as np
+import sys
+import os
+from resource_path import resource_path
 pg.init()
 
 '''
@@ -75,12 +78,12 @@ GRAVITY_SPEED = 500 # Starting default gravity speed for tetris game (millisecon
 KEY_PRESS_SPEED = 100 # Default key press response rate in tetris game (milliseconds)
 
 FONTS = { # All font objects used across the game
-    'default_large': pg.font.Font('resources/retro_gaming.ttf', 50),
-    'default_medium2': pg.font.Font('resources/retro_gaming.ttf', 34),
-    'default_medium': pg.font.Font('resources/retro_gaming.ttf', 24),
-    'default_small2': pg.font.Font('resources/retro_gaming.ttf', 20),
-    'default_small': pg.font.Font('resources/retro_gaming.ttf', 18),
-    'title_font': pg.font.Font('resources/Gabato.ttf', 64)
+    'default_large': pg.font.Font(resource_path('resources/retro_gaming.ttf'), 50),
+    'default_medium2': pg.font.Font(resource_path('resources/retro_gaming.ttf'), 34),
+    'default_medium': pg.font.Font(resource_path('resources/retro_gaming.ttf'), 24),
+    'default_small2': pg.font.Font(resource_path('resources/retro_gaming.ttf'), 20),
+    'default_small': pg.font.Font(resource_path('resources/retro_gaming.ttf'), 18),
+    'title_font': pg.font.Font(resource_path('resources/Gabato.ttf'), 64)
     # 'retro_large': pg.font.Font('resources/retro_gaming.ttf' , 50)
 }
 

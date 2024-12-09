@@ -1,5 +1,6 @@
 import pygame as pg
 import random
+from resource_path import resource_path
 
 
 
@@ -22,21 +23,21 @@ class SoundController:
 
         # Use `pygame.mixer.music` for the background music
         self.bgm_path = 'sounds/background_music.mp3'  # File path to the background music
-        self.line_clear_sound = pg.mixer.Sound('sounds/clear_line.wav')
-        self.game_over_sound = pg.mixer.Sound('sounds/game_over.wav')
-        self.rotate_sound = pg.mixer.Sound('sounds/rotate.wav')
-        self.drop_sound = pg.mixer.Sound('sounds/drop_sound.wav')
-        self.level_sound = pg.mixer.Sound('sounds/levelup_sound.wav')
-        self.start_sound = pg.mixer.Sound('sounds/start_sound.wav')
-        self.pause_sound = pg.mixer.Sound('sounds/pause_sound.wav')
+        self.line_clear_sound = pg.mixer.Sound(resource_path('sounds/clear_line.wav'))
+        self.game_over_sound = pg.mixer.Sound(resource_path('sounds/game_over.wav'))
+        self.rotate_sound = pg.mixer.Sound(resource_path('sounds/rotate.wav'))
+        self.drop_sound = pg.mixer.Sound(resource_path('sounds/drop_sound.wav'))
+        self.level_sound = pg.mixer.Sound(resource_path('sounds/levelup_sound.wav'))
+        self.start_sound = pg.mixer.Sound(resource_path('sounds/start_sound.wav'))
+        self.pause_sound = pg.mixer.Sound(resource_path('sounds/pause_sound.wav'))
 
         self.bgm = { # Holds back ground music file locations
-            'bear':         'audio/Bear.mp3',
-            'gummy':        'audio/Gummy.mp3',
-            'overflowin':   'audio/Overflowin.mp3',
-            'vendor':       'audio/Vendor.mp3',
-            'Wax':          'audio/Wax.mp3',
-            'Classic':      'sounds/background_music.mp3'
+            'bear':         resource_path('audio/Bear.mp3'),
+            'gummy':        resource_path('audio/Gummy.mp3'),
+            'overflowin':   resource_path('audio/Overflowin.mp3'),
+            'vendor':       resource_path('audio/Vendor.mp3'),
+            'Wax':          resource_path('audio/Wax.mp3'),
+            'Classic':      resource_path('sounds/background_music.mp3')
         }
         self.volume = 0.05
 
